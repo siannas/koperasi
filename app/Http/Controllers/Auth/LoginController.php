@@ -20,6 +20,16 @@ class LoginController extends Controller
 
     use AuthenticatesUsers;
 
+    public function username()
+    {
+        return 'username';
+    }
+
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
+
     /**
      * Where to redirect users after login.
      *

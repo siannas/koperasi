@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUsersTable extends Migration
+class CreateAkunsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,12 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('akun', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('nama');
-            $table->string('username')->unique();
-            $table->string('password');
-            $table->string('nip',18);
-            $table->rememberToken();
+            $table->integer('id-kategori')->unsigned();
+            $table->string('no-akun',18)->unique();
+            $table->string('nama-akun',50);
+            $table->foreign('id-kategori')->references('id')->on('kategori');
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('akun');
     }
 }
