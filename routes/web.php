@@ -13,10 +13,14 @@
 
 Auth::routes();
 
-Route::middleware(['auth'])->group(function () {
+Route::prefix('{tipe}')->middleware(['auth','customize.parameter'])->group(function () {
     Route::get('/', function () {
         return view('dashboard');
     });  
+
+    Route::resource('jurnal', 'JurnalController');
+
+    Route::get('tes', 'TesController@index');
 });
 
 // Route::get('/home', 'HomeController@index')->name('home');

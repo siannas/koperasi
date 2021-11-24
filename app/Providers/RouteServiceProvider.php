@@ -26,6 +26,10 @@ class RouteServiceProvider extends ServiceProvider
         //
 
         parent::boot();
+
+        Route::bind('tipe', function ($value) {
+            return \App\Tipe::where('tipe', $value)->first() ?? abort(404);
+        });
     }
 
     /**
