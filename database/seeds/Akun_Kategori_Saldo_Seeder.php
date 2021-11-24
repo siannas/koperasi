@@ -124,6 +124,15 @@ class Akun_Kategori_Saldo_Seeder extends Seeder
      */
     public function run()
     {
+        $tipes=[];
+        foreach (['simpan-pinjam', 'foto-copy', 'toko'] as $a) {
+            $tipe = \App\Tipe::create([
+                'tipe'=> $a,
+            ]);
+            array_push( $tipes, $tipe);
+        }
+
+        //data simpan-pinjam
         foreach ($this->akuns as $i => $a) {
             $kategori = $this->kategoris[$i];
             $kategori = \App\Kategori::create([
@@ -133,12 +142,14 @@ class Akun_Kategori_Saldo_Seeder extends Seeder
             foreach ($a as $aa) {
                 $akun = \App\Akun::create([
                     'id-kategori'=> $kategori->id,
+                    'id-tipe'=> $tipes[0]->id,
                     'no-akun'=>$aa[0],
                     'nama-akun'=>$aa[1],
                     'saldo'=>5000000
                 ]);
                 \App\Saldo::create([
                     'no-akun'=>$akun->{'no-akun'},
+                    'id-tipe'=>$akun->{'id-tipe'},
                     'id-kategori'=>$akun->{'id-kategori'},
                     'saldo'=>$akun->saldo,
                     'tanggal'=>'2021-11-01'

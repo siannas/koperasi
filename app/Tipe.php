@@ -4,9 +4,11 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Akun extends Model
+class Tipe extends Model
 {
-    protected $table = 'akun';
+    protected $table = 'tipe';
+    
+    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
@@ -14,11 +16,7 @@ class Akun extends Model
      * @var array
      */
     protected $fillable = [
-        'id-kategori', 
-        'no-akun', 
-        'id-tipe', 
-        'nama-akun',
-        'saldo',
+        'tipe',
     ];
 
     /**
