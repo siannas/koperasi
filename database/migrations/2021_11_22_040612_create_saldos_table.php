@@ -15,10 +15,12 @@ class CreateSaldosTable extends Migration
     {
         Schema::create('saldo', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('id-akun')->unsigned();
+            $table->integer('id-kategori')->unsigned();
+            $table->string('no-akun',18);
             $table->unsignedDecimal('saldo', $precision = 13, $scale = 2);
             $table->date('tanggal');
-            $table->foreign('id-akun')->references('id')->on('akun');
+            $table->foreign('id-kategori')->references('id-kategori')->on('akun')->cascadeOnUpdate();
+            $table->foreign('no-akun')->references('no-akun')->on('akun')->cascadeOnUpdate()->restrictOnDelete();
         });
     }
 

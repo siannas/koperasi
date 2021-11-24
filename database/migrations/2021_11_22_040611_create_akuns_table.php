@@ -15,10 +15,11 @@ class CreateAkunsTable extends Migration
     {
         Schema::create('akun', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('id-kategori')->unsigned();
+            $table->integer('id-kategori')->unsigned()->nullable();
             $table->string('no-akun',18)->unique();
             $table->string('nama-akun',50);
-            $table->foreign('id-kategori')->references('id')->on('kategori');
+            $table->unsignedDecimal('saldo', $precision = 13, $scale = 2);
+            $table->foreign('id-kategori')->references('id')->on('kategori')->nullOnDelete();
             $table->timestamps();
         });
     }

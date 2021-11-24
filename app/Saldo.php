@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Saldo extends Model
 {
     protected $table = 'saldo';
+    
+    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
@@ -14,7 +16,8 @@ class Saldo extends Model
      * @var array
      */
     protected $fillable = [
-        'id-akun',
+        'no-akun',
+        'id-kategori',
         'saldo',
         'tanggal',
     ];

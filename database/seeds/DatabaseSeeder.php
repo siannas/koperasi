@@ -12,7 +12,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call(UsersTableSeeder::class);
+        $this->call([
+            Akun_Kategori_Saldo_Seeder::class
+        ]);
 
         DB::table('users')->insert([
             [

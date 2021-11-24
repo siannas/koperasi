@@ -17,6 +17,7 @@ class Akun extends Model
         'id-kategori', 
         'no-akun', 
         'nama-akun',
+        'saldo',
     ];
 
     /**
