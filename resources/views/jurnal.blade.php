@@ -16,21 +16,56 @@ Jurnal
             <i class="material-icons">clear</i>
             </button>
         </div>
+        <form class="form-horizontal input-margin-additional" method="POST" action="{{route('jurnal.store', ['tipe'=>$currentTipe->tipe])}}">
+            @csrf
         <div class="modal-body">
-            <form class="form-horizontal">
                 <div class="form-group">
-                    <input type="text" class="form-control datepicker" id="date">
+                    <input type="text" class="form-control datepicker" id="date" name="tanggal" required>
                 </div>
                 <div class="form-group">
                     <label for="keterangan" class="bmd-label-floating">Keterangan</label>
-                    <input type="text" class="form-control" id="keterangan">
+                    <input type="text" class="form-control" id="keterangan" name="keterangan" required>
                 </div>
-            </form>
+                <div class="row" style="margin-top: -8px;">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="selectdebit" class="bmd-label-floating" style="font-size:11px;">Akun Debit</label>
+                            <select id="selectdebit" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Single Select" name="id-debit" required>
+                                @foreach($akuns as $a)
+                                <option value="{{$a->id}}">{{$a->{'nama-akun'} }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="debit" class="bmd-label-floating">Debit</label>
+                            <input type="text" class="form-control rupiah-input" id="debit" name="debit-dummy" required
+                                onchange="this.nextSibling.nextSibling.value=parseFloat(this.value.replace(/Rp|,/g, '')).toFixed(2)">
+                            <input type="hidden" readonly name="debit" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="selectdebit" class="bmd-label-floating" style="font-size:11px;">Akun Kredit</label>
+                            <select id="selectdebit" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Single Select" name="id-kredit" required>
+                                @foreach($akuns as $a)
+                                <option value="{{$a->id}}">{{$a->{'nama-akun'} }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="kredit" class="bmd-label-floating">Kredit</label>
+                            <input type="text" class="form-control rupiah-input" id="kredit" name="kredit-dummy" required
+                                onchange="this.nextSibling.nextSibling.value=parseFloat(this.value.replace(/Rp|,/g, '')).toFixed(2)">
+                            <input type="hidden" readonly name="kredit" required>
+                        </div>
+                    </div>
+                </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-link text-primary">Simpan</button>
+            <button type="submit" class="btn btn-link text-primary">Simpan</button>
             <button type="button" class="btn btn-danger btn-link" data-dismiss="modal">Tutup</button>
         </div>
+        </form>
         </div>
     </div>
 </div>
@@ -82,25 +117,27 @@ Jurnal
                 </tr>
                 </tfoot>
                 <tbody>
+                @foreach($jurnals as $j)
                 <tr>
                     <td class="dt-control">
                         <button class="btn btn-success btn-round btn-fab btn-sm mr-1">
                         <i class="material-icons">add</i>
                         </button>
                     </td>
-                    <td>21-Jan-20</td>
-                    <td>Penjualan Tunai</td>
-                    <td>1-11110</td>
-                    <td>20000</td>
-                    <td>2-91010</td>
-                    <td>7200</td>
+                    <td>{{$j->tanggal}}</td>
+                    <td>{{$j->keterangan}}</td>
+                    <td>{{$j->akunDebit->{'no-akun'} }}</td>
+                    <td>Rp{{ number_format($j->debit, 2) }}</td>
+                    <td>{{$j->akunKredit->{'no-akun'} }}</td>
+                    <td>Rp{{ number_format($j->kredit, 2) }}</td>
                     <td class="text-right">
                     <a href="#" class="btn btn-link btn-warning btn-just-icon edit"><i class="material-icons">dvr</i></a>
                     <a href="#" class="btn btn-link btn-danger btn-just-icon remove"><i class="material-icons">close</i></a>
                     </td>
-                    <td>Kas</td>
-                    <td>Pendapatan Fotocopy</td>
+                    <td hidden>{{$j->akunDebit->{'nama-akun'} }}</td>
+                    <td hidden>{{$j->akunKredit->{'nama-akun'} }}</td>
                 </tr>
+                @endforeach
                 </tbody>
             </table>
             </div>
@@ -168,24 +205,7 @@ $(document).ready(function() {
             btn.html('<i class="material-icons">remove</i>')
 		}
 	} );
-
-    // Add event listener for opening and closing details
-    // $('#datatables tbody').on('click', 'td.dt-control', function () {
-    //     var tr = $(this).closest('tr');
-    //     var row = table.row( tr );
-    //     console.log(row);
- 
-    //     if ( row.child.isShown() ) {
-    //         // This row is already open - close it
-    //         row.child.hide();
-    //         tr.removeClass('shown');
-    //     }
-    //     else {
-    //         // Open this row
-    //         row.child( format(row.data()) ).show();
-    //         tr.addClass('shown');
-    //     }
-    // } );
+    
 } );
 </script>
 @endsection

@@ -17,7 +17,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', 'DashboardController@dashboard');
 
     Route::prefix('{tipe}')->middleware(['customize.parameter'])->group(function(){
-        Route::resource('jurnal', 'JurnalController');
+        Route::resource('jurnal', 'JurnalController')->except([
+            'create',
+        ]);
 
         Route::get('tes', 'TesController@index');
     });

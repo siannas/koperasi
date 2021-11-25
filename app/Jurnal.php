@@ -14,11 +14,13 @@ class Jurnal extends Model
      * @var array
      */
     protected $fillable = [
+        'id-tipe',
         'id-debit',
         'id-kredit',
         'no-ref', 
-        'debet',
+        'debit',
         'kredit',
+        'tanggal',
         'keterangan',
     ];
 
@@ -29,4 +31,12 @@ class Jurnal extends Model
      */
     protected $hidden = [
     ];
+
+    public function akunDebit(){
+        return $this->belongsTo(Akun::class, 'id-debit');
+    }
+
+    public function akunKredit(){
+        return $this->belongsTo(Akun::class, 'id-kredit');
+    }
 }

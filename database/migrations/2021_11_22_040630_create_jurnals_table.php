@@ -17,12 +17,15 @@ class CreateJurnalsTable extends Migration
     {
         Schema::create('jurnal', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('id-tipe')->unsigned();
             $table->integer('id-debit')->unsigned();
             $table->integer('id-kredit')->unsigned();
-            $table->string('no-ref', 18);
+            $table->string('no-ref', 18)->nullable();
             $table->unsignedDecimal('debit', $precision = 13, $scale = 2);
             $table->unsignedDecimal('kredit', $precision = 13, $scale = 2);
             $table->string('keterangan', 100);
+            $table->date('tanggal');
+            $table->foreign('id-tipe')->references('id')->on('tipe');
             $table->foreign('id-debit')->references('id')->on('akun');
             $table->foreign('id-kredit')->references('id')->on('akun');
             $table->timestamps();

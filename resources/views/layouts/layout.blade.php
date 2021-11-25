@@ -496,6 +496,8 @@
 
       md.initVectorMap();
 
+      //input rupiah
+      $('.rupiah-input').blur(my.inputToRupiah);
     });
   </script>
   <script>
@@ -509,7 +511,6 @@
     });
     @endif
   </script>
-  @yield('script')
 </body>
 
 </html>

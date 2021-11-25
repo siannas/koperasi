@@ -3,6 +3,39 @@ const my = {
         var d = new Date(Date.now());
         return d.getDate()+'/'+d.getMonth()+'/'+d.getFullYear();
     },
+    "inputToRupiah": function (){    
+      var curval=this.value.replace(/Rp|,/g, "");
+      if (/^[\d.]*$/.test(curval)) {   //is it valid float number?
+        this.oldSelectionStart = this.selectionStart;
+        this.oldSelectionEnd = this.selectionEnd;
+        this.value = this.oldValue=  'Rp'+parseFloat(curval)
+          .toFixed(2)
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      } else if (this.hasOwnProperty("oldValue")) {      
+        this.value = this.oldValue;
+        this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+      } else {
+        this.value = "";
+      }
+    },
+    "formatRupiah": function(angka, prefix){
+      angka = angka.toString();
+      var number_string = angka.replace(/[^,\d]/g, '').toString(),
+      split   		= number_string.split(','),
+      sisa     		= split[0].length % 3,
+      rupiah     		= split[0].substr(0, sisa),
+      ribuan     		= split[0].substr(sisa).match(/\d{3}/gi);
+
+      // tambahkan titik jika yang di input sudah menjadi angka ribuan
+      if(ribuan){
+        separator = sisa ? '.' : '';
+        rupiah += separator + ribuan.join('.');
+      }
+
+      rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+      return 'Rp' + rupiah ;
+    },
     "initFormExtendedDatetimepickers": function() {
         $('.datetimepicker').datetimepicker({
           icons: {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class JurnalController extends Controller
 {
@@ -11,9 +12,22 @@ class JurnalController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('jurnal');
+        $tipe=$request->get('tipe');
+        $akuns = \App\Akun::where('id-tipe',$tipe->id)
+            ->select('id','nama-akun')
+            ->get();
+        $jurnals = \App\Jurnal::where('id-tipe',$tipe->id)
+            ->with('akunDebit')
+            ->with('akunKredit')
+            ->get();
+
+        return view('jurnal', [
+            'akuns'=>$akuns,
+            'currentTipe'=>$tipe,
+            'jurnals'=>$jurnals,
+        ]);
     }
 
     /**
@@ -34,7 +48,20 @@ class JurnalController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $tipe=$request->get('tipe');
+        $data = $request->validate([
+            "tanggal" => "required",
+            "keterangan" => "required",
+            "id-debit" => "required",
+            "debit" => "required",
+            "id-kredit" => "required",
+            "kredit" => "required",
+        ]);
+        $jurnal = new \App\Jurnal($data);
+        $jurnal->{'id-tipe'} = $tipe->id;
+        $jurnal->tanggal = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->format('Y-m-d');
+        $jurnal->save();
+        return back();
     }
 
     /**
