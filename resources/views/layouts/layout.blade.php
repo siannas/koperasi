@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
     <!-- CSS Files -->
     <link href="{{asset('public/css/material-dashboard.css?v=2.2.2')}}" rel="stylesheet" />
+    <link href="{{asset('public/css/custom.css')}}" rel="stylesheet" />
 </head>
 
 <body class="">
@@ -282,6 +283,11 @@
   <script src="{{asset('public/js/plugins/bootstrap-notify.js')}}"></script>
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="{{asset('public/js/material-dashboard.js?v=2.2.2')}}" type="text/javascript"></script>
+  <!-- custom script -->
+  <script src="{{asset('public/js/custom.js')}}" type="text/javascript"></script>
+
+  @yield('script')
+
   <!-- Material Dashboard DEMO methods, don't include it in your project! -->
   <script>
     $(document).ready(function() {
