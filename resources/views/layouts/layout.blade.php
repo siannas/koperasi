@@ -1,5 +1,6 @@
 @include('layouts.sidebar')
 
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,6 +20,7 @@
 </head>
 
 <body class="">
+
   <div class="wrapper ">
     @yield('sidebar')
     <div class="main-panel">
@@ -32,7 +34,7 @@
                 <i class="material-icons design_bullet-list-67 visible-on-sidebar-mini">view_list</i>
               </button>
             </div>
-            <a class="navbar-brand" href="javascript:;">Dashboard</a>
+            <a class="navbar-brand" href="javascript:;">@yield('title')</a>
           </div>
           <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
             <span class="sr-only">Toggle navigation</span>
@@ -496,6 +498,18 @@
 
     });
   </script>
+  <script>
+    @if (session()->exists('alert'))
+    $(document).ready(function(){
+        notification = @json(session()->pull("alert"));
+        if (notification.) {
+          
+        }
+        md.showNotification(3,'top');
+    });
+    @endif
+  </script>
+  @yield('script')
 </body>
 
 </html>
