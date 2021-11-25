@@ -13,14 +13,15 @@
 
 Auth::routes();
 
-Route::prefix('{tipe}')->middleware(['auth','customize.parameter'])->group(function () {
-    Route::get('/', function () {
-        return view('dashboard');
-    });  
+Route::middleware(['auth'])->group(function () {
+    Route::get('/', 'DashboardController@dashboard');
 
-    Route::resource('jurnal', 'JurnalController');
+    Route::prefix('{tipe}')->middleware(['customize.parameter'])->group(function(){
+        Route::resource('jurnal', 'JurnalController');
 
-    Route::get('tes', 'TesController@index');
+        Route::get('tes', 'TesController@index');
+    });
+    // Route::get('/akun', 'AkunController@index');
+    Route::resource('/akun', 'AkunController');
+    
 });
-
-// Route::get('/home', 'HomeController@index')->name('home');

@@ -273,21 +273,21 @@ md = {
     }
   },
 
-  showNotification: function(from, align) {
+  showNotification: function(status, message) {
     type = ['', 'info', 'danger', 'success', 'warning', 'rose', 'primary'];
 
-    color = Math.floor((Math.random() * 6) + 1);
+    color = status;
 
     $.notify({
-      icon: "add_alert",
-      message: "Welcome to <b>Material Dashboard Pro</b> - a beautiful admin panel for every web developer."
+      icon: "check",
+      message: message
 
     }, {
       type: type[color],
       timer: 3000,
       placement: {
-        from: from,
-        align: align
+        from: 'top',
+        align: 'right'
       }
     });
   },

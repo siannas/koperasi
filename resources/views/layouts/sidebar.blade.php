@@ -43,78 +43,77 @@
         </div>
     </div>
     <ul class="nav">
-        <li class="nav-item active ">
-            <a class="nav-link" href="">
+        <li class="nav-item @yield('dashboardStatus') ">
+            <a class="nav-link" href="{{url('/')}}">
                 <i class="material-icons">dashboard</i>
                 <p> Dashboard </p>
             </a>
         </li>
+        <li class="nav-item @yield('akunStatus')">
+            <a class="nav-link" href="{{url('/akun')}}">
+                <i class="material-icons">account_tree</i>
+                <p> Akun </p>
+            </a>
+        </li>
         <li class="nav-item ">
-            <a class="nav-link" data-toggle="collapse" href="#pagesExamples">
-                <i class="material-icons">image</i>
-                <p> Pages
+            <a class="nav-link" data-toggle="collapse" href="#jurnal">
+                <i class="material-icons">account_balance_wallet</i>
+                <p> Jurnal
                 <b class="caret"></b>
                 </p>
             </a>
-            <div class="collapse" id="pagesExamples">
+            <div class="collapse @yield('jurnalShow')" id="jurnal">
                 <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="">
-                    <span class="sidebar-mini"> P </span>
-                    <span class="sidebar-normal"> Pricing </span>
+                @foreach($tipe as $unit)
+                <li class="nav-item @yield('{{$unit->tipe}}')">
+                    <a class="nav-link" href="{{url('/'.$unit->tipe.'/jurnal')}}">
+                    <span class="sidebar-mini"> J </span>
+                    <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
-                <li class="nav-item ">
-                    <a class="nav-link" href="">
-                    <span class="sidebar-mini"> RS </span>
-                    <span class="sidebar-normal"> RTL Support </span>
-                    </a>
-                </li>
-                <li class="nav-item ">
-                    <a class="nav-link" href="">
-                    <span class="sidebar-mini"> T </span>
-                    <span class="sidebar-normal"> Timeline </span>
-                    </a>
-                </li>
-                <li class="nav-item ">
-                    <a class="nav-link" href="">
-                    <span class="sidebar-mini"> LP </span>
-                    <span class="sidebar-normal"> Login Page </span>
-                    </a>
-                </li>
-                <li class="nav-item ">
-                    <a class="nav-link" href="">
-                    <span class="sidebar-mini"> RP </span>
-                    <span class="sidebar-normal"> Register Page </span>
-                    </a>
-                </li>
-                <li class="nav-item ">
-                    <a class="nav-link" href="">
-                    <span class="sidebar-mini"> LSP </span>
-                    <span class="sidebar-normal"> Lock Screen Page </span>
-                    </a>
-                </li>
-                <li class="nav-item ">
-                    <a class="nav-link" href="">
-                    <span class="sidebar-mini"> UP </span>
-                    <span class="sidebar-normal"> User Profile </span>
-                    </a>
-                </li>
-                <li class="nav-item ">
-                    <a class="nav-link" href="">
-                    <span class="sidebar-mini"> E </span>
-                    <span class="sidebar-normal"> Error Page </span>
-                    </a>
-                </li>
+                @endforeach
                 </ul>
             </div>
         </li>
-        
         <li class="nav-item ">
-        <a class="nav-link" href="">
-            <i class="material-icons">date_range</i>
-            <p> Calendar </p>
-        </a>
+            <a class="nav-link" data-toggle="collapse" href="#bukuBesar">
+                <i class="material-icons">menu_book</i>
+                <p> Buku Besar
+                <b class="caret"></b>
+                </p>
+            </a>
+            <div class="collapse @yield('bukuShow')" id="bukuBesar">
+                <ul class="nav">
+                @foreach($tipe as $unit)
+                <li class="nav-item @yield('{{$unit->tipe}}')">
+                    <a class="nav-link" href="{{url('/'.$unit->tipe.'/buku-besar')}}">
+                    <span class="sidebar-mini"> J </span>
+                    <span class="sidebar-normal"> {{$unit->tipe}} </span>
+                    </a>
+                </li>
+                @endforeach
+                </ul>
+            </div>
+        </li>
+        <li class="nav-item ">
+            <a class="nav-link" data-toggle="collapse" href="#neraca">
+                <i class="material-icons">balance</i>
+                <p> Neraca
+                <b class="caret"></b>
+                </p>
+            </a>
+            <div class="collapse @yield('neracaShow')" id="neraca">
+                <ul class="nav">
+                @foreach($tipe as $unit)
+                <li class="nav-item @yield('{{$unit->tipe}}')">
+                    <a class="nav-link" href="{{url('/'.$unit->tipe.'/neraca')}}">
+                    <span class="sidebar-mini"> J </span>
+                    <span class="sidebar-normal"> {{$unit->tipe}} </span>
+                    </a>
+                </li>
+                @endforeach
+                </ul>
+            </div>
         </li>
     </ul>
         </div>
