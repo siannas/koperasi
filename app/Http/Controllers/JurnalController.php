@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class JurnalController extends Controller
 {
@@ -14,19 +15,23 @@ class JurnalController extends Controller
      */
     public function index(Request $request)
     {
+        $dateAwal=$this->date['date']->format('Y-m').'-01';
         $tipe=$request->get('tipe');
         $akuns = \App\Akun::where('id-tipe',$tipe->id)
             ->select('id','nama-akun')
             ->get();
         $jurnals = \App\Jurnal::where('id-tipe',$tipe->id)
+            ->select('*',DB::raw("STR_TO_DATE('{$dateAwal}', '%Y-%m-%d') > tanggal AS isOld"),
+                DB::raw("DATE_FORMAT(tanggal,'%d/%m/%Y') AS tanggal2"))
             ->with('akunDebit')
             ->with('akunKredit')
+            ->orderBy('tanggal','DESC')
             ->get();
-
         return view('jurnal', [
             'akuns'=>$akuns,
             'currentTipe'=>$tipe,
             'jurnals'=>$jurnals,
+            'date'=>$this->date['date']->format('d/m/Y'),
         ]);
     }
 
@@ -95,7 +100,19 @@ class JurnalController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->validate([
+            "tanggal" => "required",
+            "keterangan" => "required",
+            "id-debit" => "required",
+            "debit" => "required",
+            "id-kredit" => "required",
+            "kredit" => "required",
+        ]);
+        $jurnal = \App\Jurnal::findOrFail($id);
+        $jurnal->fill($data);
+        $jurnal->tanggal = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->format('Y-m-d');
+        $jurnal->save();
+        return back();
     }
 
     /**
