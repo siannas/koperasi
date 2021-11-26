@@ -10,20 +10,18 @@ use App\Akun;
 class AkunController extends Controller
 {
     public function index(){
-        $tipe = Tipe::all();
         $kategori = Kategori::all();
-        $akun = Akun::all();
+        $akun = Akun::with('getTipe', 'getKategori')->get();
 
-        return view('akun', ['tipe'=>$tipe, 'kategori'=>$kategori, 'akun'=>$akun]);
+        return view('akun', ['kategori'=>$kategori, 'akun'=>$akun]);
     }
 
     public function store(Request $request){
         $akun_baru = new Akun($request->all());
         $akun_baru->saldo=0;
-        // $akun_baru->save();
+        $akun_baru->save();
 
         $this->flashSuccess('Data Akun Berhasil Ditambahkan');
-        return back();
-        // return redirect()->back();
+        return redirect()->back();
     }
 }

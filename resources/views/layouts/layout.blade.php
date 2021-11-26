@@ -288,8 +288,6 @@
   <!-- custom script -->
   <script src="{{asset('public/js/custom.js')}}" type="text/javascript"></script>
 
-  @yield('script')
-
   <!-- Material Dashboard DEMO methods, don't include it in your project! -->
   <script>
     $(document).ready(function() {
@@ -504,13 +502,15 @@
     @if (session()->exists('alert'))
     $(document).ready(function(){
         notification = @json(session()->pull("alert"));
-        if (notification.) {
-          
-        }
-        md.showNotification(3,'top');
+        md.showNotification(notification.icon, notification.status, notification.message);
+        @php
+        session()->forget('alert'); 
+        @endphp
     });
     @endif
   </script>
+
+  @yield('script')
 </body>
 
 </html>

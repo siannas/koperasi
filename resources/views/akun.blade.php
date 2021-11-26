@@ -10,7 +10,8 @@ active
 @endsection
 
 @section('content')
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<!-- Modal Tambah Akun -->
+<div class="modal fade" id="tambahAkun" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
         <div class="modal-header">
@@ -19,40 +20,80 @@ active
             <i class="material-icons">clear</i>
             </button>
         </div>
-        <form action="{{route('akun.store')}}" method="post">
+        <form class="form-horizontal" action="{{route('akun.store')}}" method="post">
         @csrf
         <div class="modal-body">
             <div class="row">
                 <div class="col">
-                    <div class="form-group bmd-form-group is-filled">
+                    <div class="form-group is-filled">
                         <select name="id-tipe" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe" required>
                             @foreach($tipe as $unit) <option value="{{$unit->id}}">{{$unit->tipe}}</option> @endforeach
                         </select>
-                        <span class="material-input"></span>
-                        <span class="material-input"></span>
                     </div>
                 </div>
                 <div class="col">
-                    <div class="form-group bmd-form-group is-filled">
+                    <div class="form-group is-filled">
                         <select name="id-kategori" class="selectpicker" data-style="btn btn-primary btn-round" title="Kategori" required>
                             @foreach($kategori as $unit) <option value="{{$unit->id}}">{{$unit->kategori}}</option> @endforeach
                         </select>
-                        <span class="material-input"></span>
-                        <span class="material-input"></span>
                     </div>
                 </div>
             </div>
-            <div class="form-group bmd-form-group is-filled">
-                <label class="label-control">Kode Akun</label>
-                <input name="no-akun" type="text" class="form-control" required>
-                <span class="material-input"></span>
-                <span class="material-input"></span>
+            <div class="form-group">
+                <label for="no-akun" class="bmd-label-floating">Kode Akun</label>
+                <input id="no-akun" name="no-akun" type="text" class="form-control" required>
             </div>
-            <div class="form-group bmd-form-group">
-                <label class="label-control">Nama Akun</label>
-                <input name="nama-akun" type="text" class="form-control" required>
-                <span class="material-input"></span>
-                <span class="material-input"></span>
+            <div class="form-group">
+                <label for="nama-akun" class="bmd-label-floating">Nama Akun</label>
+                <input id="nama-akun" name="nama-akun" type="text" class="form-control" required>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary btn-link">Simpan</button>
+            <button type="button" class="btn btn-danger btn-link" data-dismiss="modal">Tutup</button>
+        </div>
+        </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Akun -->
+<div class="modal fade" id="editAkun" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Edit Akun</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            <i class="material-icons">clear</i>
+            </button>
+        </div>
+        <form id="id" class="form-horizontal"  method="post">
+        @csrf
+        @method('PUT')
+        <div class="modal-body">
+            <div class="row">
+                <div class="col">
+                    <div class="form-group is-filled">
+                        <select name="id-tipe" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe" required>
+                            @foreach($tipe as $unit) <option value="{{$unit->id}}">{{$unit->tipe}}</option> @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group is-filled">
+                        <select name="id-kategori" class="selectpicker" data-style="btn btn-primary btn-round" title="Kategori" required>
+                            @foreach($kategori as $unit) <option value="{{$unit->id}}">{{$unit->kategori}}</option> @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="no-akun" class="bmd-label-floating">Kode Akun</label>
+                <input id="no_akun" name="no-akun" type="text" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="nama-akun" class="bmd-label-floating">Nama Akun</label>
+                <input id="nama_akun" name="nama-akun" type="text" class="form-control" required>
             </div>
         </div>
         <div class="modal-footer">
@@ -77,9 +118,7 @@ active
         <div class="card-body">
             <div class="toolbar text-right">
                 <!-- Here you can write extra buttons/actions for the toolbar -->
-                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal">Tambah</button>
-                <button class="btn btn-primary btn-sm" onclick="md.showNotification(3,'top')">3 Top</button>
-                <button class="btn btn-primary btn-sm" onclick="md.showNotification(4,'top')">4 Left</button>
+                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#tambahAkun">Tambah</button>
             </div>
             <div class="material-datatables">
             <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
@@ -104,12 +143,15 @@ active
                 <tbody>
                 @foreach($akun as $unit)
                 <tr>
-                    <td>{{$unit->{'id-tipe'} }}</td>
-                    <td>{{$unit->{'id-kategori'} }}</td>
+                    <td>{{$unit->getTipe->tipe }}</td>
+                    <td>{{$unit->getKategori->kategori }}</td>
                     <td>{{$unit->{'no-akun'} }}</td>
                     <td>{{$unit->{'nama-akun'} }}</td>
                     <td class="text-right">
-                    <a href="#" class="btn btn-link btn-warning btn-just-icon"><i class="material-icons">edit</i></a>
+                    <button class="btn btn-link btn-primary btn-just-icon" data-toggle="modal" data-target="#editAkun"
+                        data-tipe="{{$unit->getTipe->tipe}}" data-kategori="{{$unit->getKategori->kategori}}"
+                        data-id="{{route('akun.update', [$unit->id])}}" data-noAkun="{{$unit->{'no-akun'} }}"
+                        data-namaAkun="{{$unit->{'nama-akun'} }}"><i class="material-icons">edit</i></button>
                     <a href="#" class="btn btn-link btn-danger btn-just-icon remove"><i class="material-icons">close</i></a>
                     </td>
                 </tr>
@@ -180,9 +222,25 @@ $(document).ready(function() {
 });
 </script>
 <script>
-    $(document).ready(function(){
-        md.showNotification(3,'top');
-    });
+    $('#editAkun').on('show.bs.modal', function (event) {
+    // Button utk trigger kirim data ke modal
+    var button = $(event.relatedTarget)
     
+    // Ekstrak data dari atribut data-
+    var id = button.data('id')
+    var tipe = button.data('tipe')
+    var kategori = button.data('kategori')
+    var noAkun = button.data('noAkun')
+    var namaAkun = button.data('namaAkun')
+    console.log(noAkun)
+    // Update isi modal
+    var modal = $(this)
+    modal.find('#id-tipe').val(tipe)
+    modal.find('#id-kategori').val(kategori)
+    modal.find('#no_akun').val(noAkun)
+    modal.find('#nama_akun').val(namaAkun)
+    $("#id").attr("action", id)
+    
+})
 </script>
 @endsection

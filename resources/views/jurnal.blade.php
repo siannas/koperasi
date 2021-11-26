@@ -5,6 +5,10 @@
 Jurnal
 @endsection
 
+@section('jurnalShow')
+show
+@endsection
+
 @section('content')
 <!-- Classic Modal -->
 <div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -75,12 +79,10 @@ Jurnal
     <div class="col-md-12">
         <div class="card">
         <div class="card-header card-header-primary card-header-icon">
-            <div class="card-header card-header-primary card-header-icon">
-                <div class="card-icon">
+            <div class="card-icon">
                 <i class="material-icons">assignment</i>
-                </div>
-                <h4 class="card-title">Jurnal</h4>
             </div>
+            <h4 class="card-title">Jurnal</h4>
         </div>
         <div class="card-body">
             <div class="toolbar text-right">

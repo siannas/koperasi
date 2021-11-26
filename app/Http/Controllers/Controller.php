@@ -12,18 +12,18 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     public function flashSuccess($message) {
-     $this->setupFlash("Operation Successful", $message, 'success');
+     $this->setupFlash('check', $message, '3');
   }
 
   public function flashError($message) {
-     $this->setupFlash("Something went wrong", $message, 'error');
+     $this->setupFlash('close', $message, '2');
   }
 
-  private function setupFlash($title, $message, $type) {
+  private function setupFlash($icon, $message, $type) {
      request()->session()->flash('alert', [
-        'title' => $title,
+        'icon' => $icon,
         'message' => $message,
-        'type' => $type,
+        'status' => $type,
      ]);
   }
 }
