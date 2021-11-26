@@ -16,30 +16,9 @@
             </div>
             <div class="user-info">
                 <a data-toggle="collapse" href="#collapseExample" class="username">
-                    <span>Tania Andrew<b class="caret"></b></span>
+                    <span>{{Auth::user()->nama}}</span>
                 </a>
-            <div class="collapse" id="collapseExample">
-                <ul class="nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                        <span class="sidebar-mini"> MP </span>
-                        <span class="sidebar-normal"> My Profile </span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                        <span class="sidebar-mini"> EP </span>
-                        <span class="sidebar-normal"> Edit Profile </span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                        <span class="sidebar-mini"> S </span>
-                        <span class="sidebar-normal"> Settings </span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            
         </div>
     </div>
     <ul class="nav">
@@ -47,6 +26,12 @@
             <a class="nav-link" href="{{url('/')}}">
                 <i class="material-icons">dashboard</i>
                 <p> Dashboard </p>
+            </a>
+        </li>
+        <li class="nav-item @yield('kategoriStatus')">
+            <a class="nav-link" href="{{url('/kategori')}}">
+                <i class="material-icons">category</i>
+                <p> Kategori </p>
             </a>
         </li>
         <li class="nav-item @yield('akunStatus')">
@@ -65,7 +50,7 @@
             <div class="collapse @yield('jurnalShow')" id="jurnal">
                 <ul class="nav">
                 @foreach($tipe as $unit)
-                <li class="nav-item @yield('{{$unit->tipe}}')">
+                <li class="nav-item @yield('jurnal'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/jurnal')}}">
                     <span class="sidebar-mini"> J </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
@@ -85,7 +70,7 @@
             <div class="collapse @yield('bukuShow')" id="bukuBesar">
                 <ul class="nav">
                 @foreach($tipe as $unit)
-                <li class="nav-item @yield('{{$unit->tipe}}')">
+                <li class="nav-item @yield('buku'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/buku-besar')}}">
                     <span class="sidebar-mini"> J </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
@@ -105,7 +90,7 @@
             <div class="collapse @yield('neracaShow')" id="neraca">
                 <ul class="nav">
                 @foreach($tipe as $unit)
-                <li class="nav-item @yield('{{$unit->tipe}}')">
+                <li class="nav-item @yield('neraca'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/neraca')}}">
                     <span class="sidebar-mini"> J </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>

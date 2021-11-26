@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Tipe;
 use App\Kategori;
@@ -22,6 +23,29 @@ class AkunController extends Controller
         $akun_baru->save();
 
         $this->flashSuccess('Data Akun Berhasil Ditambahkan');
-        return redirect()->back();
+        return back();
+    }
+
+    public function update(Request $request, $id){
+        $akun = Akun::findOrFail($id);
+        $akun->fill($request->all());
+        dd($request->all());
+        // $akun_baru->save();
+
+        $this->flashSuccess('Data Akun Berhasil Diubah');
+        return back();
+    }
+
+    public function destroy($id){
+        try {
+            $akun = Akun::findOrFail($id);
+            $akun->delete();
+        }catch (QueryException $exception) {
+            $this->flashError($exception->getMessage());
+            return back();
+        }
+
+        $this->flashSuccess('Data Akun Berhasil Dihapus');
+        return back();
     }
 }

@@ -57,54 +57,6 @@ active
     </div>
 </div>
 
-<!-- Modal Edit Akun -->
-<div class="modal fade" id="editAkun" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h4 class="modal-title">Edit Akun</h4>
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-            <i class="material-icons">clear</i>
-            </button>
-        </div>
-        <form id="id" class="form-horizontal"  method="post">
-        @csrf
-        @method('PUT')
-        <div class="modal-body">
-            <div class="row">
-                <div class="col">
-                    <div class="form-group is-filled">
-                        <select name="id-tipe" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe" required>
-                            @foreach($tipe as $unit) <option value="{{$unit->id}}">{{$unit->tipe}}</option> @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group is-filled">
-                        <select name="id-kategori" class="selectpicker" data-style="btn btn-primary btn-round" title="Kategori" required>
-                            @foreach($kategori as $unit) <option value="{{$unit->id}}">{{$unit->kategori}}</option> @endforeach
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="no-akun" class="bmd-label-floating">Kode Akun</label>
-                <input id="no_akun" name="no-akun" type="text" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="nama-akun" class="bmd-label-floating">Nama Akun</label>
-                <input id="nama_akun" name="nama-akun" type="text" class="form-control" required>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="submit" class="btn btn-primary btn-link">Simpan</button>
-            <button type="button" class="btn btn-danger btn-link" data-dismiss="modal">Tutup</button>
-        </div>
-        </form>
-        </div>
-    </div>
-</div>
-
 <div class="container-fluid">
     <div class="row">
     <div class="col-md-12">
@@ -113,7 +65,7 @@ active
             <div class="card-icon">
             <i class="material-icons">assignment</i>
             </div>
-            <h4 class="card-title">DataTables.net</h4>
+            <h4 class="card-title">@yield('title')</h4>
         </div>
         <div class="card-body">
             <div class="toolbar text-right">
@@ -148,13 +100,63 @@ active
                     <td>{{$unit->{'no-akun'} }}</td>
                     <td>{{$unit->{'nama-akun'} }}</td>
                     <td class="text-right">
-                    <button class="btn btn-link btn-primary btn-just-icon" data-toggle="modal" data-target="#editAkun"
-                        data-tipe="{{$unit->getTipe->tipe}}" data-kategori="{{$unit->getKategori->kategori}}"
-                        data-id="{{route('akun.update', [$unit->id])}}" data-noAkun="{{$unit->{'no-akun'} }}"
-                        data-namaAkun="{{$unit->{'nama-akun'} }}"><i class="material-icons">edit</i></button>
-                    <a href="#" class="btn btn-link btn-danger btn-just-icon remove"><i class="material-icons">close</i></a>
+                    <form action="{{route('akun.destroy', [$unit->id])}}" method="POST">@csrf @method('DELETE')
+                        <button type="button" class="btn btn-sm btn-link btn-warning btn-just-icon" data-toggle="modal" data-target="#editAkun{{$unit->id}}"><i class="material-icons">edit</i></button>
+                        <button type="submit" class="btn btn-sm btn-link btn-danger btn-just-icon"><i class="material-icons">delete</i></button>
+                    </form>
                     </td>
                 </tr>
+                <!-- Modal Edit Akun -->
+                <div class="modal fade" id="editAkun{{$unit->id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Edit Akun</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            <i class="material-icons">clear</i>
+                            </button>
+                        </div>
+                        <form action="{{route('akun.update', [$unit->id])}}" class="form-horizontal" method="post">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group is-filled">
+                                        <select name="id-tipe" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe" required>
+                                            @foreach($tipe as $unitTipe) 
+                                            <option value="{{$unitTipe->id}}" @if($unit->{'id-tipe'} === $unitTipe->id) selected @endif>{{$unitTipe->tipe}}</option> 
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group is-filled">
+                                        <select name="kategori" class="selectpicker" data-style="btn btn-primary btn-round" title="Kategori" required>
+                                            @foreach($kategori as $unitKategori) 
+                                            <option value="{{$unitKategori->id}}" @if($unitKategori->id === $unit->{'id-kategori'}) selected @endif>{{$unitKategori->kategori}}</option> 
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="no-akun" class="bmd-label-floating">Kode Akun</label>
+                                <input id="no_akun" name="no-akun" type="text" class="form-control" value="{{$unit->{'no-akun'} }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="nama-akun" class="bmd-label-floating">Nama Akun</label>
+                                <input id="nama_akun" name="nama-akun" type="text" class="form-control" value="{{$unit->{'nama-akun'} }}" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary btn-link">Simpan</button>
+                            <button type="button" class="btn btn-danger btn-link" data-dismiss="modal">Tutup</button>
+                        </div>
+                        </form>
+                        </div>
+                    </div>
+                </div>
                 @endforeach
                 </tbody>
             </table>

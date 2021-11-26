@@ -9,6 +9,10 @@ Jurnal
 show
 @endsection
 
+@section('jurnal'.$currentTipe->tipe)
+active
+@endsection
+
 @section('content')
 <!-- Classic Modal -->
 <div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -147,7 +151,7 @@ show
             <div class="card-icon">
                 <i class="material-icons">assignment</i>
             </div>
-            <h4 class="card-title">Jurnal</h4>
+            <h4 class="card-title">Jurnal {{$currentTipe->tipe}}</h4>
         </div>
         <div class="card-body">
             <div class="toolbar text-right">
