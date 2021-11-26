@@ -20,7 +20,7 @@
 </head>
 
 <body class="">
-
+  @yield('modal')
   <div class="wrapper ">
     @yield('sidebar')
     <div class="main-panel">

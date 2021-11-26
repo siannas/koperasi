@@ -13,7 +13,7 @@ show
 active
 @endsection
 
-@section('content')
+@section('modal')
 <!-- Classic Modal -->
 <div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -143,6 +143,33 @@ active
     </div>
 </div>
 <!--  End Edit Modal -->
+<!-- small modal -->
+<div class="modal fade modal-mini modal-primary" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="myDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-small">
+        <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+        </div>
+        <form class="" method="POST" action="">
+            @method('DELETE')
+            @csrf
+        <div class="modal-body text-center">
+            <p>Yakin ingin menghapus?</p>
+        </div>
+        <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-link" data-dismiss="modal">Tidak</button>
+            <button type="submit" class="btn btn-danger btn-link">Ya, Hapus
+                <div class="ripple-container"></div>
+            </button>
+        </div>
+        </form>
+        </div>
+    </div>
+</div>
+<!--    end small modal -->
+@endsection
+
+@section('content')
 <div class="container-fluid">
     <div class="row">
     <div class="col-md-12">
@@ -206,7 +233,7 @@ active
                     <a href="#" class="btn btn-link text-info btn-just-icon"><i class="material-icons">lock</i></a>
                     @else
                     <a href="#" class="btn btn-link btn-warning btn-just-icon edit" key="{{$key}}" ><i class="material-icons">edit</i></a>
-                    <a href="#" class="btn btn-link btn-danger btn-just-icon remove"><i class="material-icons">close</i></a>
+                    <a href="#" class="btn btn-link btn-danger btn-just-icon remove" key="{{$key}}"><i class="material-icons">close</i></a>
                     @endif
                     </td>
                     <td hidden>{{$j->akunDebit->{'nama-akun'} }}</td>
@@ -295,6 +322,16 @@ $(document).ready(function() {
         $modal.find('[name=id-kredit]').val(j['id-kredit']).change();
         $modal.find('[name=kredit-dummy]').val(j['kredit']).change().blur();
         $modal.find('form').attr('action', "{{route('jurnal.update', ['tipe'=>$currentTipe->tipe , 'jurnal'=>''])}}/"+j['id']);
+        $modal.modal('show');
+	} );
+
+    //ketika klik delete
+    $('#datatables .remove').on('click', function () {
+		var key = $(this).attr('key');
+        var j = myJurnals[key];
+        $modal=$('#modalDelete');
+
+        $modal.find('form').attr('action', "{{route('jurnal.destroy', ['tipe'=>$currentTipe->tipe , 'jurnal'=>''])}}/"+j['id']);
         $modal.modal('show');
 	} );
 } );

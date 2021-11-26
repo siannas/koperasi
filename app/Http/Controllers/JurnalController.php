@@ -62,10 +62,15 @@ class JurnalController extends Controller
             "id-kredit" => "required",
             "kredit" => "required",
         ]);
-        $jurnal = new \App\Jurnal($data);
-        $jurnal->{'id-tipe'} = $tipe->id;
-        $jurnal->tanggal = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->format('Y-m-d');
-        $jurnal->save();
+        try {
+            $jurnal = new \App\Jurnal($data);
+            $jurnal->{'id-tipe'} = $tipe->id;
+            $jurnal->tanggal = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->format('Y-m-d');
+            $jurnal->save();
+        }catch (QueryException $exception) {
+            $this->flashError($exception->getMessage());
+            return back();
+        }
 
         $this->flashSuccess('Data Jurnal Berhasil Ditambahkan');
         return back();
@@ -110,10 +115,17 @@ class JurnalController extends Controller
             "id-kredit" => "required",
             "kredit" => "required",
         ]);
-        $jurnal = \App\Jurnal::findOrFail($id);
-        $jurnal->fill($data);
-        $jurnal->tanggal = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->format('Y-m-d');
-        $jurnal->save();
+        try {
+            $jurnal = \App\Jurnal::findOrFail($id);
+            $jurnal->fill($data);
+            $jurnal->tanggal = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->format('Y-m-d');
+            $jurnal->save();
+        }catch (QueryException $exception) {
+            $this->flashError($exception->getMessage());
+            return back();
+        }
+
+        $this->flashSuccess('Data Jurnal Berhasil Diperbarui');
         return back();
     }
 
@@ -125,6 +137,15 @@ class JurnalController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            $jurnal = \App\Jurnal::findOrFail($id);
+            $jurnal->delete();
+        }catch (QueryException $exception) {
+            $this->flashError($exception->getMessage());
+            return back();
+        }
+        
+        $this->flashSuccess('Data Jurnal Berhasil Dihapus');
+        return back();
     }
 }
