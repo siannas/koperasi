@@ -66,6 +66,8 @@ class JurnalController extends Controller
         $jurnal->{'id-tipe'} = $tipe->id;
         $jurnal->tanggal = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->format('Y-m-d');
         $jurnal->save();
+
+        $this->flashSuccess('Data Akun Berhasil Ditambahkan');
         return back();
     }
 

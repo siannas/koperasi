@@ -28,4 +28,11 @@ class Akun extends Model
      */
     protected $hidden = [
     ];
+
+    public function getTipe(){
+        return $this->belongsTo(Tipe::class, 'id-tipe');
+    }
+    public function getKategori(){
+        return $this->belongsTo(Kategori::class, 'id-kategori');
+    }
 }

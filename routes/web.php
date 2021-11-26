@@ -23,7 +23,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('tes', 'TesController@index');
     });
-    // Route::get('/akun', 'AkunController@index');
+    
     Route::resource('/akun', 'AkunController');
     
 });

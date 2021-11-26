@@ -273,13 +273,13 @@ md = {
     }
   },
 
-  showNotification: function(status, message) {
+  showNotification: function(icon, status, message) {
     type = ['', 'info', 'danger', 'success', 'warning', 'rose', 'primary'];
 
     color = status;
 
     $.notify({
-      icon: "check",
+      icon: icon,
       message: message
 
     }, {
