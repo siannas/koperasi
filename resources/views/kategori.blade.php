@@ -2,50 +2,36 @@
 @extends('layouts.sidebar')
 
 @section('title')
-Akun
+Kategori
 @endsection
 
-@section('akunStatus')
+@section('kategoriStatus')
 active
 @endsection
 
 @section('modal')
-<!-- Modal Tambah Akun -->
-<div class="modal fade" id="tambahAkun" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<!-- Modal Tambah Kategori -->
+<div class="modal fade" id="tambahKategori" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
         <div class="modal-header">
-            <h4 class="modal-title">Tambah Akun</h4>
+            <h4 class="modal-title">Tambah Kategori</h4>
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
             <i class="material-icons">clear</i>
             </button>
         </div>
-        <form class="form-horizontal" action="{{route('akun.store')}}" method="post">
+        <form class="form-horizontal" action="{{route('kategori.store')}}" method="post">
         @csrf
         <div class="modal-body">
-            <div class="row">
-                <div class="col">
-                    <div class="form-group is-filled">
-                        <select name="id-tipe" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe" required>
-                            @foreach($tipe as $unit) <option value="{{$unit->id}}">{{ucwords($unit->tipe)}}</option> @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group is-filled">
-                        <select name="id-kategori" class="selectpicker" data-style="btn btn-primary btn-round" title="Kategori" required>
-                            @foreach($kategori as $unit) <option value="{{$unit->id}}">{{ucwords($unit->kategori)}}</option> @endforeach
-                        </select>
-                    </div>
-                </div>
+            <div class="form-group is-filled">
+                <select name="tipe-pendapatan" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe Pendapatan" required style="width:100%;">
+                    <option value="debit">Debit</option>
+                    <option value="kredit">Kredit</option>
+                </select>
             </div>
             <div class="form-group">
-                <label for="no-akun" class="bmd-label-floating">Kode Akun</label>
-                <input id="no-akun" name="no-akun" type="text" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="nama-akun" class="bmd-label-floating">Nama Akun</label>
-                <input id="nama-akun" name="nama-akun" type="text" class="form-control" required>
+                <label for="kategori" class="bmd-label-floating">Nama Kategori</label>
+                <input id="kategori" name="kategori" type="text" class="form-control" required>
             </div>
         </div>
         <div class="modal-footer">
@@ -57,47 +43,29 @@ active
     </div>
 </div>
 
-<!-- Modal Edit Akun -->
-<div class="modal fade" id="editAkun" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<!-- Modal Edit Kategori -->
+<div class="modal fade" id="editKategori" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
         <div class="modal-header">
-            <h4 class="modal-title">Edit Akun</h4>
+            <h4 class="modal-title">Edit Kategori</h4>
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
             <i class="material-icons">clear</i>
             </button>
         </div>
-        <form action="{{route('akun.update', [$unit->id])}}" class="form-horizontal" method="post">
+        <form  class="form-horizontal" method="post">
         @csrf
         @method('PUT')
         <div class="modal-body">
-            <div class="row">
-                <div class="col">
-                    <div class="form-group is-filled">
-                        <select name="id-tipe" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe" required>
-                            @foreach($tipe as $unitTipe) 
-                            <option value="{{$unitTipe->id}}">{{ucwords($unitTipe->tipe)}}</option> 
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group is-filled">
-                        <select name="id-kategori" class="selectpicker" data-style="btn btn-primary btn-round" title="Kategori" required>
-                            @foreach($kategori as $unitKategori) 
-                            <option value="{{$unitKategori->id}}">{{ucwords($unitKategori->kategori)}}</option> 
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-            </div>
+            <div class="form-group is-filled">
+                <select name="tipe-pendapatan" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe Pendapatan" required>
+                    <option value="debit">Debit</option>
+                    <option value="kredit">Kredit</option>
+                </select>
+            </div>    
             <div class="form-group">
-                <label for="no-akun" class="bmd-label-floating">Kode Akun</label>
-                <input id="no_akun" name="no-akun" type="text" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="nama-akun" class="bmd-label-floating">Nama Akun</label>
-                <input id="nama_akun" name="nama-akun" type="text" class="form-control" required>
+                <label for="kategori" class="bmd-label-floating">Nama Kategori</label>
+                <input id="kategori" name="kategori" type="text" class="form-control" required>
             </div>
         </div>
         <div class="modal-footer">
@@ -109,7 +77,7 @@ active
     </div>
 </div>
 
-<!-- Modal Hapus Akun -->
+<!-- Modal Hapus Kategori -->
 <div class="modal fade modal-mini modal-primary" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="myDeleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-small">
         <div class="modal-content">
@@ -141,14 +109,14 @@ active
         <div class="card">
         <div class="card-header card-header-primary card-header-icon">
             <div class="card-icon">
-            <i class="material-icons">account_tree</i>
+            <i class="material-icons">category</i>
             </div>
             <h4 class="card-title">@yield('title')</h4>
         </div>
         <div class="card-body">
             <div class="toolbar text-right">
                 <!-- Here you can write extra buttons/actions for the toolbar -->
-                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#tambahAkun">Tambah</button>
+                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#tambahKategori">Tambah</button>
             </div>
             <div class="material-datatables">
             <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
@@ -156,8 +124,6 @@ active
                 <tr>
                     <th>Tipe</th>
                     <th>Kategori</th>
-                    <th>No Akun</th>
-                    <th>Nama Akun</th>
                     <th class="disabled-sorting text-right">Aksi</th>
                 </tr>
                 </thead>
@@ -165,18 +131,14 @@ active
                 <tr>
                     <th>Tipe</th>
                     <th>Kategori</th>
-                    <th>No Akun</th>
-                    <th>Nama Akun</th>
                     <th class="text-right">Aksi</th>
                 </tr>
                 </tfoot>
                 <tbody>
-                @foreach($akun as $key=>$unit)
+                @foreach($kategori as $key=>$unit)
                 <tr>
-                    <td>{{ucwords($unit->getTipe->tipe)}}</td>
-                    <td>{{ucwords($unit->getKategori->kategori)}}</td>
-                    <td>{{$unit->{'no-akun'} }}</td>
-                    <td>{{$unit->{'nama-akun'} }}</td>
+                    <td>{{ucwords($unit->{'tipe-pendapatan'}) }}</td>
+                    <td>{{$unit->kategori}}</td>
                     <td class="text-right">
                         <button type="button" class="btn btn-sm btn-link btn-warning btn-just-icon edit" key="{{$key}}"><i class="material-icons">edit</i></button>
                         <button type="button" class="btn btn-sm btn-link btn-danger btn-just-icon remove" key="{{$key}}"><i class="material-icons">delete</i></button>
@@ -213,20 +175,18 @@ $(document).ready(function() {
     });
 
     var table = $('#datatables').DataTable();
-    var myAkuns = @json($akun);
+    var myKategori = @json($kategori);
 
     //ketika klik edit
     $('#datatables .edit').on('click', function () {
 		var key = $(this).attr('key');
-        var j = myAkuns[key];
-        $modal=$('#editAkun');
+        var j = myKategori[key];
+        $modal=$('#editKategori');
         console.log(j);
 
-        $modal.find('[name=id-tipe]').val(j['id-tipe']).change();
-        $modal.find('[name=id-kategori]').val(j['id-kategori']).change();
-        $modal.find('[name=no-akun]').val(j['no-akun']).change();
-        $modal.find('[name=nama-akun]').val(j['nama-akun']).change();
-        $modal.find('form').attr('action', "{{route('akun.update', ['akun'=>''])}}/"+j['id']);
+        $modal.find('[name=tipe-pendapatan]').val(j['tipe-pendapatan']).change();
+        $modal.find('[name=kategori]').val(j['kategori']).change();
+        $modal.find('form').attr('action', "{{route('kategori.update', ['kategori'=>''])}}/"+j['id']);
         $modal.modal('show');
 	} );
 
@@ -234,10 +194,10 @@ $(document).ready(function() {
     $('#datatables .remove').on('click', function () {
 		var key = $(this).attr('key');
         
-        var j = myAkuns[key];
+        var j = myKategori[key];
         $modal=$('#modalDelete');
 
-        $modal.find('form').attr('action', "{{route('akun.destroy', ['akun'=>''])}}/"+j['id']);
+        $modal.find('form').attr('action', "{{route('kategori.destroy', ['kategori'=>''])}}/"+j['id']);
         $modal.modal('show');
 	} );
     

@@ -176,9 +176,9 @@ active
         <div class="card">
         <div class="card-header card-header-primary card-header-icon">
             <div class="card-icon">
-                <i class="material-icons">assignment</i>
+                <i class="material-icons">account_balance_wallet</i>
             </div>
-            <h4 class="card-title">Jurnal {{$currentTipe->tipe}}</h4>
+            <h4 class="card-title">Jurnal {{ucwords($currentTipe->tipe)}}</h4>
         </div>
         <div class="card-body">
             <div class="toolbar text-right">

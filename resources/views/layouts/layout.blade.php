@@ -498,6 +498,8 @@
       $('.rupiah-input').blur(my.inputToRupiah);
     });
   </script>
+
+  <!-- Script untuk notifikasi -->
   <script>
     @if (session()->exists('alert'))
     $(document).ready(function(){

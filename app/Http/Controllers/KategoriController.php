@@ -4,57 +4,53 @@ namespace App\Http\Controllers;
 
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
-use App\Tipe;
 use App\Kategori;
-use App\Akun;
 
-class AkunController extends Controller
+class KategoriController extends Controller
 {
     public function index(){
         $kategori = Kategori::all();
-        $akun = Akun::with('getTipe', 'getKategori')->get();
 
-        return view('akun', ['kategori'=>$kategori, 'akun'=>$akun]);
+        return view('kategori', ['kategori'=>$kategori]);
     }
 
     public function store(Request $request){
         try{
-            $akun_baru = new Akun($request->all());
-            $akun_baru->saldo=0;
-            $akun_baru->save();
+            $kategori_baru = new Kategori($request->all());
+            $kategori_baru->save();
         }catch(QueryException $exception){
             $this->flashError($exception->getMessage());
             return back();
         }
 
-        $this->flashSuccess('Data Akun Berhasil Ditambahkan');
+        $this->flashSuccess('Data Kategori Berhasil Ditambahkan');
         return back();
     }
 
     public function update(Request $request, $id){
         try{
-            $akun = Akun::findOrFail($id);
-            $akun->fill($request->all());
-            $akun->save();
+            $kategori = Kategori::findOrFail($id);
+            $kategori->fill($request->all());
+            $kategori->save();
         }catch(QueryException $exception){
             $this->flashError($exception->getMessage());
             return back();
         }
         
-        $this->flashSuccess('Data Akun Berhasil Diubah');
+        $this->flashSuccess('Data Kategori Berhasil Diubah');
         return back();
     }
 
     public function destroy($id){
         try {
-            $akun = Akun::findOrFail($id);
-            $akun->delete();
+            $kategori = Kategori::findOrFail($id);
+            $kategori->delete();
         }catch (QueryException $exception) {
             $this->flashError($exception->getMessage());
             return back();
         }
 
-        $this->flashSuccess('Data Akun Berhasil Dihapus');
+        $this->flashSuccess('Data Kategori Berhasil Dihapus');
         return back();
     }
 }

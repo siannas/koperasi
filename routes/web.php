@@ -25,5 +25,6 @@ Route::middleware(['auth'])->group(function () {
     });
     
     Route::resource('/akun', 'AkunController');
+    Route::resource('/kategori', 'KategoriController');
     
 });

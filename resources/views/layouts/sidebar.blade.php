@@ -52,7 +52,7 @@
                 @foreach($tipe as $unit)
                 <li class="nav-item @yield('jurnal'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/jurnal')}}">
-                    <span class="sidebar-mini"> J </span>
+                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
