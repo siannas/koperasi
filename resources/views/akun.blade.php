@@ -74,7 +74,7 @@ active
             <div class="row">
                 <div class="col">
                     <div class="form-group is-filled">
-                        <select name="id-tipe" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe" required>
+                        <select name="id-tipe" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe" required disabled>
                             @foreach($tipe as $unitTipe) 
                             <option value="{{$unitTipe->id}}">{{ucwords($unitTipe->tipe)}}</option> 
                             @endforeach
@@ -83,7 +83,7 @@ active
                 </div>
                 <div class="col">
                     <div class="form-group is-filled">
-                        <select name="id-kategori" class="selectpicker" data-style="btn btn-primary btn-round" title="Kategori" required>
+                        <select name="id-kategori" class="selectpicker" data-style="btn btn-primary btn-round" title="Kategori" required disabled>
                             @foreach($kategori as $unitKategori) 
                             <option value="{{$unitKategori->id}}">{{ucwords($unitKategori->kategori)}}</option> 
                             @endforeach
@@ -154,11 +154,11 @@ active
             <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
                 <thead>
                 <tr>
-                    <th>Tipe</th>
-                    <th>Kategori</th>
-                    <th>No Akun</th>
-                    <th>Nama Akun</th>
-                    <th class="disabled-sorting text-right">Aksi</th>
+                    <th data-priority="3">Tipe</th>
+                    <th data-priority="3">Kategori</th>
+                    <th data-priority="2">No Akun</th>
+                    <th data-priority="1">Nama Akun</th>
+                    <th data-priority="1" class="disabled-sorting text-right">Aksi</th>
                 </tr>
                 </thead>
                 <tfoot>
@@ -178,8 +178,10 @@ active
                     <td>{{$unit->{'no-akun'} }}</td>
                     <td>{{$unit->{'nama-akun'} }}</td>
                     <td class="text-right">
-                        <button type="button" class="btn btn-sm btn-link btn-warning btn-just-icon edit" key="{{$key}}"><i class="material-icons">edit</i></button>
-                        <button type="button" class="btn btn-sm btn-link btn-danger btn-just-icon remove" key="{{$key}}"><i class="material-icons">delete</i></button>
+                        <button type="button" class="btn btn-sm btn-link btn-warning btn-just-icon edit" 
+                            key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></button>
+                        <button type="button" class="btn btn-sm btn-link btn-danger btn-just-icon remove" 
+                            key="{{$key}}" onclick="onDelete(this)"><i class="material-icons">delete</i></button>
                     </td>
                 </tr>
                 @endforeach
@@ -199,8 +201,39 @@ active
 
 @section('script')
 <script>
+
+var table;
+var myAkuns = @json($akun);
+
+//ketika klik edit
+function onEdit(self) {
+    var key = $(self).attr('key');
+    var j = myAkuns[key];
+    $modal=$('#editAkun');
+    console.log(self);
+
+    $modal.find('[name=id-tipe]').val(j['id-tipe']).change();
+    $modal.find('[name=id-kategori]').val(j['id-kategori']).change();
+    $modal.find('[name=no-akun]').val(j['no-akun']).change();
+    $modal.find('[name=nama-akun]').val(j['nama-akun']).change();
+    $modal.find('form').attr('action', "{{route('akun.update', ['akun'=>''])}}/"+j['id']);
+    $modal.modal('show');
+}
+
+//ketika klik delete
+function onDelete(self) {
+    var key = $(self).attr('key');
+    
+    var j = myAkuns[key];
+    $modal=$('#modalDelete');
+
+    $modal.find('form').attr('action', "{{route('akun.destroy', ['akun'=>''])}}/"+j['id']);
+    $modal.modal('show');
+}
+
 $(document).ready(function() {
-    $('#datatables').DataTable({
+
+    table = $('#datatables').DataTable({
     "pagingType": "full_numbers",
     "lengthMenu": [
         [10, 25, 50, -1],
@@ -212,35 +245,7 @@ $(document).ready(function() {
     }
     });
 
-    var table = $('#datatables').DataTable();
-    var myAkuns = @json($akun);
-
-    //ketika klik edit
-    $('#datatables .edit').on('click', function () {
-		var key = $(this).attr('key');
-        var j = myAkuns[key];
-        $modal=$('#editAkun');
-        console.log(j);
-
-        $modal.find('[name=id-tipe]').val(j['id-tipe']).change();
-        $modal.find('[name=id-kategori]').val(j['id-kategori']).change();
-        $modal.find('[name=no-akun]').val(j['no-akun']).change();
-        $modal.find('[name=nama-akun]').val(j['nama-akun']).change();
-        $modal.find('form').attr('action', "{{route('akun.update', ['akun'=>''])}}/"+j['id']);
-        $modal.modal('show');
-	} );
-
-    //ketika klik delete
-    $('#datatables .remove').on('click', function () {
-		var key = $(this).attr('key');
-        
-        var j = myAkuns[key];
-        $modal=$('#modalDelete');
-
-        $modal.find('form').attr('action', "{{route('akun.destroy', ['akun'=>''])}}/"+j['id']);
-        $modal.modal('show');
-	} );
-    
 });
+
 </script>
 @endsection

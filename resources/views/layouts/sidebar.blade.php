@@ -72,7 +72,7 @@
                 @foreach($tipe as $unit)
                 <li class="nav-item @yield('buku'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/buku-besar')}}">
-                    <span class="sidebar-mini"> J </span>
+                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
@@ -92,7 +92,7 @@
                 @foreach($tipe as $unit)
                 <li class="nav-item @yield('neraca'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/neraca')}}">
-                    <span class="sidebar-mini"> J </span>
+                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>

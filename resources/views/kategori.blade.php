@@ -140,8 +140,10 @@ active
                     <td>{{ucwords($unit->{'tipe-pendapatan'}) }}</td>
                     <td>{{$unit->kategori}}</td>
                     <td class="text-right">
-                        <button type="button" class="btn btn-sm btn-link btn-warning btn-just-icon edit" key="{{$key}}"><i class="material-icons">edit</i></button>
-                        <button type="button" class="btn btn-sm btn-link btn-danger btn-just-icon remove" key="{{$key}}"><i class="material-icons">delete</i></button>
+                        <button type="button" class="btn btn-sm btn-link btn-warning btn-just-icon edit" 
+                            key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></button>
+                        <button type="button" class="btn btn-sm btn-link btn-danger btn-just-icon remove" 
+                            key="{{$key}}" onclick="onDelete(this)"><i class="material-icons">delete</i></button>
                     </td>
                 </tr>
                 @endforeach
@@ -161,6 +163,32 @@ active
 
 @section('script')
 <script>
+var table;
+var myKategori = @json($kategori);
+
+//ketika klik edit
+function onEdit(self) {
+    var key = $(self).attr('key');
+    var j = myKategori[key];
+    $modal=$('#editKategori');
+
+    $modal.find('[name=tipe-pendapatan]').val(j['tipe-pendapatan']).change();
+    $modal.find('[name=kategori]').val(j['kategori']).change();
+    $modal.find('form').attr('action', "{{route('kategori.update', ['kategori'=>''])}}/"+j['id']);
+    $modal.modal('show');
+}
+
+//ketika klik delete
+function onDelete(self) {
+    var key = $(self).attr('key');
+    
+    var j = myKategori[key];
+    $modal=$('#modalDelete');
+
+    $modal.find('form').attr('action', "{{route('kategori.destroy', ['kategori'=>''])}}/"+j['id']);
+    $modal.modal('show');
+}
+
 $(document).ready(function() {
     $('#datatables').DataTable({
     "pagingType": "full_numbers",
@@ -174,33 +202,6 @@ $(document).ready(function() {
     }
     });
 
-    var table = $('#datatables').DataTable();
-    var myKategori = @json($kategori);
-
-    //ketika klik edit
-    $('#datatables .edit').on('click', function () {
-		var key = $(this).attr('key');
-        var j = myKategori[key];
-        $modal=$('#editKategori');
-        console.log(j);
-
-        $modal.find('[name=tipe-pendapatan]').val(j['tipe-pendapatan']).change();
-        $modal.find('[name=kategori]').val(j['kategori']).change();
-        $modal.find('form').attr('action', "{{route('kategori.update', ['kategori'=>''])}}/"+j['id']);
-        $modal.modal('show');
-	} );
-
-    //ketika klik delete
-    $('#datatables .remove').on('click', function () {
-		var key = $(this).attr('key');
-        
-        var j = myKategori[key];
-        $modal=$('#modalDelete');
-
-        $modal.find('form').attr('action', "{{route('kategori.destroy', ['kategori'=>''])}}/"+j['id']);
-        $modal.modal('show');
-	} );
-    
 });
 </script>
 @endsection
