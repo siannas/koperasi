@@ -13,3 +13,19 @@
 .input-margin-additional .is-filled{
     margin-top: 16px;
 }
+
+.table.height-50 td{
+    height: 50px;
+}
+
+.b-left{
+    border-left: 1px solid #cdcdcd;
+}
+
+.bg-gray{
+    background-color: #f5f5f5;
+}
+
+.no-anim.collapsing {
+    transition: height 0.05s;
+}

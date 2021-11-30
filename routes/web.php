@@ -21,7 +21,9 @@ Route::middleware(['auth'])->group(function () {
             'create',
         ]);
 
-        Route::get('tes', 'TesController@index');
+        Route::resource('neraca', 'NeracaController')->except([
+            'create',
+        ]);
     });
     
     Route::resource('/akun', 'AkunController');

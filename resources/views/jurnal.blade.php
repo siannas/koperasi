@@ -182,6 +182,21 @@ active
         </div>
         <div class="card-body">
             <div class="toolbar text-right">
+                <div class="row">
+                    <label class="col-md-1 col-form-label">Filter</label>
+                    <div class="col-md-5">
+                    <div class="form-group">
+                        <input type="text" class="form-control monthyearpicker">
+                    </div>
+                    </div>
+                    <label class="col-md-1 col-form-label">Filter</label>
+                    <div class="col-md-5">
+                    <div class="form-group">
+                        <input type="text" class="form-control monthyearpicker">
+                    </div>
+                    </div>
+                </div>
+                
                 <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalTambah" onclick="document.getElementById('date').value = '{{$date}}'">Tambah</button>
             </div>
             <div class="material-datatables">
