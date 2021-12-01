@@ -188,9 +188,6 @@ active
                         <div class="form-group col-md-3" style="padding-right:0;">    
                             <input type="text" class="form-control monthyearpicker" placeholder="PILIH BULAN">
                         </div>
-                        <div class="form-group col-md-3" style="padding-right:0;">
-                            <input type="text" class="form-control monthyearpicker" placeholder="PILIH BULAN">
-                        </div>
                         <button class="btn btn-sm btn-primary btn-round"><i class="material-icons">filter_alt</i> Proses</button>
                     </div>
                     </form>
