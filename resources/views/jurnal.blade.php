@@ -181,23 +181,23 @@ active
             <h4 class="card-title">Jurnal {{ucwords($currentTipe->tipe)}}</h4>
         </div>
         <div class="card-body">
-            <div class="toolbar text-right">
-                <div class="row">
-                    <label class="col-md-1 col-form-label">Filter</label>
-                    <div class="col-md-5">
-                    <div class="form-group">
-                        <input type="text" class="form-control monthyearpicker">
+            <div class="toolbar row">
+                <div class="col">
+                    <form action="">
+                    <div class="row">
+                        <div class="form-group col-md-3" style="padding-right:0;">    
+                            <input type="text" class="form-control monthyearpicker" placeholder="PILIH BULAN">
+                        </div>
+                        <div class="form-group col-md-3" style="padding-right:0;">
+                            <input type="text" class="form-control monthyearpicker" placeholder="PILIH BULAN">
+                        </div>
+                        <button class="btn btn-sm btn-primary btn-round"><i class="material-icons">filter_alt</i> Proses</button>
                     </div>
-                    </div>
-                    <label class="col-md-1 col-form-label">Filter</label>
-                    <div class="col-md-5">
-                    <div class="form-group">
-                        <input type="text" class="form-control monthyearpicker">
-                    </div>
-                    </div>
+                    </form>
                 </div>
-                
-                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalTambah" onclick="document.getElementById('date').value = '{{$date}}'">Tambah</button>
+                <div class="col-md-2 text-right">
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalTambah" onclick="document.getElementById('date').value = '{{$date}}'">Tambah</button>
+                </div>
             </div>
             <div class="material-datatables">
             <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
@@ -240,15 +240,15 @@ active
                     <td>{{$j->tanggal}}</td>
                     <td>{{$j->keterangan}}</td>
                     <td>{{$j->akunDebit->{'no-akun'} }}</td>
-                    <td>Rp{{ number_format($j->debit, 2) }}</td>
+                    <td>Rp {{ number_format($j->debit, 2) }}</td>
                     <td>{{$j->akunKredit->{'no-akun'} }}</td>
-                    <td>Rp{{ number_format($j->kredit, 2) }}</td>
+                    <td>Rp {{ number_format($j->kredit, 2) }}</td>
                     <td class="text-right">
                     @if($j->isOld)
                     <a href="#" class="btn btn-link text-info btn-just-icon"><i class="material-icons">lock</i></a>
                     @else
-                    <a href="#" class="btn btn-link btn-warning btn-just-icon edit" key="{{$key}}" ><i class="material-icons">edit</i></a>
-                    <a href="#" class="btn btn-link btn-danger btn-just-icon remove" key="{{$key}}"><i class="material-icons">close</i></a>
+                    <a href="#" class="btn btn-link btn-warning btn-just-icon edit btn-sm" key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></a>
+                    <a href="#" class="btn btn-link btn-danger btn-just-icon remove btn-sm" key="{{$key}}" onclick="onDelete(this)"><i class="material-icons">delete</i></a>
                     @endif
                     </td>
                     <td hidden>{{$j->akunDebit->{'nama-akun'} }}</td>
@@ -272,14 +272,42 @@ active
 
 @section('script')
 <script>
+var table;
 var myJurnals = @json($jurnals);
+
+//ketika klik edit
+function onEdit(self) {
+    var key = $(self).attr('key');
+    var j = myJurnals[key];
+    $modal=$('#modalEdit');
+
+    $modal.find('[name=tanggal]').val(j['tanggal2']).change();
+    $modal.find('[name=keterangan]').val(j['keterangan']).change();
+    $modal.find('[name=id-debit]').val(j['id-debit']).change();
+    $modal.find('[name=debit-dummy]').val(j['debit']).change().blur();
+    $modal.find('[name=id-kredit]').val(j['id-kredit']).change();
+    $modal.find('[name=kredit-dummy]').val(j['kredit']).change().blur();
+    $modal.find('form').attr('action', "{{route('jurnal.update', ['tipe'=>$currentTipe->tipe , 'jurnal'=>''])}}/"+j['id']);
+    $modal.modal('show');
+} 
+
+//ketika klik delete
+function onDelete(self) {
+    var key = $(self).attr('key');
+    var j = myJurnals[key];
+    $modal=$('#modalDelete');
+
+    $modal.find('form').attr('action', "{{route('jurnal.destroy', ['tipe'=>$currentTipe->tipe , 'jurnal'=>''])}}/"+j['id']);
+    $modal.modal('show');
+} 
+
 $(document).ready(function() {
     my.initFormExtendedDatetimepickers();
     if ($('.slider').length != 0) {
         md.initSliders();
     }
 
-    const table = $('#datatables').DataTable({
+    table = $('#datatables').DataTable({
         responsive:{
             details: false
         },
@@ -296,9 +324,9 @@ $(document).ready(function() {
         return '<table class="table table-no-style"><tbody>'+
             '<tr><td width="15%"><b>'+'Tanggal'+'</b></td><td>'+d[1]+'</td></tr>'+
             '<tr><td><b>'+'Keterangan'+'</b></td><td>'+d[2]+'</td></tr>'+
-            '<tr><td><b>'+'Akun Debit'+'</b></td><td>'+d[3]+' '+d[8]+'</td></tr>'+
+            '<tr><td><b>'+'Akun Debit'+'</b></td><td>'+d[3]+' - '+d[8]+'</td></tr>'+
             '<tr><td><b>'+'Debit'+'</b></td><td>'+d[4]+'</td></tr>'+
-            '<tr><td><b>'+'Akun Kredit'+'</b></td><td>'+d[5]+' '+d[9]+'</td></tr>'+
+            '<tr><td><b>'+'Akun Kredit'+'</b></td><td>'+d[5]+' - '+d[9]+'</td></tr>'+
             '<tr><td><b>'+'Kredit'+'</b></td><td>'+d[6]+'</td></tr>'+
             '<tbody></table>';
     } 
@@ -324,31 +352,7 @@ $(document).ready(function() {
 		}
 	} );
     
-    //ketika klik edit
-    $('#datatables .edit').on('click', function () {
-		var key = $(this).attr('key');
-        var j = myJurnals[key];
-        $modal=$('#modalEdit');
-
-        $modal.find('[name=tanggal]').val(j['tanggal2']).change();
-        $modal.find('[name=keterangan]').val(j['keterangan']).change();
-        $modal.find('[name=id-debit]').val(j['id-debit']).change();
-        $modal.find('[name=debit-dummy]').val(j['debit']).change().blur();
-        $modal.find('[name=id-kredit]').val(j['id-kredit']).change();
-        $modal.find('[name=kredit-dummy]').val(j['kredit']).change().blur();
-        $modal.find('form').attr('action', "{{route('jurnal.update', ['tipe'=>$currentTipe->tipe , 'jurnal'=>''])}}/"+j['id']);
-        $modal.modal('show');
-	} );
-
-    //ketika klik delete
-    $('#datatables .remove').on('click', function () {
-		var key = $(this).attr('key');
-        var j = myJurnals[key];
-        $modal=$('#modalDelete');
-
-        $modal.find('form').attr('action', "{{route('jurnal.destroy', ['tipe'=>$currentTipe->tipe , 'jurnal'=>''])}}/"+j['id']);
-        $modal.modal('show');
-	} );
+    
 } );
 </script>
 @endsection

@@ -29,25 +29,32 @@ active
                 <div class="col">
                     <form action="{{url('/'.$currentTipe->tipe.'/buku-besar')}}" method="POST">
                     @csrf
-                    @php
-                    
-                    @endphp
-                    <div class="form-group">
-                        <input type="text" class="form-control datepicker" data-style="btn btn-dark btn-sm btn-round">
-                        <select id="akun" name="akun" class="selectpicker" data-size="7" data-style="btn btn-dark btn-sm btn-round" title="Pilih Akun" required>
-                            @foreach($akun as $unit)
-                            <option value="{{$unit->id}}" @if($unit->id==$curAkun->id) selected @endif>{{$unit->{'no-akun'} }} - {{$unit->{'nama-akun'} }}</option>
-                            @endforeach
-                        </select>
-                        <button class="btn btn-dark btn-sm btn-round"><i class="material-icons">filter_alt</i>Filter</button>
+                    <div class="form-group row">
+                        <div class="col-md-3" style="padding-right:0;">
+                            <div class="form-group">
+                                <!-- <label for="bulan" class="bmd-label-floating">PILIH BULAN</label> -->
+                                <input id="bulan" name="bulan" type="text" class="form-control monthyearpicker" placeholder="PILIH BULAN" value="{{$bulan}}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6" style="padding-left:0;">
+                            <select id="akun" name="akun" class="selectpicker" data-size="7" data-style="btn btn-dark btn-round" title="Pilih Akun" required>
+                                @foreach($akun as $unit)
+                                <option value="{{$unit->id}}" @if($unit->id==$curAkun->id) selected @endif>
+                                    {{$unit->{'no-akun'} }} - {{$unit->{'nama-akun'} }}
+                                </option>
+                                @endforeach
+                            </select>
+                            <button class="btn btn-primary btn-round"><i class="material-icons">filter_alt</i> Proses</button>
+                        </div>
                     </div>
                     </form>
                 </div>
-                <div class="col-4 text-right">
-                    <button class="btn btn-success btn-sm">Download</button>
+                <div class="col-2 text-right">
+                    <button class="btn btn-sm btn-success">Download</button>
                 </div>
             </div>
             <div class="material-datatables">
+                <div style="overflow-x:scroll;">
             <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
                 <thead>
                 <tr>
@@ -61,9 +68,8 @@ active
                 </thead>
                 <tbody>
                 @php 
-                $jumlah = 0;
-                $jumlahDebit = 0;
-                $jumlahKredit = 0;
+                
+                $jumlah = $saldoAwal->saldo;
                 @endphp
                 <tr class="bg-dark text-white">
                     <th></th>
@@ -71,7 +77,7 @@ active
                     <th></th>
                     <th></th>
                     <th></th>
-                    <th class="text-right">Rp 0.00</th>
+                    <th class="text-right">Rp {{number_format($saldoAwal->saldo,2)}} </th>
                 </tr>
                 @foreach($jurnal as $unit)
                 <tr>
@@ -106,8 +112,6 @@ active
                         @endif</td>
                     <td class="text-right">
                         @php
-                        
-                        
                         echo number_format($jumlah,2);
                         @endphp</td>
                 </tr>
@@ -121,6 +125,7 @@ active
                 </tr>
                 </tfoot>
             </table>
+            </div>
             </div>
         </div>
         <!-- end content-->
@@ -145,27 +150,24 @@ $(document).ready(function() {
 
     const table = $('#datatables').DataTable({
         responsive:{
-            details: false
+            details: true
         },
+        dom: 'Bfrtip',
+        buttons: [
+            'copyHtml5',
+            'excelHtml5',
+            'csvHtml5',
+            'pdfHtml5'
+        ],
         columnDefs: [
             {   
                 class: "details-control",
                 orderable: false,
                 targets: 0
             },
-            { "visible": false, "targets": [8,9] }
+            { "visible": true, "targets": [8,9] }
         ]
     });
-    function format (d) {
-        return '<table class="table table-no-style"><tbody>'+
-            '<tr><td width="15%"><b>'+'Tanggal'+'</b></td><td>'+d[1]+'</td></tr>'+
-            '<tr><td><b>'+'Keterangan'+'</b></td><td>'+d[2]+'</td></tr>'+
-            '<tr><td><b>'+'Akun Debit'+'</b></td><td>'+d[3]+' '+d[8]+'</td></tr>'+
-            '<tr><td><b>'+'Debit'+'</b></td><td>'+d[4]+'</td></tr>'+
-            '<tr><td><b>'+'Akun Kredit'+'</b></td><td>'+d[5]+' '+d[9]+'</td></tr>'+
-            '<tr><td><b>'+'Kredit'+'</b></td><td>'+d[6]+'</td></tr>'+
-            '<tbody></table>';
-    } 
 
     $('#datatables tbody').on('click', 'td.dt-control', function () {
 		var tr = $(this).closest('tr');
