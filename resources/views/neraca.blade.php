@@ -33,7 +33,7 @@ active
                 <div class="row mb-4">
                     <div class="col-6">
                         <div class="form-group d-inline-block">
-                            <input type="text" class="form-control datepicker" value="10/06/2018">
+                            <input type="text" class="form-control monthyearpicker" value="{{$date}}">
                         </div>
                         <button type="button" class="btn btn-dark btn-round btn-sm"><i class="material-icons" >filter_alt</i> Filter</button>
                     </div>
@@ -90,59 +90,69 @@ active
                             <th class="text-right" width="15%">Akhir Periode</th>
                         </tr>
                         </thead>
-                        @for($i=4;$i<6;$i++)
+                        @php
+                        $total_saldo_berjalan=0;
+                        $total_saldo_awal=0;
+                        @endphp
+                        @foreach($kategoris_debit as $k => $kd)
+                        @if($kd->getAkun->isEmpty() === false and $kd->getAkun[0]->{'id-tipe'}===$currentTipe->id)
+                        @php
+                        $saldo_berjalan=0;
+                        $saldo_awal=0;
+                        @endphp
                         <tbody>
                         <tr>
                             <td><button class="btn btn-success btn-round btn-fab btn-sm mr-1 my-button-toggle"
-                                data-toggle="collapse" data-target="#collapseExample{{$i}}" aria-expanded="false" aria-controls="collapseExample{{$i}}" >
+                                data-toggle="collapse" data-target="#collapseDebit{{$k}}" aria-expanded="false" aria-controls="collapseDebit{{$k}}" >
                                 <i class="material-icons">add</i>
                                 </button></td>
-                            <td ><b>Kas</b></td>
-                            <td class="text-right text-success"><b>Rp2,923,232.00<b></td>
-                            <td class="text-right"><b>Rp2,923,232.00<b></td>
-                            <td class="text-right"><b>Rp2,923,232.00<b></td>
+                            <td colspan="4"><b>{{$kd->kategori}}</b></td>
+                            <!-- <td class="text-right text-success"><b>Rp00<b></td>
+                            <td class="text-right"><b>Rp{{ number_format($saldo_berjalan,2) }}<b></td>
+                            <td class="text-right"><b>Rp00<b></td> -->
                         </tr>
                         </tbody>
-                        <tbody class="no-anim collapse" id="collapseExample{{$i}}">
+                        <tbody class="no-anim collapse" id="collapseDebit{{$k}}">
+                        @foreach($kd->getAkun as $akun)
+                        @php
+                        $debit=$jurnal_debit->has($akun->id) ? $jurnal_debit[$akun->id]->debit : 0;
+                        $kredit=$jurnal_kredit->has($akun->id) ? $jurnal_kredit[$akun->id]->kredit : 0;
+                        $cur=$debit-$kredit;
+                        $awal=$saldos->has($akun->id) ? $saldos[$akun->id]->saldo : 0;
+                        $saldo_awal+=$awal;
+                        $saldo_berjalan+=$cur;
+                        @endphp
                         <tr>
                             <td></td>
-                            <td>Kas Pusat</td>
-                            <td class="text-right text-success">Rp2,923,232.00</td>
-                            <td class="text-right">-</td>
-                            <td class="text-right">Rp2,923,232.00</td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>Kas Pusat</td>
-                            <td class="text-right text-success">Rp2,923,232.00</td>
-                            <td class="text-right">-</td>
-                            <td class="text-right">Rp2,923,232.00</td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>Kas Pusat</td>
-                            <td class="text-right text-success">Rp2,923,232.00</td>
-                            <td class="text-right">-</td>
-                            <td class="text-right">Rp2,923,232.00</td>
-                        </tr>             
+                            <td>{{ $akun->{'nama-akun'} }}</td>
+                            <td class="text-right">Rp {{ number_format($awal,2) }}</td>
+                            <td class="text-right {{ $cur<0 ? 'text-danger':'text-success' }} ">Rp {{ number_format($cur,2) }}</td>
+                            <td class="text-right">Rp {{ number_format($cur+$awal,2) }}</td>
+                        </tr>     
+                        @endforeach
                         </tbody>
                         <tbody>
                         <tr class="table-info">
                             <td class="text-right" colspan="2">Jumlah Aset Lancar</td>
-                            <td class="text-right">Rp2,923,232.00</td>
-                            <td class="text-right">Rp2,923,232.00</td>
-                            <td class="text-right">Rp2,923,232.00</td>
+                            <td class="text-right">Rp {{ number_format($saldo_awal,2) }}</td>
+                            <td class="text-right">Rp {{ number_format($saldo_berjalan,2) }}</td>
+                            <td class="text-right">Rp {{ number_format($saldo_awal+$saldo_berjalan,2) }}</td>
                         </tr>   
                         </tbody>
-                        @endfor
-                        <!-- <tfoot>
-                        <tr class="text-white bg-secondary text-center">
-                            <th colspan="3" class="text-center">TOTAL</th>
-                            <th >Rp2,923,232.00</th>
-                            <th >Rp2,923,232.00</th>
-                            <th >Rp2,923,232.00</th>
-                        </tr>
-                        </tfoot> -->
+                        @php
+                        $total_saldo_berjalan+=$saldo_berjalan;
+                        $total_saldo_awal+=saldo_awal;
+                        @endphp
+                        @endif
+                        @endforeach
+                        <tfoot>
+                        <tr class="table-info">
+                            <td class="text-right" colspan="2">Jumlah Aset</td>
+                            <td class="text-right">Rp {{ number_format($total_saldo_awal,2) }}</td>
+                            <td class="text-right">Rp {{ number_format($total_saldo_berjalan,2) }}</td>
+                            <td class="text-right">Rp {{ number_format($total_saldo_awal+$total_saldo_berjalan,2) }}</td>
+                        </tr>   
+                        </tfoot>
                     </table>
                     </div>
                 </div>
@@ -158,59 +168,69 @@ active
                             <th class="text-right" width="15%">Akhir Periode</th>
                         </tr>
                         </thead>
-                        @for($i=0;$i<1;$i++)
+                        @php
+                        $total_saldo_berjalan=0;
+                        $total_saldo_awal=0;
+                        @endphp
+                        @foreach($kategoris_kredit as $k => $kd)
+                        @if($kd->getAkun->isEmpty() === false and $kd->getAkun[0]->{'id-tipe'}===$currentTipe->id)
+                        @php
+                        $saldo_berjalan=0;
+                        $saldo_awal=0;
+                        @endphp
                         <tbody>
                         <tr>
                             <td><button class="btn btn-success btn-round btn-fab btn-sm mr-1 my-button-toggle"
-                                data-toggle="collapse" data-target="#collapseExample{{$i}}" aria-expanded="false" aria-controls="collapseExample{{$i}}">
+                                data-toggle="collapse" data-target="#collapseKredit{{$k}}" aria-expanded="false" aria-controls="collapseKredit{{$k}}" >
                                 <i class="material-icons">add</i>
                                 </button></td>
-                            <td ><b>Kewajiban</b></td>
-                            <td class="text-right text-success"><b>Rp2,923,232.00<b></td>
-                            <td class="text-right"><b>Rp2,923,232.00<b></td>
-                            <td class="text-right"><b>Rp2,923,232.00<b></td>
+                            <td colspan="4"><b>{{$kd->kategori}}</b></td>
+                            <!-- <td class="text-right text-success"><b>Rp00<b></td>
+                            <td class="text-right"><b>Rp{{ number_format($saldo_berjalan,2) }}<b></td>
+                            <td class="text-right"><b>Rp00<b></td> -->
                         </tr>
                         </tbody>
-                        <tbody class="no-anim collapse" id="collapseExample{{$i}}">
+                        <tbody class="no-anim collapse" id="collapseKredit{{$k}}">
+                        @foreach($kd->getAkun as $akun)
+                        @php
+                        $debit=$jurnal_debit->has($akun->id) ? $jurnal_debit[$akun->id]->debit : 0;
+                        $kredit=$jurnal_kredit->has($akun->id) ? $jurnal_kredit[$akun->id]->kredit : 0;
+                        $cur=$kredit-$debit;
+                        $awal=$saldos->has($akun->id) ? $saldos[$akun->id]->saldo : 0;
+                        $saldo_awal+=$awal;
+                        $saldo_berjalan+=$cur;
+                        @endphp
                         <tr>
                             <td></td>
-                            <td>Kewajiban</td>
-                            <td class="text-right text-success">Rp2,923,232.00</td>
-                            <td class="text-right">-</td>
-                            <td class="text-right">Rp2,923,232.00</td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>Kewajiban</td>
-                            <td class="text-right text-success">Rp2,923,232.00</td>
-                            <td class="text-right">-</td>
-                            <td class="text-right">Rp2,923,232.00</td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>Kas Pusat</td>
-                            <td class="text-right text-success">Rp2,923,232.00</td>
-                            <td class="text-right">-</td>
-                            <td class="text-right">Rp2,923,232.00</td>
-                        </tr>             
+                            <td>{{ $akun->{'nama-akun'} }}</td>
+                            <td class="text-right">Rp {{ number_format($awal,2) }}</td>
+                            <td class="text-right {{ $cur<0 ? 'text-danger':'text-success' }}">Rp {{ number_format($cur,2) }}</td>
+                            <td class="text-right">Rp {{ number_format($cur+$awal,2) }}</td>
+                        </tr>     
+                        @endforeach
                         </tbody>
                         <tbody>
                         <tr class="table-info">
                             <td class="text-right" colspan="2">Jumlah Aset Lancar</td>
-                            <td class="text-right">Rp2,923,232.00</td>
-                            <td class="text-right">Rp2,923,232.00</td>
-                            <td class="text-right">Rp2,923,232.00</td>
+                            <td class="text-right">Rp {{ number_format($saldo_awal,2) }}</td>
+                            <td class="text-right">Rp {{ number_format($saldo_berjalan,2) }}</td>
+                            <td class="text-right">Rp {{ number_format($saldo_awal+$saldo_berjalan,2) }}</td>
                         </tr>   
                         </tbody>
-                        @endfor
-                        <!-- <tfoot>
-                        <tr class="text-white bg-secondary text-center">
-                            <th colspan="3" class="text-center">TOTAL</th>
-                            <th >Rp2,923,232.00</th>
-                            <th >Rp2,923,232.00</th>
-                            <th >Rp2,923,232.00</th>
-                        </tr>
-                        </tfoot> -->
+                        @php
+                        $total_saldo_berjalan+=$saldo_berjalan;
+                        $total_saldo_awal+=saldo_awal;
+                        @endphp
+                        @endif
+                        @endforeach
+                        <tfoot>
+                        <tr class="table-info">
+                            <td class="text-right" colspan="2">Jumlah Aset</td>
+                            <td class="text-right">Rp {{ number_format($total_saldo_awal,2) }}</td>
+                            <td class="text-right">Rp {{ number_format($total_saldo_berjalan,2) }}</td>
+                            <td class="text-right">Rp {{ number_format($total_saldo_awal+$total_saldo_berjalan,2) }}</td>
+                        </tr>   
+                        </tfoot>
                     </table>
                     </div>
                 </div>

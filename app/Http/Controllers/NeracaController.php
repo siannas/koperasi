@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class NeracaController extends Controller
 {
@@ -13,10 +14,58 @@ class NeracaController extends Controller
      */
     public function index(Request $request)
     {
+        $month = $this->date['m'];
+        $year = $this->date['y'];
+        $backDate=Carbon::parse($request->input('date'))->subMonths(1);
+        if($request->input('date')){
+            $my=Carbon::createFromFormat('m/Y', $request->input('date'));
+            $backDate=$my->subMonths(1);
+            $month = $my->month;
+            $year = $my->year;
+        }
         $tipe=$request->get('tipe');
+        
+        $saldos=\App\Saldo::whereMonth('tanggal', $backDate->month)
+            ->whereYear('tanggal', $backDate->year)
+            ->select('id','id-kategori','id-akun','saldo')
+            ->get()->keyBy('id-akun');
+        
+        $kategoris_debit=\App\Kategori::with(['getAkun' => function($q) use($tipe) {
+                $q->select('id','nama-akun','no-akun', 'id-kategori','id-tipe')
+                    ->where('id-tipe',$tipe->id);
+            }])
+            ->where('tipe-pendapatan', 'debit')
+            ->get();
+
+        $kategoris_kredit=\App\Kategori::with(['getAkun' => function($q) use($tipe) {
+                $q->select('id','nama-akun','no-akun', 'id-kategori','id-tipe')
+                    ->where('id-tipe',$tipe->id);
+            }])
+            ->where('tipe-pendapatan', 'kredit')
+            ->get();
+
+        $jurnal_debit=\App\Jurnal::where('id-tipe',$tipe->id)
+            ->selectRaw('`id-debit`, sum(debit) as debit')
+            ->groupBy('id-debit')
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
+            ->get()->keyBy('id-debit');
+
+        $jurnal_kredit=\App\Jurnal::where('id-tipe',$tipe->id)
+            ->selectRaw('`id-kredit`, sum(kredit) as kredit')
+            ->groupBy('id-kredit')
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
+            ->get()->keyBy('id-kredit');
+        
         return view('neraca', [
             'currentTipe'=>$tipe,
-            'date'=>$this->date['date']->format('d/m/Y'),
+            'date'=> $request->input('date') || $this->date['date']->format('m/Y'),
+            'kategoris_debit' => $kategoris_debit,
+            'kategoris_kredit' => $kategoris_kredit,
+            'jurnal_debit' => $jurnal_debit,
+            'jurnal_kredit' => $jurnal_kredit,
+            'saldos'=>$saldos,
         ]);
     }
 

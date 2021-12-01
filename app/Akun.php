@@ -35,4 +35,10 @@ class Akun extends Model
     public function getKategori(){
         return $this->belongsTo(Kategori::class, 'id-kategori');
     }
+    public function getDebit(){
+        return $this->hasMany(Jurnal::class, 'id-debit');
+    }
+    public function getKredit(){
+        return $this->hasMany(Jurnal::class, 'id-kredit');
+    }
 }

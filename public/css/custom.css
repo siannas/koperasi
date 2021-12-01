@@ -27,5 +27,5 @@
 }
 
 .no-anim.collapsing {
-    transition: height 0.05s;
+    transition: height 0.001s;
 }
