@@ -17,7 +17,7 @@ class Saldo extends Model
      */
     protected $fillable = [
         'id-tipe',
-        'no-akun',
+        'id-akun',
         'id-kategori',
         'saldo',
         'tanggal',
