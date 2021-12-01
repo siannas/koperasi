@@ -24,9 +24,11 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('neraca', 'NeracaController')->except([
             'create',
         ]);
+        Route::get('buku-besar', 'BukuBesarController@index');
+        Route::post('buku-besar', 'BukuBesarController@filter');
+        Route::get('tes', 'TesController@index');
     });
     
     Route::resource('/akun', 'AkunController');
     Route::resource('/kategori', 'KategoriController');
-    
 });
