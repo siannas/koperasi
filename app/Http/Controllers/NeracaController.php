@@ -16,12 +16,12 @@ class NeracaController extends Controller
     {
         $month = $this->date['m'];
         $year = $this->date['y'];
-        $backDate=Carbon::parse($request->input('date'))->subMonths(1);
+        $backDate=Carbon::instance($this->date['date'])->subMonths(1);
         if($request->input('date')){
             $my=Carbon::createFromFormat('m/Y', $request->input('date'));
-            $backDate=$my->subMonths(1);
             $month = $my->month;
             $year = $my->year;
+            $backDate=$my->subMonths(1);
         }
         $tipe=$request->get('tipe');
         
@@ -29,12 +29,16 @@ class NeracaController extends Controller
             ->whereYear('tanggal', $backDate->year)
             ->select('id','id-kategori','id-akun','saldo')
             ->get()->keyBy('id-akun');
+
+        // Ambil kategori parent yang non SHU
+        $nonSHU=\App\Kategori::where('kategori','NON-SHU')->select('id')->first();
         
         $kategoris_debit=\App\Kategori::with(['getAkun' => function($q) use($tipe) {
                 $q->select('id','nama-akun','no-akun', 'id-kategori','id-tipe')
                     ->where('id-tipe',$tipe->id);
             }])
             ->where('tipe-pendapatan', 'debit')
+            ->where('parent',$nonSHU->id)
             ->get();
 
         $kategoris_kredit=\App\Kategori::with(['getAkun' => function($q) use($tipe) {
@@ -42,6 +46,7 @@ class NeracaController extends Controller
                     ->where('id-tipe',$tipe->id);
             }])
             ->where('tipe-pendapatan', 'kredit')
+            ->where('parent',$nonSHU->id)
             ->get();
 
         $jurnal_debit=\App\Jurnal::where('id-tipe',$tipe->id)
@@ -57,10 +62,10 @@ class NeracaController extends Controller
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
             ->get()->keyBy('id-kredit');
-        
+    
         return view('neraca', [
             'currentTipe'=>$tipe,
-            'date'=> $request->input('date') || $this->date['date']->format('m/Y'),
+            'date'=> $month.'/'.$year,
             'kategoris_debit' => $kategoris_debit,
             'kategoris_kredit' => $kategoris_kredit,
             'jurnal_debit' => $jurnal_debit,

@@ -29,34 +29,23 @@ active
             <h4 class="card-title">Neraca {{ucwords($currentTipe->tipe)}}</h4>
         </div>
         <div class="card-body">
-            <div class="toolbar">
-                <div class="row mb-4">
+            <div class="toolbar mb-5">
+                <div class="row ">
                     <div class="col-6">
+                        <form action="{{route('neraca.filter', ['tipe' => $currentTipe->tipe])}}" method="POST">
+                        @csrf
                         <div class="form-group d-inline-block">
-                            <input type="text" class="form-control monthyearpicker" value="{{$date}}">
+                            <input name="date" type="text" class="form-control monthyearpicker" value="{{$date}}">
                         </div>
-                        <button type="button" class="btn btn-dark btn-round btn-sm"><i class="material-icons" >filter_alt</i> Filter</button>
+                        <button type="submit" class="btn btn-primary btn-round"><i class="material-icons">filter_alt</i> Proses</button>
+                        </form>
                     </div>
                     <div class="col-6 text-right">
                         <button type="button" class="btn btn-success btn-sm">Download</button>
                     </div>
                 </div>
             </div>
-            <!-- <ul class="nav mb-4 justify-content-center" role="tablist">
-                <li class="nav-item btn-group mb-0 ">
-                    <a class="active btn btn-outline-info" data-toggle="tab" href="#debit-container" role="tablist">
-                    Aset
-                    </a>
-                    <a href="#" class="btn" hidden></a>
-                </li>
-                <li class="nav-item btn-group mb-0 ">
-                    <a href="#" class="btn" hidden></a>
-                    <a class="btn btn-outline-info" data-toggle="tab" href="#kredit-container" role="tablist">
-                    Kewajiban
-                    </a>
-                </li>
-            </ul> -->
-            <ul class="nav nav-pills nav-pills-info justify-content-center" role="tablist">
+            <ul class="nav nav-pills nav-pills-primary justify-content-center" role="tablist">
                 <li class="nav-item">
                     <a class="nav-link active" data-toggle="tab" href="#debit-container" role="tablist">
                     Aset
@@ -68,21 +57,24 @@ active
                     </a>
                 </li>
             </ul>
+            <div id="statusContainer" class="mt-3">
+                
+            </div>
             <div class="tab-content tab-space">
                 <div id="debit-container" class="tab-pane active" >
                     <div class="material-datatables" >
-                    <table class="table table-no-bordered table-hover height-50" cellspacing="0" width="100%" style="width:100%">
+                    <table class="table table-no-bordered table-hover dataTable" cellspacing="0" width="100%" style="width:100%">
                         <thead>
                         <tr>
                             <th width="1">
-                                <div class="form-check ml-auto mr-auto" style="width: 20px;">
+                                <!-- <div class="form-check ml-auto mr-auto" style="width: 20px;">
                                 <label class="form-check-label">
                                     <input class="form-check-input" type="checkbox" value="">
                                     <span class="form-check-sign">
                                     <span class="check"></span>
                                     </span>
                                 </label>
-                                </div>
+                                </div> -->
                             </th>
                             <th>Keterangan</th>
                             <th class="text-right" width="15%">Awal Periode</th>
@@ -141,16 +133,19 @@ active
                         </tbody>
                         @php
                         $total_saldo_berjalan+=$saldo_berjalan;
-                        $total_saldo_awal+=saldo_awal;
+                        $total_saldo_awal+=$saldo_awal;
                         @endphp
                         @endif
                         @endforeach
+                        @php
+                        $akhir_aset=$total_saldo_awal+$total_saldo_berjalan;                        
+                        @endphp
                         <tfoot>
-                        <tr class="table-info">
-                            <td class="text-right" colspan="2">Jumlah Aset</td>
-                            <td class="text-right">Rp {{ number_format($total_saldo_awal,2) }}</td>
-                            <td class="text-right">Rp {{ number_format($total_saldo_berjalan,2) }}</td>
-                            <td class="text-right">Rp {{ number_format($total_saldo_awal+$total_saldo_berjalan,2) }}</td>
+                        <tr class="bg-dark text-white">
+                            <th class="text-right" colspan="2">Jumlah Aset</th>
+                            <th class="text-right">Rp {{ number_format($total_saldo_awal,2) }}</th>
+                            <th class="text-right">Rp {{ number_format($total_saldo_berjalan,2) }}</th>
+                            <th class="text-right">Rp {{ number_format($total_saldo_awal+$total_saldo_berjalan,2) }}</th>
                         </tr>   
                         </tfoot>
                     </table>
@@ -158,7 +153,7 @@ active
                 </div>
                 <div id="kredit-container" class="tab-pane" >
                     <div class="material-datatables" >
-                    <table class="table table-no-bordered table-hover height-50" cellspacing="0" width="100%" style="width:100%">
+                    <table class="table table-no-bordered table-hover dataTable" cellspacing="0" width="100%" style="width:100%">
                         <thead>
                         <tr>
                             <th width="1"></th>
@@ -219,16 +214,19 @@ active
                         </tbody>
                         @php
                         $total_saldo_berjalan+=$saldo_berjalan;
-                        $total_saldo_awal+=saldo_awal;
+                        $total_saldo_awal+=$saldo_awal;
                         @endphp
                         @endif
                         @endforeach
+                        @php
+                        $akhir_kewajiban=$total_saldo_awal+$total_saldo_berjalan;                        
+                        @endphp
                         <tfoot>
-                        <tr class="table-info">
-                            <td class="text-right" colspan="2">Jumlah Aset</td>
-                            <td class="text-right">Rp {{ number_format($total_saldo_awal,2) }}</td>
-                            <td class="text-right">Rp {{ number_format($total_saldo_berjalan,2) }}</td>
-                            <td class="text-right">Rp {{ number_format($total_saldo_awal+$total_saldo_berjalan,2) }}</td>
+                        <tr class="bg-dark text-white">
+                            <th class="text-right" colspan="2">Jumlah Aset</th>
+                            <th class="text-right">Rp {{ number_format($total_saldo_awal,2) }}</th>
+                            <th class="text-right">Rp {{ number_format($total_saldo_berjalan,2) }}</th>
+                            <th class="text-right">Rp {{ number_format($total_saldo_awal+$total_saldo_berjalan,2) }}</th>
                         </tr>   
                         </tfoot>
                     </table>
@@ -249,6 +247,14 @@ active
 
 @section('script')
 <script>
+const statusDanger=`<div class="alert alert-danger mb-0 p-2 ">
+<span class="d-inline-block" style="vertical-align:middle;"><i class="material-icons text-white">highlight_off</i></span>
+<span class="d-inline-block"><b>  &nbsp Saldo Tidak Seimbang</b></span>
+</div>`;
+const statusSuccess=`<div class="alert alert-success mb-0 p-2 ">
+<span class="d-inline-block" style="vertical-align:middle;"><i class="material-icons text-white">check_circle_outline</i></span>
+<span class="d-inline-block"><b>  &nbsp Saldo Seimbang</b></span>
+</div>`;
 
 $(document).ready(function() {
     my.initFormExtendedDatetimepickers();
@@ -269,6 +275,13 @@ $(document).ready(function() {
             btn.find('.material-icons').text('add');
         }
     })
+
+    // set alert status neraca
+    if( @json($akhir_aset) !== @json($akhir_kewajiban)){
+        $('#statusContainer').html(statusDanger);
+    }else{
+        $('#statusContainer').html(statusSuccess);
+    }
 } );
 </script>
 @endsection

@@ -46,8 +46,7 @@ active
                         </div>
                         <div class="form-group">
                             <label for="debit" class="bmd-label-floating">Debit</label>
-                            <input type="text" class="form-control rupiah-input" id="debit" name="debit-dummy" required
-                                onchange="this.nextSibling.nextSibling.value=parseFloat(this.value.replace(/Rp|,/g, '')).toFixed(2)">
+                            <input type="text" class="form-control rupiah-input" id="debit" name="debit-dummy" required>
                             <input type="hidden" readonly name="debit" required>
                         </div>
                     </div>
@@ -62,8 +61,7 @@ active
                         </div>
                         <div class="form-group">
                             <label for="kredit" class="bmd-label-floating">Kredit</label>
-                            <input type="text" class="form-control rupiah-input" id="kredit" name="kredit-dummy" required
-                                onchange="this.nextSibling.nextSibling.value=parseFloat(this.value.replace(/Rp|,/g, '')).toFixed(2)">
+                            <input type="text" class="form-control rupiah-input" id="kredit" name="kredit-dummy" required >
                             <input type="hidden" readonly name="kredit" required>
                         </div>
                     </div>
@@ -111,8 +109,7 @@ active
                     </div>
                     <div class="form-group">
                         <label for="debit-edit" class="bmd-label-floating">Debit</label>
-                        <input type="text" class="form-control rupiah-input" id="debit-edit" name="debit-dummy" required
-                            onchange="this.nextSibling.nextSibling.value=parseFloat(this.value.replace(/Rp|,/g, '')).toFixed(2)">
+                        <input type="text" class="form-control rupiah-input" id="debit-edit" name="debit-dummy" required >
                         <input type="hidden" readonly name="debit" required>
                     </div>
                 </div>
@@ -127,8 +124,7 @@ active
                     </div>
                     <div class="form-group">
                         <label for="kredit-edit" class="bmd-label-floating">Kredit</label>
-                        <input type="text" class="form-control rupiah-input" id="kredit-edit" name="kredit-dummy" required
-                            onchange="this.nextSibling.nextSibling.value=parseFloat(this.value.replace(/Rp|,/g, '')).toFixed(2)">
+                        <input type="text" class="form-control rupiah-input" id="kredit-edit" name="kredit-dummy" required >
                         <input type="hidden" readonly name="kredit" required>
                     </div>
                 </div>
@@ -349,7 +345,14 @@ $(document).ready(function() {
 		}
 	} );
     
-    
+    $('.rupiah-input').change(function(e){
+        var self=e.target;
+        var curval= self.value.replace(/Rp|,/g, "");
+        if (curval.trim()==='' && self.hasOwnProperty("oldValue")) {   //is it valid float number?
+            curval= self.oldValue.replace(/Rp|,/g, "");
+        }
+        self.nextSibling.nextSibling.value=parseFloat(curval).toFixed(2)
+    });
 } );
 </script>
 @endsection

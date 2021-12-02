@@ -4,8 +4,8 @@ const my = {
         return d.getDate()+'/'+d.getMonth()+'/'+d.getFullYear();
     },
     "inputToRupiah": function (){    
-      var curval=this.value.replace(/Rp|,/g, "");
-      if (/^[\d.]*$/.test(curval)) {   //is it valid float number?
+      var curval= this.value.replace(/Rp|,/g, "");
+      if (/^[\d.]*$/.test(curval) && curval.trim()!=='') {   //is it valid float number?
         this.oldSelectionStart = this.selectionStart;
         this.oldSelectionEnd = this.selectionEnd;
         this.value = this.oldValue=  'Rp'+parseFloat(curval)

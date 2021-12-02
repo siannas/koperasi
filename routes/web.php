@@ -21,9 +21,9 @@ Route::middleware(['auth'])->group(function () {
             'create',
         ]);
 
-        Route::resource('neraca', 'NeracaController')->except([
-            'create',
-        ]);
+        Route::get('neraca', 'NeracaController@index')->name('neraca.index');
+        Route::post('neraca', 'NeracaController@index')->name('neraca.filter');
+
         Route::get('buku-besar', 'BukuBesarController@index');
         Route::post('buku-besar', 'BukuBesarController@filter');
         Route::get('tes', 'TesController@index');
