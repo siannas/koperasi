@@ -20,6 +20,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('jurnal', 'JurnalController')->except([
             'create',
         ]);
+        Route::post('jurnal/filter', 'JurnalController@filter')->name('jurnal.filter');
 
         Route::get('neraca', 'NeracaController@index')->name('neraca.index');
         Route::post('neraca', 'NeracaController@index')->name('neraca.filter');
