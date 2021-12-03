@@ -87,7 +87,7 @@ active
                         $total_saldo_awal=0;
                         @endphp
                         @foreach($kategoris_debit as $k => $kd)
-                        @if($kd->getAkun->isEmpty() === false and $kd->getAkun[0]->{'id-tipe'}===$currentTipe->id)
+                        @if($kd->getAkun->isEmpty() === false and intval($kd->getAkun[0]->{'id-tipe'})===$currentTipe->id)
                         @php
                         $saldo_berjalan=0;
                         $saldo_awal=0;
@@ -168,7 +168,7 @@ active
                         $total_saldo_awal=0;
                         @endphp
                         @foreach($kategoris_kredit as $k => $kd)
-                        @if($kd->getAkun->isEmpty() === false and $kd->getAkun[0]->{'id-tipe'}===$currentTipe->id)
+                        @if($kd->getAkun->isEmpty() === false and intval($kd->getAkun[0]->{'id-tipe'})===$currentTipe->id)
                         @php
                         $saldo_berjalan=0;
                         $saldo_awal=0;
