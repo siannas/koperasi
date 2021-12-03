@@ -11,7 +11,7 @@ use App\Akun;
 class AkunController extends Controller
 {
     public function index(){
-        $kategori = Kategori::all();
+        $kategori = Kategori::whereNotNull('parent')->get();
         $akun = Akun::with('getTipe', 'getKategori')->get();
 
         return view('akun', ['kategori'=>$kategori, 'akun'=>$akun]);

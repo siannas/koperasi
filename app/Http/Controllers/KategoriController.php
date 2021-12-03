@@ -9,9 +9,10 @@ use App\Kategori;
 class KategoriController extends Controller
 {
     public function index(){
-        $kategori = Kategori::all();
-
-        return view('kategori', ['kategori'=>$kategori]);
+        $kategori = Kategori::whereNotNull('parent')->get();
+        $golongan = Kategori::whereNull('parent')->get();
+        
+        return view('kategori', ['kategori'=>$kategori, 'golongan'=>$golongan]);
     }
 
     public function store(Request $request){

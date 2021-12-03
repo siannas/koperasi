@@ -39,9 +39,11 @@ active
                         <div class="col-md-6" style="padding-left:0;">
                             <select id="akun" name="akun" class="selectpicker" data-size="7" data-style="btn btn-dark btn-round" title="Pilih Akun" required>
                                 @foreach($akun as $unit)
+                                @if($unit->getKategori->parent!=17)
                                 <option value="{{$unit->id}}" @if($unit->id==$curAkun->id) selected @endif>
                                     {{$unit->{'no-akun'} }} - {{$unit->{'nama-akun'} }}
                                 </option>
+                                @endif
                                 @endforeach
                             </select>
                             <button class="btn btn-primary btn-round"><i class="material-icons">filter_alt</i> Proses</button>
@@ -50,7 +52,7 @@ active
                     </form>
                 </div>
                 <div class="col-2 text-right">
-                    <button class="btn btn-sm btn-success">Download</button>
+                    <form action="{{url($currentTipe->tipe.'/buku-besar/excel')}}" method="post">@csrf <button class="btn btn-sm btn-success">Download</button></form>
                 </div>
             </div>
             <div class="material-datatables">

@@ -26,6 +26,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('buku-besar', 'BukuBesarController@index');
         Route::post('buku-besar', 'BukuBesarController@filter');
+        Route::post('buku-besar/excel', 'BukuBesarController@excel');
         Route::get('tes', 'TesController@index');
     });
     

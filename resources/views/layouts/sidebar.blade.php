@@ -6,8 +6,8 @@
         Tip 2: you can also add an image using data-image tag
         -->
     <div class="logo">
-        <a href="http://www.creative-tim.com" class="simple-text logo-mini">K</a>
-        <a href="http://www.creative-tim.com" class="simple-text logo-normal">Koperasi</a>
+        <a href="{{url('/')}}" class="simple-text logo-mini">K</a>
+        <a href="{{url('/')}}" class="simple-text logo-normal">Koperasi</a>
     </div>
     <div class="sidebar-wrapper">
         <div class="user">
@@ -16,11 +16,10 @@
             </div>
             <div class="user-info">
                 <a data-toggle="collapse" href="#collapseExample" class="username">
-                    <span>{{Auth::user()->nama}}</span>
+                    <span>{{ucwords(Auth::user()->nama)}}</span>
                 </a>
-            
+            </div>
         </div>
-    </div>
     <ul class="nav">
         <li class="nav-item @yield('dashboardStatus') ">
             <a class="nav-link" href="{{url('/')}}">
