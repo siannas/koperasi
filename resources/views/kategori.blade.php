@@ -34,7 +34,7 @@ active
                 </div>
                 <div class="col">
                     <div class="form-group is-filled">
-                        <select name="golongan" class="selectpicker" data-style="btn btn-primary btn-round" title="Golongan" required style="width:100%;">
+                        <select name="parent" class="selectpicker" data-style="btn btn-primary btn-round" title="Golongan" required style="width:100%;">
                             @foreach($golongan as $unit)
                             <option value="{{$unit->id}}">{{$unit->kategori}}</option>
                             @endforeach
@@ -81,7 +81,7 @@ active
                 </div>
                 <div class="col">
                     <div class="form-group is-filled">
-                        <select name="golongan" class="selectpicker" data-style="btn btn-primary btn-round" title="Golongan" required>
+                        <select name="parent" class="selectpicker" data-style="btn btn-primary btn-round" title="Golongan" required>
                             @foreach($golongan as $unit)
                             <option value="{{$unit->id}}">{{$unit->kategori}}</option>
                             @endforeach
@@ -210,7 +210,7 @@ function onEdit(self) {
     $modal=$('#editKategori');
 
     $modal.find('[name=tipe-pendapatan]').val(j['tipe-pendapatan']).change();
-    $modal.find('[name=golongan]').val(j['parent']).change();
+    $modal.find('[name=parent]').val(j['parent']).change();
     $modal.find('[name=kategori]').val(j['kategori']).change();
     $modal.find('form').attr('action', "{{route('kategori.update', ['kategori'=>''])}}/"+j['id']);
     $modal.modal('show');

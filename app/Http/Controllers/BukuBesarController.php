@@ -67,6 +67,7 @@ class BukuBesarController extends Controller
         $saldoAwal=Saldo::where('id-akun', $request->akun)
             ->whereMonth('tanggal', $month-1)
             ->whereYear('tanggal', $year)->first();
+        
         if(!$saldoAwal) $saldoAwal=new Saldo();
 
         $tipePen = Akun::with(['getKategori' => function($query) { 
@@ -79,7 +80,6 @@ class BukuBesarController extends Controller
             ->where('id-debit', $request->akun)
             ->orWhere('id-kredit', $request->akun)
             ->get()->sortBy('tanggal');
-
         
         $ex = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $ex->getProperties()->setCreator("siannasGG");
@@ -89,14 +89,14 @@ class BukuBesarController extends Controller
         $ac->getCell('A3')->setValue("NO. AKUN");
         $ac->getCell('A4')->setValue("NAMA AKUN");
 
-        $ac->getCell('B3')->setValue(": ".$request->akun);
-        $ac->getCell('B4')->setValue(": Kas");
+        $ac->getCell('B3')->setValue(": ".$tipePen->{'no-akun'});
+        $ac->getCell('B4')->setValue(": ".$tipePen->{'nama-akun'});
 
         $ac->getCell('E3')->setValue("SALDO AWAL");
         $ac->getCell('E4')->setValue("SALDO AKHIR");
 
-        $ac->getCell('F3')->setValue(": Rp 1,000,000.00");
-        $ac->getCell('F4')->setValue(": Rp 450,000.00");
+        $ac->getCell('F3')->setValue(": Rp ".number_format($saldoAwal->saldo, 2));
+        // $ac->getCell('F4')->setValue(": Rp 450,000.00");
 
         $ac->mergeCells('A6:A7');
         $ac->getCell('A6')->setValue("TANGGAL");
@@ -110,8 +110,43 @@ class BukuBesarController extends Controller
         $ac->getCell('E6')->setValue("KREDIT");
         $ac->mergeCells('F6:F7');
         $ac->getCell('F6')->setValue("SALDO");
-
         
+        $ac->getCell('C8')->setValue('SALDO AWAL');
+        $ac->getCell('F8')->setValue(number_format($saldoAwal->saldo, 2));
+
+        $jumlah = $saldoAwal->saldo;
+        for($x=0;$x<count($jurnal);$x++){
+            $ac->getCell('A'.($x+9))->setValue($jurnal[$x]->tanggal);
+            $ac->getCell('B'.($x+9))->setValue($jurnal[$x]->{'no-ref'});
+            $ac->getCell('C'.($x+9))->setValue($jurnal[$x]->keterangan);
+            if($jurnal[$x]->{'id-debit'}==$tipePen->id){
+                $ac->getCell('D'.($x+9))->setValue(number_format($jurnal[$x]->debit,2));
+                if($tipePen->getKategori->{'tipe-pendapatan'} == 'debit'){
+                    $jumlah += intval($jurnal[$x]->debit);
+                }
+                elseif($tipePen->getKategori->{'tipe-pendapatan'} == 'kredit'){
+                    $jumlah -= intval($jurnal[$x]->debit);
+                }
+            }
+            else{
+                $ac->getCell('D'.($x+9))->setValue('-');
+            }
+            if($jurnal[$x]->{'id-kredit'}==$tipePen->id){
+                $ac->getCell('E'.($x+9))->setValue(number_format($jurnal[$x]->kredit,2));
+                if($tipePen->getKategori->{'tipe-pendapatan'} == 'debit'){
+                    $jumlah -= intval($jurnal[$x]->kredit);
+                }
+                elseif($tipePen->getKategori->{'tipe-pendapatan'} == 'kredit'){
+                    $jumlah += intval($jurnal[$x]->kredit);
+                }
+            }
+            else{
+                $ac->getCell('E'.($x+9))->setValue('-');
+            }
+            
+            $ac->getCell('F'.($x+9))->setValue(number_format($jumlah,2));
+        }
+        $ac->getCell('F4')->setValue(": Rp ".(number_format($jumlah,2)));
         
         
         $titleStyle = [
@@ -126,7 +161,6 @@ class BukuBesarController extends Controller
 
         $headerStyle = [
             'alignment' => [
-                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
                 'wrapText' => true,
             ],
@@ -146,7 +180,7 @@ class BukuBesarController extends Controller
         $ac->getColumnDimension('F')->setWidth(20);
         $ac->getColumnDimension('C')->setWidth(40);
         $ac->getStyle('A1')->applyFromArray($titleStyle);
-        $ac->getStyle('A6:'.$col.'10')->applyFromArray($headerStyle);
+        $ac->getStyle('A6:'.$col.(count($jurnal)+8))->applyFromArray($headerStyle);
         
         $fileName="tes.xlsx";
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
