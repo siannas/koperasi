@@ -182,7 +182,7 @@ class BukuBesarController extends Controller
         $ac->getStyle('A1')->applyFromArray($titleStyle);
         $ac->getStyle('A6:'.$col.(count($jurnal)+8))->applyFromArray($headerStyle);
         
-        $fileName="tes.xlsx";
+        $fileName="BukuBesar_".$tipePen->{'nama-akun'}.".xlsx";
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="'. urlencode($fileName).'"');
         header('Cache-Control: max-age=0');
