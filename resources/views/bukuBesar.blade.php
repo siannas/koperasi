@@ -25,10 +25,11 @@ active
             <h4 class="card-title">Buku Besar {{ucwords($currentTipe->tipe)}}</h4>
         </div>
         <div class="card-body">
+            <form action="{{url('/'.$currentTipe->tipe.'/buku-besar')}}" method="POST">
+            @csrf
             <div class="toolbar row">
                 <div class="col">
-                    <form action="{{url('/'.$currentTipe->tipe.'/buku-besar')}}" method="POST">
-                    @csrf
+                    
                     <div class="form-group row">
                         <div class="col-md-3" style="padding-right:0;">
                             <div class="form-group">
@@ -39,20 +40,23 @@ active
                         <div class="col-md-6" style="padding-left:0;">
                             <select id="akun" name="akun" class="selectpicker" data-size="7" data-style="btn btn-dark btn-round" title="Pilih Akun" required>
                                 @foreach($akun as $unit)
+                                @if($unit->getKategori->parent!=17)
                                 <option value="{{$unit->id}}" @if($unit->id==$curAkun->id) selected @endif>
                                     {{$unit->{'no-akun'} }} - {{$unit->{'nama-akun'} }}
                                 </option>
+                                @endif
                                 @endforeach
                             </select>
-                            <button class="btn btn-primary btn-round"><i class="material-icons">filter_alt</i> Proses</button>
+                            <button class="btn btn-primary btn-round" formaction="#"><i class="material-icons">filter_alt</i> Proses</button>
                         </div>
                     </div>
                     </form>
                 </div>
                 <div class="col-2 text-right">
-                    <button class="btn btn-sm btn-success">Download</button>
+                    <button class="btn btn-sm btn-success" formaction="{{url($currentTipe->tipe.'/buku-besar/excel')}}">Download</button>
                 </div>
             </div>
+            </form>
             <div class="material-datatables">
                 <div style="overflow-x:scroll;">
             <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">

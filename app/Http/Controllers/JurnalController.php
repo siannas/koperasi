@@ -31,7 +31,39 @@ class JurnalController extends Controller
             'akuns'=>$akuns,
             'currentTipe'=>$tipe,
             'jurnals'=>$jurnals,
-            'date'=>$this->date['date']->format('d/m/Y'),
+            'date'=>$this->date['date']->format('m/Y'),
+        ]);
+    }
+
+    public function filter(Request $request){
+        $dateAwal=$this->date['date']->format('Y-m').'-01';
+        
+        $backDate=Carbon::instance($this->date['date'])->subMonths(1);
+        
+        $my=Carbon::createFromFormat('m/Y', $request->date);
+        $month = $my->month;
+        $year = $my->year;
+        
+        $tipe=$request->get('tipe');
+        
+        $akuns = \App\Akun::where('id-tipe',$tipe->id)
+            ->select('id','nama-akun')
+            ->get();
+        $jurnals = \App\Jurnal::where('id-tipe',$tipe->id)
+            ->select('*',DB::raw("STR_TO_DATE('{$dateAwal}', '%Y-%m-%d') > tanggal AS isOld"),
+                DB::raw("DATE_FORMAT(tanggal,'%d/%m/%Y') AS tanggal2"))
+            ->with('akunDebit')
+            ->with('akunKredit')
+            ->orderBy('tanggal','DESC')
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
+            ->get();
+
+        return view('jurnal', [
+            'akuns'=>$akuns,
+            'currentTipe'=>$tipe,
+            'jurnals'=>$jurnals,
+            'date'=>$request->date,
         ]);
     }
 

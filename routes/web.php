@@ -43,12 +43,15 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('jurnal', 'JurnalController')->only([
                 'index',
             ]);
+            
+            Route::post('jurnal/filter', 'JurnalController@filter')->name('jurnal.filter');
 
             Route::get('neraca', 'NeracaController@index')->name('neraca.index');
             Route::post('neraca', 'NeracaController@index')->name('neraca.filter');
 
             Route::get('buku-besar', 'BukuBesarController@index');
             Route::post('buku-besar', 'BukuBesarController@filter');
+            Route::post('buku-besar/excel', 'BukuBesarController@excel');
         });
             
 

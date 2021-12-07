@@ -23,11 +23,24 @@ active
         <form class="form-horizontal" action="{{route('kategori.store')}}" method="post">
         @csrf
         <div class="modal-body">
-            <div class="form-group is-filled">
-                <select name="tipe-pendapatan" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe Pendapatan" required style="width:100%;">
-                    <option value="debit">Debit</option>
-                    <option value="kredit">Kredit</option>
-                </select>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group is-filled">
+                        <select name="tipe-pendapatan" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe Pendapatan" required style="width:100%;">
+                            <option value="debit">Debit</option>
+                            <option value="kredit">Kredit</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group is-filled">
+                        <select name="parent" class="selectpicker" data-style="btn btn-primary btn-round" title="Golongan" required style="width:100%;">
+                            @foreach($golongan as $unit)
+                            <option value="{{$unit->id}}">{{$unit->kategori}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
             </div>
             <div class="form-group">
                 <label for="kategori" class="bmd-label-floating">Nama Kategori</label>
@@ -57,12 +70,25 @@ active
         @csrf
         @method('PUT')
         <div class="modal-body">
-            <div class="form-group is-filled">
-                <select name="tipe-pendapatan" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe Pendapatan" required>
-                    <option value="debit">Debit</option>
-                    <option value="kredit">Kredit</option>
-                </select>
-            </div>    
+            <div class="row">
+                <div class="col">
+                    <div class="form-group is-filled">
+                        <select name="tipe-pendapatan" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe Pendapatan" required>
+                            <option value="debit">Debit</option>
+                            <option value="kredit">Kredit</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group is-filled">
+                        <select name="parent" class="selectpicker" data-style="btn btn-primary btn-round" title="Golongan" required>
+                            @foreach($golongan as $unit)
+                            <option value="{{$unit->id}}">{{$unit->kategori}}</option>
+                            @endforeach
+                        </select>
+                    </div>    
+                </div>
+            </div>
             <div class="form-group">
                 <label for="kategori" class="bmd-label-floating">Nama Kategori</label>
                 <input id="kategori" name="kategori" type="text" class="form-control" required>
@@ -124,6 +150,7 @@ active
                 <tr>
                     <th>Tipe</th>
                     <th>Kategori</th>
+                    <th>Golongan</th>
                     <th class="disabled-sorting text-right">Aksi</th>
                 </tr>
                 </thead>
@@ -131,6 +158,7 @@ active
                 <tr>
                     <th>Tipe</th>
                     <th>Kategori</th>
+                    <th>Golongan</th>
                     <th class="text-right">Aksi</th>
                 </tr>
                 </tfoot>
@@ -139,6 +167,15 @@ active
                 <tr>
                     <td>{{ucwords($unit->{'tipe-pendapatan'}) }}</td>
                     <td>{{$unit->kategori}}</td>
+                    <td>
+                        @php
+                        foreach($golongan as $unitGol){
+                            if($unit->parent==$unitGol->id){
+                                echo $unitGol->kategori;
+                            }
+                        }
+                        @endphp
+                    </td>
                     <td class="text-right">
                         <button type="button" class="btn btn-sm btn-link btn-warning btn-just-icon edit" 
                             key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></button>
@@ -173,6 +210,7 @@ function onEdit(self) {
     $modal=$('#editKategori');
 
     $modal.find('[name=tipe-pendapatan]').val(j['tipe-pendapatan']).change();
+    $modal.find('[name=parent]').val(j['parent']).change();
     $modal.find('[name=kategori]').val(j['kategori']).change();
     $modal.find('form').attr('action', "{{route('kategori.update', ['kategori'=>''])}}/"+j['id']);
     $modal.modal('show');

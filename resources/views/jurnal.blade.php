@@ -46,7 +46,7 @@ active
                         </div>
                         <div class="form-group">
                             <label for="debit" class="bmd-label-floating">Debit</label>
-                            <input type="text" class="form-control rupiah-input" id="debit" name="debit-dummy" required>
+                            <input type="text" class="form-control rupiah-input" id="debit" name="debit-dummy" required >
                             <input type="hidden" readonly name="debit" required>
                         </div>
                     </div>
@@ -179,16 +179,19 @@ active
         <div class="card-body">
             <div class="toolbar row">
                 <div class="col">
-                    <form action="">
+                    <form action="{{route('jurnal.filter', ['tipe'=>$currentTipe->tipe])}}" method="POST">
+                    @csrf
                     <div class="row">
                         <div class="form-group col-md-3" style="padding-right:0;">    
-                            <input type="text" class="form-control monthyearpicker" placeholder="PILIH BULAN">
+                            <input name="date" id="date" type="text" class="form-control monthyearpicker" placeholder="PILIH BULAN" value="{{$date}}">
                         </div>
-                        <button class="btn btn-sm btn-primary btn-round"><i class="material-icons">filter_alt</i> Proses</button>
+                        <div class="col" style="padding-left:0;">
+                            <button class="btn btn-primary btn-round"><i class="material-icons">filter_alt</i> Proses</button>    
+                        </div>
                     </div>
                     </form>
                 </div>
-                <div class="col-md-2 text-right">
+                <div class="col-2 text-right">
                     <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalTambah" onclick="document.getElementById('date').value = '{{$date}}'">Tambah</button>
                 </div>
             </div>
@@ -353,6 +356,7 @@ $(document).ready(function() {
         }
         self.nextSibling.nextSibling.value=parseFloat(curval).toFixed(2)
     });
+    
 } );
 </script>
 @endsection
