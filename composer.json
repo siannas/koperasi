@@ -12,6 +12,7 @@
         "fideloper/proxy": "~4.0",
         "laravel/framework": "5.7.*",
         "laravel/tinker": "~1.0",
+        "myclabs/php-enum": "1.7.7",
         "phpoffice/phpspreadsheet": "1.19.0",
         "psr/container": "1.1.1"
     },
