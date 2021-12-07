@@ -39,11 +39,11 @@ Route::middleware(['auth'])->group(function () {
         /*
         **  etc
         */
-        Route::middleware(['role:Spesial,Reguler-USP,Reguler-FC,Reguler-TK','strict.reguler'])->group(function(){
+        Route::middleware(['role:Supervisor,Spesial,Reguler-USP,Reguler-FC,Reguler-TK','strict.reguler'])->group(function(){
             Route::resource('jurnal', 'JurnalController')->only([
                 'index',
             ]);
-            
+
             Route::post('jurnal/filter', 'JurnalController@filter')->name('jurnal.filter');
 
             Route::get('neraca', 'NeracaController@index')->name('neraca.index');
