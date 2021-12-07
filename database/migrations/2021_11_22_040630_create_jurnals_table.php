@@ -29,6 +29,7 @@ class CreateJurnalsTable extends Migration
             $table->foreign('id-debit')->references('id')->on('akun');
             $table->foreign('id-kredit')->references('id')->on('akun');
             $table->timestamps();
+            $table->boolean('validasi')->default(0);
         });
     }
 

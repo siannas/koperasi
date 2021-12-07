@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
             $table->string('nip',18);
             $table->rememberToken();
             $table->timestamps();
+            $table->string('role',70);
         });
     }
 

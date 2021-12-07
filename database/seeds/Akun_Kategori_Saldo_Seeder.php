@@ -125,9 +125,11 @@ class Akun_Kategori_Saldo_Seeder extends Seeder
     public function run()
     {
         $tipes=[];
-        foreach (['simpan-pinjam', 'foto-copy', 'toko'] as $a) {
+        $slugs=['USP','FC','FK'];
+        foreach (['simpan-pinjam', 'foto-copy', 'toko'] as $k=>$a) {
             $tipe = \App\Tipe::create([
                 'tipe'=> $a,
+                'slug'=> $slugs[$k],
             ]);
             array_push( $tipes, $tipe);
         }

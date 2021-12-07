@@ -22,6 +22,7 @@ class Jurnal extends Model
         'kredit',
         'tanggal',
         'keterangan',
+        'validasi',
     ];
 
     /**

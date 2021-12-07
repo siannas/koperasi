@@ -17,6 +17,7 @@ class Tipe extends Model
      */
     protected $fillable = [
         'tipe',
+        'slug',
     ];
 
     /**

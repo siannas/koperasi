@@ -17,18 +17,49 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', 'DashboardController@dashboard');
 
     Route::prefix('{tipe}')->middleware(['customize.parameter'])->group(function(){
-        Route::resource('jurnal', 'JurnalController')->except([
-            'create',
-        ]);
+    
+        /*
+        **  bisa akses semua pembukuan unit usaha (toko, simpan pinjam, fotokopi) 
+        **  dapat memvalidasi entryan pada bulan yang tervalidasi agar terkunci. 
+        **  Tidak bisa proses Create, Update, Delete
+        */
+        Route::middleware(['role:Supervisor'])->group(function(){
+    
+        });
 
-        Route::get('neraca', 'NeracaController@index')->name('neraca.index');
-        Route::post('neraca', 'NeracaController@index')->name('neraca.filter');
+        /*
+        **  Hanya bisa mengakses 1 unit usaha saja. 
+        */
+        Route::middleware(['role:Reguler-USP,Reguler-FC,Reguler-TK','strict.reguler'])->group(function(){
+            Route::resource('jurnal', 'JurnalController')->except([
+                'create','index',
+            ]);
+        });
 
-        Route::get('buku-besar', 'BukuBesarController@index');
-        Route::post('buku-besar', 'BukuBesarController@filter');
-        Route::get('tes', 'TesController@index');
+        /*
+        **  etc
+        */
+        Route::middleware(['role:Spesial,Reguler-USP,Reguler-FC,Reguler-TK','strict.reguler'])->group(function(){
+            Route::resource('jurnal', 'JurnalController')->only([
+                'index',
+            ]);
+
+            Route::get('neraca', 'NeracaController@index')->name('neraca.index');
+            Route::post('neraca', 'NeracaController@index')->name('neraca.filter');
+
+            Route::get('buku-besar', 'BukuBesarController@index');
+            Route::post('buku-besar', 'BukuBesarController@filter');
+        });
+            
+
     });
     
-    Route::resource('/akun', 'AkunController');
-    Route::resource('/kategori', 'KategoriController');
+    /*
+    **  Admin Only: bisa create data master (master kategori, master akun) dan create user
+    */
+    Route::middleware(['role:Admin'])->group(function(){
+        Route::resource('/akun', 'AkunController');
+        Route::resource('/kategori', 'KategoriController');
+    });
+    
 });
