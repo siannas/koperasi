@@ -48,6 +48,7 @@ Route::middleware(['auth'])->group(function () {
 
             Route::get('neraca', 'NeracaController@index')->name('neraca.index');
             Route::post('neraca', 'NeracaController@index')->name('neraca.filter');
+            Route::post('neraca/excel', 'NeracaController@excel')->name('neraca.excel');
 
             Route::get('buku-besar', 'BukuBesarController@index');
             Route::post('buku-besar', 'BukuBesarController@filter');

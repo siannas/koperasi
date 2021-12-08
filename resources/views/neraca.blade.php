@@ -41,7 +41,10 @@ active
                         </form>
                     </div>
                     <div class="col-6 text-right">
-                        <button type="button" class="btn btn-success btn-sm">Download</button>
+                        <form action="{{route('neraca.excel', ['tipe' => $currentTipe->tipe])}}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-success btn-sm">Download</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -125,7 +128,7 @@ active
                         </tbody>
                         <tbody>
                         <tr class="table-info">
-                            <td class="text-right" colspan="2">Jumlah Aset Lancar</td>
+                            <td class="text-right" colspan="2">Jumlah {{$kd->kategori}} </td>
                             <td class="text-right">Rp {{ number_format($saldo_awal,2) }}</td>
                             <td class="text-right">Rp {{ number_format($saldo_berjalan,2) }}</td>
                             <td class="text-right">Rp {{ number_format($saldo_awal+$saldo_berjalan,2) }}</td>
