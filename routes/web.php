@@ -30,7 +30,7 @@ Route::middleware(['auth'])->group(function () {
         /*
         **  Hanya bisa mengakses 1 unit usaha saja. 
         */
-        Route::middleware(['role:Reguler-USP,Reguler-FC,Reguler-TK','strict.reguler'])->group(function(){
+        Route::middleware(['role:Spesial,Reguler-USP,Reguler-FC,Reguler-TK','strict.reguler'])->group(function(){
             Route::resource('jurnal', 'JurnalController')->except([
                 'create','index',
             ]);

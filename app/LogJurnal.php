@@ -8,19 +8,20 @@ class LogJurnal extends Model
 {
     protected $table = 'log-jurnal';
 
+    public $timestamps = false;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'id-debit',
-        'id-kredit',
         'id-user',
-        'id-jurnal',
-        'no-ref', 
-        'debet',
-        'kredit',
+        'transaksi',
+        'tipe',
+        'created_at',
+        'jurnal-old',
+        'jurnal-now',
         'keterangan',
     ];
 

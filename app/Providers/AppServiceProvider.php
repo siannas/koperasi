@@ -23,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        \App\Jurnal::observe(\App\Observers\JurnalObserver::class);
+
         view()->composer('*', function ($view) {
             $view->with('tipe', \App\Tipe::all());
         });

@@ -15,19 +15,14 @@ class CreateLogJurnalsTable extends Migration
     {
         Schema::create('log-jurnal', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('id-jurnal')->unsigned()->nullable();
             $table->integer('id-user')->unsigned();
-            $table->integer('id-debit')->unsigned();
-            $table->integer('id-kredit')->unsigned();
-            $table->string('no-ref', 18);
-            $table->unsignedDecimal('debit', $precision = 13, $scale = 2);
-            $table->unsignedDecimal('kredit', $precision = 13, $scale = 2);
-            $table->string('keterangan', 100);
-            $table->foreign('id-debit')->references('id')->on('akun');
-            $table->foreign('id-kredit')->references('id')->on('akun');
+            $table->tinyInteger('tipe')->unsigned();
+            $table->string('transaksi',20);
+            $table->string('jurnal-old',1024)->nullable();
+            $table->string('jurnal-now',1024)->nullable();
+            $table->string('keterangan');
             $table->foreign('id-user')->references('id')->on('users');
-            $table->foreign('id-jurnal')->references('id')->on('jurnal');
-            $table->timestamps();
+            $table->dateTime('created_at', $precision = 0)->useCurrent();
         });
     }
 
