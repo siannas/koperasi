@@ -1,3 +1,7 @@
+@php
+$role = Auth::user()->role;
+$reguler = [];
+@endphp
 @section('sidebar')
 <div class="sidebar" data-color="green" data-background-color="black" data-image="{{asset('public/img/sidebar-1.jpg')}}">
         <!--
@@ -27,6 +31,13 @@
                 <p> Dashboard </p>
             </a>
         </li>
+        @if($role=='Admin')
+        <li class="nav-item @yield('userStatus')">
+            <a class="nav-link" href="{{url('/user')}}">
+                <i class="material-icons">people</i>
+                <p> User </p>
+            </a>
+        </li>
         <li class="nav-item @yield('kategoriStatus')">
             <a class="nav-link" href="{{url('/kategori')}}">
                 <i class="material-icons">category</i>
@@ -39,6 +50,8 @@
                 <p> Akun </p>
             </a>
         </li>
+        @endif
+        @if($role!='Admin')
         <li class="nav-item ">
             <a class="nav-link" data-toggle="collapse" href="#jurnal">
                 <i class="material-icons">account_balance_wallet</i>
@@ -49,12 +62,21 @@
             <div class="collapse @yield('jurnalShow')" id="jurnal">
                 <ul class="nav">
                 @foreach($tipe as $unit)
+                @if($role=='Supervisor' || $role=='Spesial')
                 <li class="nav-item @yield('jurnal'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/jurnal')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
+                @elseif($role!='Admin' && preg_match("/".$unit->slug."/i", $role))
+                <li class="nav-item @yield('jurnal'.$unit->tipe)">
+                    <a class="nav-link" href="{{url('/'.$unit->tipe.'/jurnal')}}">
+                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-normal"> {{$unit->tipe}} </span>
+                    </a>
+                </li>
+                @endif
                 @endforeach
                 </ul>
             </div>
@@ -69,12 +91,21 @@
             <div class="collapse @yield('bukuShow')" id="bukuBesar">
                 <ul class="nav">
                 @foreach($tipe as $unit)
+                @if($role=='Supervisor' || $role=='Spesial')
                 <li class="nav-item @yield('buku'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/buku-besar')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
+                @elseif($role!='Admin' && preg_match("/".$unit->slug."/i", $role))
+                <li class="nav-item @yield('buku'.$unit->tipe)">
+                    <a class="nav-link" href="{{url('/'.$unit->tipe.'/buku-besar')}}">
+                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-normal"> {{$unit->tipe}} </span>
+                    </a>
+                </li>
+                @endif
                 @endforeach
                 </ul>
             </div>
@@ -89,16 +120,26 @@
             <div class="collapse @yield('neracaShow')" id="neraca">
                 <ul class="nav">
                 @foreach($tipe as $unit)
+                @if($role=='Supervisor' || $role=='Spesial')
                 <li class="nav-item @yield('neraca'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/neraca')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
+                @elseif($role!='Admin' && preg_match("/".$unit->slug."/i", $role))
+                <li class="nav-item @yield('neraca'.$unit->tipe)">
+                    <a class="nav-link" href="{{url('/'.$unit->tipe.'/neraca')}}">
+                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-normal"> {{$unit->tipe}} </span>
+                    </a>
+                </li>
+                @endif
                 @endforeach
                 </ul>
             </div>
         </li>
+        @endif
     </ul>
         </div>
             <div class="sidebar-background"></div>

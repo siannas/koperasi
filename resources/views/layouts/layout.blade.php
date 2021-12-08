@@ -167,6 +167,9 @@
   <script src="{{asset('public/js/material-dashboard.js?v=2.2.2')}}" type="text/javascript"></script>
   <!-- custom script -->
   <script src="{{asset('public/js/custom.js')}}" type="text/javascript"></script>
+  <!-- Moment JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/id.min.js" integrity="sha512-he8U4ic6kf3kustvJfiERUpojM8barHoz0WYpAUDWQVn61efpm3aVAD8RWL8OloaDDzMZ1gZiubF9OSdYBqHfQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   
   <script>
@@ -192,6 +195,66 @@
         @endphp
     });
     @endif
+  </script>
+  <script>
+  const myRequest = {
+          get: function(url){
+              return $.ajax({
+                  url: url,
+                  type: 'GET',
+              });
+          },
+          post: function(url, data){
+              data["_token"] = "{{ csrf_token() }}"
+              return $.ajax({
+                  url: url,
+                  method: 'POST',
+                  data: data,
+              });
+          },
+          delete: function(url){
+              const data = {"_token" : "{{ csrf_token() }}"}
+              return $.ajax({
+                  url: url,
+                  method: 'DELETE',
+                  data: data,
+              });
+          },
+          put: function(url, data){
+              data["_token"] = "{{ csrf_token() }}"
+              return $.ajax({
+                  url: url,
+                  method: 'PUT',
+                  data: data,
+              });
+          },
+          upload: function(url, formdata){
+              console.log(url)
+              // return
+              return $.ajax({
+                  xhr : function() {
+                      var xhr = new window.XMLHttpRequest();
+                      xhr.upload.addEventListener('progress', function(e){
+                          if(e.lengthComputable){
+                              // console.log('Bytes Loaded : ' + e.loaded);
+                              // console.log('Total Size : ' + e.total);
+                              // console.log('Persen : ' + (e.loaded / e.total));
+                              
+                              // var percent = Math.round((e.loaded / e.total) * 100);
+                              
+                              // $('#progressBar').attr('aria-valuenow', percent).css('width', percent + '%').text(percent + '%');
+                          }
+                      });
+                      return xhr;
+                  },
+                  url: url,
+                  method: 'POST',
+                  data: formdata,
+                  contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+                  processData: false, // NEEDED, DON'T OMIT THIS
+              });
+          },
+      }
   </script>
 
   @yield('script')

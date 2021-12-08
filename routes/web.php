@@ -24,9 +24,9 @@ Route::middleware(['auth'])->group(function () {
         **  Tidak bisa proses Create, Update, Delete
         */
         Route::middleware(['role:Supervisor'])->group(function(){
-    
+            
         });
-
+        
         /*
         **  Hanya bisa mengakses 1 unit usaha saja. 
         */
@@ -43,8 +43,10 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('jurnal', 'JurnalController')->only([
                 'index',
             ]);
-
+            
             Route::post('jurnal/filter', 'JurnalController@filter')->name('jurnal.filter');
+            Route::post('jurnal/excel', 'JurnalController@excel');
+            Route::put('jurnal/validasi/{id}', 'JurnalController@validasi')->name('jurnal.validasi');
 
             Route::get('neraca', 'NeracaController@index')->name('neraca.index');
             Route::post('neraca', 'NeracaController@index')->name('neraca.filter');
@@ -64,6 +66,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:Admin'])->group(function(){
         Route::resource('/akun', 'AkunController');
         Route::resource('/kategori', 'KategoriController');
+        Route::resource('user', 'UserController')->except([
+            'create',
+        ]);
     });
     
 });

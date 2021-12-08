@@ -1,6 +1,10 @@
 @extends('layouts.layout')
 @extends('layouts.sidebar')
 
+@php
+$role = Auth::user()->role;
+@endphp
+
 @section('title')
 Jurnal
 @endsection
@@ -28,7 +32,7 @@ active
             @csrf
         <div class="modal-body">
                 <div class="form-group">
-                    <input type="text" class="form-control datepicker" id="date" name="tanggal" required>
+                    <input type="text" class="form-control datepicker" id="date" name="tanggal" required placeholder="Tanggal">
                 </div>
                 <div class="form-group">
                     <label for="keterangan" class="bmd-label-floating">Keterangan</label>
@@ -139,7 +143,7 @@ active
     </div>
 </div>
 <!--  End Edit Modal -->
-<!-- small modal -->
+<!-- Modal Hapus -->
 <div class="modal fade modal-mini modal-primary" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="myDeleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-small">
         <div class="modal-content">
@@ -162,7 +166,28 @@ active
         </div>
     </div>
 </div>
-<!--    end small modal -->
+<!--  end modal Hapus -->
+<!-- Modal Validasi -->
+<div class="modal fade modal-mini modal-primary" id="modalValidasi" tabindex="-1" role="dialog" aria-labelledby="myDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-small">
+        <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+        </div>
+        <div class="modal-body text-center">
+            <p id="peringatanValidasi"></p>
+        </div>
+        <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-link" data-dismiss="modal">Tidak</button>
+            <button type="submit" class="btn btn-warning btn-link" onclick="$('#formValidasi').trigger('submit')">Ya
+                <div class="ripple-container"></div>
+            </button>
+        </div>
+        <form id="formValidasi" method="POST" action=""></form>
+        </div>
+    </div>
+</div>
+<!--  end modal Validasi -->
 @endsection
 
 @section('content')
@@ -177,24 +202,30 @@ active
             <h4 class="card-title">Jurnal {{ucwords($currentTipe->tipe)}}</h4>
         </div>
         <div class="card-body">
+            <form action="{{route('jurnal.filter', ['tipe'=>$currentTipe->tipe])}}" method="POST">
+            @csrf
             <div class="toolbar row">
                 <div class="col">
-                    <form action="{{route('jurnal.filter', ['tipe'=>$currentTipe->tipe])}}" method="POST">
-                    @csrf
                     <div class="row">
                         <div class="form-group col-md-3" style="padding-right:0;">    
                             <input name="date" id="date" type="text" class="form-control monthyearpicker" placeholder="PILIH BULAN" value="{{$date}}">
                         </div>
                         <div class="col" style="padding-left:0;">
-                            <button class="btn btn-primary btn-round"><i class="material-icons">filter_alt</i> Proses</button>    
+                            <button type="submit" class="btn btn-primary btn-round" formaction="{{route('jurnal.filter', ['tipe'=>$currentTipe->tipe])}}"><i class="material-icons">filter_alt</i> Proses</button>    
                         </div>
                     </div>
-                    </form>
                 </div>
-                <div class="col-2 text-right">
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalTambah" onclick="document.getElementById('date').value = '{{$date}}'">Tambah</button>
+                <div class="col-md-4 text-right">
+                    <button type="submit" class="btn btn-success btn-sm" formaction="{{url($currentTipe->tipe.'/jurnal/excel')}}">Download</button>
+                    @if($role!='Supervisor' && $role!='Admin')
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalTambah">Tambah</button>
+                    @endif
+                    @if($role=='Supervisor')
+                    <button type="button" class="btn btn-warning btn-sm validasi" data-toggle="modal" data-target="#modalValidasi" >Validasi</button>
+                    @endif
                 </div>
             </div>
+            </form>
             <div class="material-datatables">
             <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
                 <thead>
@@ -240,8 +271,17 @@ active
                     <td>{{$j->akunKredit->{'no-akun'} }}</td>
                     <td>Rp {{ number_format($j->kredit, 2) }}</td>
                     <td class="text-right">
-                    @if($j->isOld)
-                    <a href="#" class="btn btn-link text-info btn-just-icon"><i class="material-icons">lock</i></a>
+                    @if($j->validasi==1)
+                    <a href="#" class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">lock</i></a>
+                    @elseif($role=='Supervisor' )
+                    <div class="form-check">
+                      <label class="form-check-label" style="padding-right:5px;">
+                        <input class="form-check-input sub_chk" type="checkbox" data-id="{{$j->id}}">
+                        <span class="form-check-sign">
+                          <span class="check"></span>
+                        </span>
+                      </label>
+                    </div>
                     @else
                     <a href="#" class="btn btn-link btn-warning btn-just-icon edit btn-sm" key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></a>
                     <a href="#" class="btn btn-link btn-danger btn-just-icon remove btn-sm" key="{{$key}}" onclick="onDelete(this)"><i class="material-icons">delete</i></a>
@@ -276,8 +316,8 @@ function onEdit(self) {
     var key = $(self).attr('key');
     var j = myJurnals[key];
     $modal=$('#modalEdit');
-
-    $modal.find('[name=tanggal]').val(j['tanggal2']).change();
+    
+    $modal.find('[name=tanggal]').val(moment(j['tanggal']).format('L')).change();
     $modal.find('[name=keterangan]').val(j['keterangan']).change();
     $modal.find('[name=id-debit]').val(j['id-debit']).change();
     $modal.find('[name=debit-dummy]').val(j['debit']).change().blur();
@@ -358,5 +398,47 @@ $(document).ready(function() {
     });
     
 } );
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        
+        var allVals = [];
+
+        $('.validasi').on('click', function(e) {
+
+            allVals = [];
+            $(".sub_chk:checked").each(function() {
+                allVals.push($(this).attr('data-id'));
+            });
+            var sum_jurnal = allVals.length;
+            console.log(allVals);
+            var mainContainer = document.getElementById("peringatanValidasi");
+
+            if(allVals.length <=0){
+                mainContainer.innerHTML = 'Pilih Jurnal Terlebih Dahulu';
+            }
+            else{
+                $('#jumlah').attr("value", sum_jurnal);
+                mainContainer.innerHTML = 'Ingin Validasi '+ sum_jurnal + ' Jurnal Ini?';
+            }
+        });
+        $('#formValidasi').submit(async function(e){
+            e.preventDefault();
+            $('#modalValidasi').modal('hide');
+
+            try {
+                console.log(allVals);
+                allVals.forEach(async unit =>{
+                    const res = await myRequest.post( '{{ route('jurnal.validasi', ['tipe'=>$currentTipe->tipe , 'id'=> '']) }}/'+unit,{_method:'PUT'});
+                });
+            } catch(err) {
+                myAlert(JSON.stringify(err['statusText']),'danger');
+            }
+            
+            setTimeout(() => {
+                location.reload(true);
+            }, 500);    
+        });
+    });
 </script>
 @endsection
