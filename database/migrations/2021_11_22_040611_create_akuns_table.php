@@ -19,7 +19,7 @@ class CreateAkunsTable extends Migration
             $table->integer('id-tipe')->unsigned();
             $table->string('no-akun',18);
             $table->string('nama-akun',50);
-            $table->unsignedDecimal('saldo', $precision = 13, $scale = 2);
+            $table->decimal('saldo', $precision = 13, $scale = 2);
             $table->foreign('id-kategori')->references('id')->on('kategori')->nullOnDelete();
             $table->foreign('id-tipe')->references('id')->on('tipe');
             $table->timestamps();

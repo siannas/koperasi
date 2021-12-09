@@ -150,7 +150,7 @@ class Akun_Kategori_Saldo_Seeder extends Seeder
                     'saldo'=>5000000
                 ]);
                 \App\Saldo::create([
-                    'no-akun'=>$akun->{'no-akun'},
+                    'id-akun'=>$akun->{'no-akun'},
                     'id-tipe'=>$akun->{'id-tipe'},
                     'id-kategori'=>$akun->{'id-kategori'},
                     'saldo'=>$akun->saldo,

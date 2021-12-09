@@ -21,8 +21,8 @@ class CreateJurnalsTable extends Migration
             $table->integer('id-debit')->unsigned();
             $table->integer('id-kredit')->unsigned();
             $table->string('no-ref', 18)->nullable();
-            $table->unsignedDecimal('debit', $precision = 13, $scale = 2);
-            $table->unsignedDecimal('kredit', $precision = 13, $scale = 2);
+            $table->decimal('debit', $precision = 13, $scale = 2);
+            $table->decimal('kredit', $precision = 13, $scale = 2);
             $table->string('keterangan', 100);
             $table->date('tanggal');
             $table->foreign('id-tipe')->references('id')->on('tipe');

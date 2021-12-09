@@ -183,7 +183,10 @@ active
                 <div class="ripple-container"></div>
             </button>
         </div>
-        <form id="formValidasi" method="POST" action=""></form>
+        <form id="formValidasi" method="POST" action="{{ route('jurnal.validasi', ['tipe'=>$currentTipe->tipe]) }}">
+            @method('PUT')
+            @csrf
+        </form>
         </div>
     </div>
 </div>
@@ -422,22 +425,16 @@ $(document).ready(function() {
                 mainContainer.innerHTML = 'Ingin Validasi '+ sum_jurnal + ' Jurnal Ini?';
             }
         });
-        $('#formValidasi').submit(async function(e){
-            e.preventDefault();
+        $('#formValidasi').submit(function(e){
             $('#modalValidasi').modal('hide');
+            $this=$(this);
 
-            try {
-                console.log(allVals);
-                allVals.forEach(async unit =>{
-                    const res = await myRequest.post( '{{ route('jurnal.validasi', ['tipe'=>$currentTipe->tipe , 'id'=> '']) }}/'+unit,{_method:'PUT'});
-                });
-            } catch(err) {
-                myAlert(JSON.stringify(err['statusText']),'danger');
-            }
-            
-            setTimeout(() => {
-                location.reload(true);
-            }, 500);    
+            allVals.forEach(unit =>{
+                $input = $("<input />").attr("type", "hidden")
+                    .attr("name", "id[]")
+                    .attr("value", unit);
+                $this.append($input);
+            });
         });
     });
 </script>

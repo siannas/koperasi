@@ -46,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
             
             Route::post('jurnal/filter', 'JurnalController@filter')->name('jurnal.filter');
             Route::post('jurnal/excel', 'JurnalController@excel');
-            Route::put('jurnal/validasi/{id}', 'JurnalController@validasi')->name('jurnal.validasi');
+            Route::put('jurnal/validasi', 'JurnalController@validasi')->name('jurnal.validasi');
 
             Route::get('neraca', 'NeracaController@index')->name('neraca.index');
             Route::post('neraca', 'NeracaController@index')->name('neraca.filter');

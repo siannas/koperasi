@@ -181,12 +181,14 @@ class JurnalController extends Controller
         return back();
     }
 
-    public function validasi(Request $request, $id){
-        
-        $jurnal = \App\Jurnal::findOrFail($id);
-        $jurnal->validasi = 1;
-        
-        $jurnal->save();
+    public function validasi(Request $request){
+        $ids = $request->input('id');
+        foreach ($ids as $id) {
+            $jurnal = \App\Jurnal::findOrFail($id);
+            $jurnal->validasi = 1;
+            
+            $jurnal->save();
+        }
         
         $this->flashSuccess('Data Jurnal Berhasil Divalidasi');
         return back();

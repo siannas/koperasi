@@ -18,7 +18,7 @@ class CreateSaldosTable extends Migration
             $table->integer('id-kategori')->unsigned();
             $table->integer('id-akun')->unsigned();
             $table->integer('id-tipe')->unsigned();
-            $table->unsignedDecimal('saldo', $precision = 13, $scale = 2);
+            $table->decimal('saldo', $precision = 13, $scale = 2);
             $table->date('tanggal');
             $table->foreign('id-kategori')->references('id-kategori')->on('akun')->cascadeOnUpdate();
             $table->foreign('id-akun')->references('id')->on('akun')->cascadeOnUpdate()->restrictOnDelete();
