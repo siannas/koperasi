@@ -177,15 +177,14 @@ active
         <div class="modal-body text-center">
             <p id="peringatanValidasi"></p>
         </div>
-        <div class="modal-footer justify-content-center">
-            <button type="button" class="btn btn-link" data-dismiss="modal">Tidak</button>
-            <button type="submit" class="btn btn-warning btn-link" onclick="$('#formValidasi').trigger('submit')">Ya
-                <div class="ripple-container"></div>
-            </button>
-        </div>
         <form id="formValidasi" method="POST" action="{{ route('jurnal.validasi', ['tipe'=>$currentTipe->tipe]) }}">
-            @method('PUT')
-            @csrf
+        @csrf
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Tidak</button>
+                <button type="submit" class="btn btn-warning btn-link">Ya
+                    <div class="ripple-container"></div>
+                </button>
+            </div>
         </form>
         </div>
     </div>
@@ -426,7 +425,6 @@ $(document).ready(function() {
             }
         });
         $('#formValidasi').submit(function(e){
-            $('#modalValidasi').modal('hide');
             $this=$(this);
 
             allVals.forEach(unit =>{
@@ -435,6 +433,7 @@ $(document).ready(function() {
                     .attr("value", unit);
                 $this.append($input);
             });
+            $('#modalValidasi').modal('hide');
         });
     });
 </script>

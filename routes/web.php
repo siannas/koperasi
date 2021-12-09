@@ -46,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
             
             Route::post('jurnal/filter', 'JurnalController@filter')->name('jurnal.filter');
             Route::post('jurnal/excel', 'JurnalController@excel');
-            Route::put('jurnal/validasi', 'JurnalController@validasi')->name('jurnal.validasi');
+            Route::post('jurnal/validasi', 'JurnalController@validasi')->name('jurnal.validasi');
 
             Route::get('neraca', 'NeracaController@index')->name('neraca.index');
             Route::post('neraca', 'NeracaController@index')->name('neraca.filter');
@@ -66,7 +66,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:Admin'])->group(function(){
         Route::resource('/akun', 'AkunController');
         Route::resource('/kategori', 'KategoriController');
-        Route::resource('user', 'UserController')->except([
+        Route::resource('user', 'DashboardController')->except([
             'create',
         ]);
     });
