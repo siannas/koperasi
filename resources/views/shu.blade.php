@@ -126,14 +126,14 @@ active
                     <tfoot>
                     @foreach($meta as $i=>$m)
                     @php
-                    $title=ucwords(str_replace("_"," ", substr($m->key, 4) ));
+                    $title=ucwords(str_replace("_"," ", substr($m->key, $metaKeyLen) ));
                     $res=\App\Http\Controllers\SHUController::calculate($master, $m->value);
                     @endphp
                     <tr class="bg-dark text-white">
                         <th class="text-right" colspan="2" >Jumlah {{$title}}</th>
-                        <th class="text-right">Rp {{ number_format($res[0]) }}</th>
-                        <th class="text-right">Rp {{ number_format($res[1]) }}</th>
-                        <th class="text-right">Rp {{ number_format($res[2]) }}</th>
+                        <th class="text-right">Rp {{ number_format($res[0], 2) }}</th>
+                        <th class="text-right">Rp {{ number_format($res[1], 2) }}</th>
+                        <th class="text-right">Rp {{ number_format($res[2], 2) }}</th>
                         <th class="text-right"></th>
                         <th class="text-right"></th>
                     </tr>  
