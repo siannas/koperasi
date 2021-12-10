@@ -41,7 +41,7 @@ active
                         </form>
                     </div>
                     <div class="col-6 text-right">
-                        <form action="{{route('neraca.excel', ['tipe' => $currentTipe->tipe])}}" method="POST">
+                        <form action="{{route('shu.excel', ['tipe' => $currentTipe->tipe])}}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-success btn-sm">Download</button>
                         </form>
@@ -117,7 +117,7 @@ active
                     $master[$kd->id]=[
                         'awal'=>$saldo_awal,
                         'berjalan'=>$saldo_berjalan,
-                    ]
+                    ];
                     @endphp
                     @endif
                     @endforeach

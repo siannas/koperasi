@@ -36,18 +36,13 @@ class SHUController extends Controller
 
         // JUDUL
         $ac->getCell('B2')->setValue("KPRI. SETDAPROV. JATIM");
-        $ac->getCell('B3')->setValue("NERACA PUSAT");
+        $ac->getCell('B3')->setValue("SELISIH HASIL USAHA");
         $ac->getCell('B4')->setValue("Periode ".$tanggalString);
-        $ac->mergeCells('B2:J2');
-        $ac->getStyle('B2:J2')->getFont()->setSize(16)->setBold(true);
-        $ac->getStyle('B2:J2')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $ac->mergeCells('B3:J3');
-        $ac->getStyle('B3:J3')->getFont()->setSize(14)->setBold(true);
-        $ac->getStyle('B3:J3')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-    
-        $ac->mergeCells('B4:J4');
-        $ac->getStyle('B4:J4')->getFont()->setSize(14)->setBold(true);
-        $ac->getStyle('B4:J4')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $ac->mergeCells('B2:G2');
+        $ac->mergeCells('B3:G3');
+        $ac->mergeCells('B4:G4');
+        $ac->getStyle('B2:G4')->getFont()->setSize(16)->setBold(true);
+        $ac->getStyle('B2:G4')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         
 
         // HEAD TABEL
@@ -55,22 +50,92 @@ class SHUController extends Controller
         $ac->getCell('C6')->setValue("AWAL PERIODE");
         $ac->getCell('D6')->setValue("PERIODE BERJALAN");
         $ac->getCell('E6')->setValue("AKHIR PERIODE");
-        $ac->getCell('G6')->setValue("KETERANGAN");
-        $ac->getCell('H6')->setValue("AWAL PERIODE");
-        $ac->getCell('I6')->setValue("PERIODE BERJALAN");
-        $ac->getCell('J6')->setValue("AKHIR PERIODE");
+        $ac->getCell('F6')->setValue("KOREKSI");
+        $ac->getCell('G6')->setValue("FISKAL");
+        
         $ac->getColumnDimension('B')->setWidth(35);
-        $ac->getColumnDimension('G')->setWidth(35);
         $ac->getColumnDimension('C')->setWidth(18);
         $ac->getColumnDimension('D')->setWidth(18);
         $ac->getColumnDimension('E')->setWidth(18);
-        $ac->getColumnDimension('H')->setWidth(18);
-        $ac->getColumnDimension('I')->setWidth(18);
-        $ac->getColumnDimension('J')->setWidth(18);
-        $ac->getColumnDimension('F')->setWidth(2); //pembatas
-        $ac->getStyle('B6:J6')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $ac->getStyle('B6:E6')->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-        $ac->getStyle('G6:J6')->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        $ac->getColumnDimension('F')->setWidth(18);
+        $ac->getColumnDimension('G')->setWidth(18);
+        $ac->getStyle('B6:G6')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $ac->getStyle('B6:G6')->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+
+        // Isi Aset
+        $from=7;
+        $walk=0;
+        $master=[];
+        foreach($d['kategoris'] as $k => $kd){
+            if($kd->getAkun->isEmpty() === false and intval($kd->getAkun[0]->{'id-tipe'})===$d['currentTipe']->id){
+                $saldo_berjalan=0;
+                $saldo_awal=0;
+                $coef= ($kd->{'tipe-pendapatan'} ==='kredit') ? -1 : 1;
+
+                // display per kategori
+                $now=$walk;
+                foreach($kd->getAkun as $akun){
+                    $walk++;
+
+                    $debit=$d['jurnal_debit']->has($akun->id) ? $d['jurnal_debit'][$akun->id]->debit : 0;
+                    $kredit=$d['jurnal_kredit']->has($akun->id) ? $d['jurnal_kredit'][$akun->id]->kredit : 0;
+                    $cur=$coef*($debit-$kredit);
+                    $awal=$d['saldos']->has($akun->id) ? $d['saldos'][$akun->id]->saldo : 0;
+                    $saldo_awal+=$awal;
+                    $saldo_berjalan+=$cur;
+
+                    $ac->getCell('B'.($from+$walk))->setValue( "      ".$akun->{'nama-akun'} );
+                    $ac->getCell('C'.($from+$walk))->setValue( number_format($awal,2) );
+                    $ac->getCell('D'.($from+$walk))->setValue( number_format($cur,2) );
+                    $ac->getCell('E'.($from+$walk))->setValue( number_format($awal+$cur,2) );   
+                }
+
+                // display total saldo kategori
+                $row = $from+$now;
+                $ac->getCell('B'.($row))->setValue( $kd->kategori );
+                $walk++;
+                $row = $from+$walk;
+                $ac->getCell('B'.($row))->setValue( 'JUMLAH '.strtoupper($kd->kategori) );
+                $ac->getCell('C'.($row))->setValue( number_format($saldo_awal,2) );
+                $ac->getCell('D'.($row))->setValue( number_format($saldo_berjalan,2) );
+                $ac->getCell('E'.($row))->setValue( number_format($saldo_awal+$saldo_berjalan,2) );
+                $ac->getStyle("B{$row}:G{$row}")->getFont()->setBold(true);
+                $ac->getStyle("B{$row}:G{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                $walk++;
+
+                $master[$kd->id]=[
+                    'awal'=>$saldo_awal,
+                    'berjalan'=>$saldo_berjalan,
+                ];
+            }
+        }
+
+        // kalkulasi semua rumus total dari tabel meta shu
+        foreach($d['meta'] as $i=>$m){
+            $title=ucwords(str_replace("_"," ", substr($m->key, $d['metaKeyLen']) ));
+            $res=$this->calculate($master, $m->value);
+
+            $row = $from+$walk;
+            $ac->getCell('B'.($row))->setValue( $title );
+            $ac->getCell('C'.($row))->setValue( number_format($res[0],2) );
+            $ac->getCell('D'.($row))->setValue( number_format($res[1],2) );
+            $ac->getCell('E'.($row))->setValue( number_format($res[2],2) );                      
+            $ac->getStyle("B{$row}:G{$row}")->getFont()->setBold(true);
+            $ac->getStyle("B{$row}:G{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+            $walk++;
+        }
+
+        //set border luar tabel
+        $ac->getStyle("B{$from}:G{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+
+        // send file ke user
+        $fileName="SHU_".$tanggalString.".xlsx";
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="'. urlencode($fileName).'"');
+        header('Cache-Control: max-age=0');
+        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($ex, 'Xlsx');
+        $writer->save('php://output');
+        exit;
     }
 
     /**
