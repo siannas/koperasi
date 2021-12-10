@@ -185,12 +185,16 @@ class JurnalController extends Controller
         $ids = $request->input('id');
         foreach ($ids as $id) {
             $jurnal = \App\Jurnal::findOrFail($id);
-            $jurnal->validasi = 1;
-            
+            if($jurnal->validasi == 0){
+                $jurnal->validasi = 1;
+            }
+            else{
+                $jurnal->validasi *= -1;
+            }
             $jurnal->save();
         }
         
-        $this->flashSuccess('Data Jurnal Berhasil Divalidasi');
+        $this->flashSuccess('Status Validasi Pada Data Jurnal Berhasil Diubah');
         return back();
     }
 

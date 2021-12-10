@@ -179,7 +179,7 @@ active
         </div>
         <form id="formValidasi" method="POST" action="{{ route('jurnal.validasi', ['tipe'=>$currentTipe->tipe]) }}">
         @csrf
-            <div class="modal-footer justify-content-center">
+            <div class="modal-footer justify-content-center" id="btnValidasi">
                 <button type="button" class="btn btn-link" data-dismiss="modal">Tidak</button>
                 <button type="submit" class="btn btn-warning btn-link">Ya
                     <div class="ripple-container"></div>
@@ -273,9 +273,18 @@ active
                     <td>{{$j->akunKredit->{'no-akun'} }}</td>
                     <td>Rp {{ number_format($j->kredit, 2) }}</td>
                     <td class="text-right">
-                    @if($j->validasi==1)
+                    @php
+                    $my=Carbon\Carbon::now();
+                    $m2 = Carbon\Carbon::createFromDate($j->tanggal);
+                    @endphp
+                    
+                    @if($j->validasi==1 && $m2->month < $my->month)
                     <a href="#" class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">lock</i></a>
-                    @elseif($role=='Supervisor' )
+                    @elseif($role=='Supervisor' && $j->validasi==1)
+                    <a href="#" class="btn btn-link text-warning btn-just-icon unvalidasi" data-toggle="modal" data-target="#modalValidasi" data-id="{{$j->id}}"><i class="material-icons">lock_open</i></a>
+                    @elseif($role!='Supervisor' && $j->validasi==1)
+                    <a href="#" class="btn btn-link text-dark btn-just-icon disabled" data-toggle="modal" data-target="#modalValidasi"><i class="material-icons">lock</i></a>
+                    @elseif($role=='Supervisor')
                     <div class="form-check">
                       <label class="form-check-label" style="padding-right:5px;">
                         <input class="form-check-input sub_chk" type="checkbox" data-id="{{$j->id}}">
@@ -407,7 +416,7 @@ $(document).ready(function() {
         var allVals = [];
 
         $('.validasi').on('click', function(e) {
-
+            console.log()
             allVals = [];
             $(".sub_chk:checked").each(function() {
                 allVals.push($(this).attr('data-id'));
@@ -415,13 +424,16 @@ $(document).ready(function() {
             var sum_jurnal = allVals.length;
             console.log(allVals);
             var mainContainer = document.getElementById("peringatanValidasi");
+            var submit = document.getElementById("btnValidasi");
 
             if(allVals.length <=0){
                 mainContainer.innerHTML = 'Pilih Jurnal Terlebih Dahulu';
+                submit.style.visibility = "hidden";
             }
             else{
                 $('#jumlah').attr("value", sum_jurnal);
-                mainContainer.innerHTML = 'Ingin Validasi '+ sum_jurnal + ' Jurnal Ini?';
+                mainContainer.innerHTML = 'Ingin Validasi '+ sum_jurnal + ' Jurnal Ini? <br><br><small><i>*Jurnal yang sudah tervalidasi tidak dapat diubah</i></small>';
+                submit.style.visibility = "visible";
             }
         });
         $('#formValidasi').submit(function(e){
@@ -434,6 +446,18 @@ $(document).ready(function() {
                 $this.append($input);
             });
             $('#modalValidasi').modal('hide');
+        });
+
+        $('.unvalidasi').on('click', function(e) {
+            allVals = [];
+            $(".unvalidasi").each(function() {
+                allVals.push($(this).attr('data-id'));
+            });
+            var mainContainer = document.getElementById("peringatanValidasi");
+            var submit = document.getElementById("btnValidasi");
+
+            mainContainer.innerHTML = 'Ingin Menghapus Status <b>Validasi</b> Pada Jurnal Ini?';
+            submit.style.visibility = "visible";
         });
     });
 </script>
