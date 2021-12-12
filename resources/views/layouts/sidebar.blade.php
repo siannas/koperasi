@@ -139,6 +139,35 @@ $reguler = [];
                 </ul>
             </div>
         </li>
+        <li class="nav-item ">
+            <a class="nav-link" data-toggle="collapse" href="#shu">
+                <i class="material-icons">receipt</i>
+                <p> SHU
+                <b class="caret"></b>
+                </p>
+            </a>
+            <div class="collapse @yield('shuShow')" id="shu">
+                <ul class="nav">
+                @foreach($tipe as $unit)
+                @if($role=='Supervisor' || $role=='Spesial')
+                <li class="nav-item @yield('shu'.$unit->tipe)">
+                    <a class="nav-link" href="{{url('/'.$unit->tipe.'/shu')}}">
+                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-normal"> {{$unit->tipe}} </span>
+                    </a>
+                </li>
+                @elseif($role!='Admin' && preg_match("/".$unit->slug."/i", $role))
+                <li class="nav-item @yield('shu'.$unit->tipe)">
+                    <a class="nav-link" href="{{url('/'.$unit->tipe.'/shu')}}">
+                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-normal"> {{$unit->tipe}} </span>
+                    </a>
+                </li>
+                @endif
+                @endforeach
+                </ul>
+            </div>
+        </li>
         @endif
     </ul>
         </div>
