@@ -85,6 +85,7 @@ class JurnalController extends Controller
      */
     public function store(Request $request)
     {
+        $today = Carbon::today();
         $tipe=$request->get('tipe');
         $data = $request->validate([
             "tanggal" => "required",
@@ -98,14 +99,26 @@ class JurnalController extends Controller
             $jurnal = new \App\Jurnal($data);
             $jurnal->{'id-tipe'} = $tipe->id;
             $jurnal->tanggal = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->format('Y-m-d');
+            $diff = date_diff($today, date_create($jurnal->tanggal));
+            
+            // Jika pengisian lebih dari today
+            if($jurnal->tanggal > $today){
+                $this->flashError('Tanggal Melebihi Hari Ini: '.$today->isoFormat('D MMMM Y'));
+                return redirect(url('/'.$tipe->tipe.'/jurnal'));
+            }
+            // Jika selisih pengisian & today lebih dari 14 hari
+            elseif($diff->days > 14){
+                $this->flashError('Tanggal Sudah Melewati Batas Waktu Pengisian');
+                return redirect(url('/'.$tipe->tipe.'/jurnal'));
+            }
             $jurnal->save();
         }catch (QueryException $exception) {
             $this->flashError($exception->getMessage());
-            return back();
+            return redirect(url('/'.$tipe->tipe.'/jurnal'));
         }
 
         $this->flashSuccess('Data Jurnal Berhasil Ditambahkan');
-        return back();
+        return redirect(url('/'.$tipe->tipe.'/jurnal'));
     }
 
     /**
@@ -139,6 +152,7 @@ class JurnalController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $tipe=$request->get('tipe');
         $data = $request->validate([
             "tanggal" => "required",
             "keterangan" => "required",
@@ -154,11 +168,11 @@ class JurnalController extends Controller
             $jurnal->save();
         }catch (QueryException $exception) {
             $this->flashError($exception->getMessage());
-            return back();
+            return redirect(url('/'.$tipe->tipe.'/jurnal'));
         }
 
         $this->flashSuccess('Data Jurnal Berhasil Diperbarui');
-        return back();
+        return redirect(url('/'.$tipe->tipe.'/jurnal'));
     }
 
     /**
@@ -169,19 +183,21 @@ class JurnalController extends Controller
      */
     public function destroy($id)
     {
+        $tipe=$request->get('tipe');
         try {
             $jurnal = \App\Jurnal::findOrFail($id);
             $jurnal->delete();
         }catch (QueryException $exception) {
             $this->flashError($exception->getMessage());
-            return back();
+            return redirect(url('/'.$tipe->tipe.'/jurnal'));
         }
         
         $this->flashSuccess('Data Jurnal Berhasil Dihapus');
-        return back();
+        return redirect(url('/'.$tipe->tipe.'/jurnal'));
     }
 
     public function validasi(Request $request){
+        $tipe=$request->get('tipe');
         $ids = $request->input('id');
         foreach ($ids as $id) {
             $jurnal = \App\Jurnal::findOrFail($id);
@@ -195,7 +211,7 @@ class JurnalController extends Controller
         }
         
         $this->flashSuccess('Status Validasi Pada Data Jurnal Berhasil Diubah');
-        return back();
+        return redirect(url('/'.$tipe->tipe.'/jurnal'));
     }
 
     public function excel(Request $request){

@@ -216,8 +216,12 @@ active
                     <td>{{$unit->nama}}</td>
                     <td>{{$unit->role }}</td>
                     <td class="text-right">
+                        @if($unit->role=="Admin")
+                        <a href="#" class="btn btn-link btn-sm text-dark btn-just-icon disabled"><i class="material-icons">lock</i></a>
+                        @else
                         <a href="#" class="btn btn-link btn-warning btn-just-icon edit btn-sm" key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></a>
                         <a href="#" class="btn btn-link btn-danger btn-just-icon remove btn-sm" key="{{$key}}" onclick="onDelete(this)"><i class="material-icons">delete</i></a>
+                        @endif
                     </td>
                 </tr>
                 @endforeach

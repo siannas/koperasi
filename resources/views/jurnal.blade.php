@@ -411,54 +411,53 @@ $(document).ready(function() {
 } );
 </script>
 <script type="text/javascript">
-    $(document).ready(function () {
         
-        var allVals = [];
+    var allVals = [];
 
-        $('.validasi').on('click', function(e) {
-            console.log()
-            allVals = [];
-            $(".sub_chk:checked").each(function() {
-                allVals.push($(this).attr('data-id'));
-            });
-            var sum_jurnal = allVals.length;
-            console.log(allVals);
-            var mainContainer = document.getElementById("peringatanValidasi");
-            var submit = document.getElementById("btnValidasi");
-
-            if(allVals.length <=0){
-                mainContainer.innerHTML = 'Pilih Jurnal Terlebih Dahulu';
-                submit.style.visibility = "hidden";
-            }
-            else{
-                $('#jumlah').attr("value", sum_jurnal);
-                mainContainer.innerHTML = 'Ingin Validasi '+ sum_jurnal + ' Jurnal Ini? <br><br><small><i>*Jurnal yang sudah tervalidasi tidak dapat diubah</i></small>';
-                submit.style.visibility = "visible";
-            }
+    $('.validasi').on('click', function(e) {
+        console.log()
+        allVals = [];
+        $(".sub_chk:checked").each(function() {
+            allVals.push($(this).attr('data-id'));
         });
-        $('#formValidasi').submit(function(e){
-            $this=$(this);
+        var sum_jurnal = allVals.length;
+        console.log(allVals);
+        var mainContainer = document.getElementById("peringatanValidasi");
+        var submit = document.getElementById("btnValidasi");
 
-            allVals.forEach(unit =>{
-                $input = $("<input />").attr("type", "hidden")
-                    .attr("name", "id[]")
-                    .attr("value", unit);
-                $this.append($input);
-            });
-            $('#modalValidasi').modal('hide');
-        });
-
-        $('.unvalidasi').on('click', function(e) {
-            allVals = [];
-            $(".unvalidasi").each(function() {
-                allVals.push($(this).attr('data-id'));
-            });
-            var mainContainer = document.getElementById("peringatanValidasi");
-            var submit = document.getElementById("btnValidasi");
-
-            mainContainer.innerHTML = 'Ingin Menghapus Status <b>Validasi</b> Pada Jurnal Ini?';
+        if(allVals.length <=0){
+            mainContainer.innerHTML = 'Pilih Jurnal Terlebih Dahulu';
+            submit.style.visibility = "hidden";
+        }
+        else{
+            $('#jumlah').attr("value", sum_jurnal);
+            mainContainer.innerHTML = 'Ingin Validasi '+ sum_jurnal + ' Jurnal Ini? <br><br><small><i>*Jurnal yang sudah tervalidasi tidak dapat diubah</i></small>';
             submit.style.visibility = "visible";
-        });
+        }
     });
+    $('#formValidasi').submit(function(e){
+        $this=$(this);
+
+        allVals.forEach(unit =>{
+            $input = $("<input />").attr("type", "hidden")
+                .attr("name", "id[]")
+                .attr("value", unit);
+            $this.append($input);
+        });
+        $('#modalValidasi').modal('hide');
+    });
+
+    $('.unvalidasi').on('click', function(e) {
+        allVals = [];
+        $(".unvalidasi").each(function() {
+            allVals.push($(this).attr('data-id'));
+        });
+        var mainContainer = document.getElementById("peringatanValidasi");
+        var submit = document.getElementById("btnValidasi");
+
+        mainContainer.innerHTML = 'Ingin Menghapus Status <b>Validasi</b> Pada Jurnal Ini?';
+        submit.style.visibility = "visible";
+    });
+    
 </script>
 @endsection
