@@ -65,7 +65,7 @@ active
                         </div>
                         <div class="form-group">
                             <label for="kredit" class="bmd-label-floating">Kredit</label>
-                            <input type="text" class="form-control rupiah-input" id="kredit" name="kredit-dummy" required >
+                            <input type="text" class="form-control rupiah-input" id="kredit" name="kredit-dummy" required readonly>
                             <input type="hidden" readonly name="kredit" required>
                         </div>
                     </div>
@@ -128,7 +128,7 @@ active
                     </div>
                     <div class="form-group">
                         <label for="kredit-edit" class="bmd-label-floating">Kredit</label>
-                        <input type="text" class="form-control rupiah-input" id="kredit-edit" name="kredit-dummy" required >
+                        <input type="text" class="form-control rupiah-input" id="kredit-edit" name="kredit-dummy" required readonly>
                         <input type="hidden" readonly name="kredit" required>
                     </div>
                 </div>
@@ -399,15 +399,29 @@ $(document).ready(function() {
 		}
 	} );
     
-    $('.rupiah-input').change(function(e){
-        var self=e.target;
+    // $('.rupiah-input').change(function(e){
+    //     var self=e.target;
+    //     var curval= self.value.replace(/Rp|,/g, "");
+    //     if (curval.trim()==='' && self.hasOwnProperty("oldValue")) {   //is it valid float number?
+    //         curval= self.oldValue.replace(/Rp|,/g, "");
+    //     }
+    //     self.nextSibling.nextSibling.value=parseFloat(curval).toFixed(2)
+    // });
+
+    const debitSamaDenganKredit = function(self, $target){
         var curval= self.value.replace(/Rp|,/g, "");
         if (curval.trim()==='' && self.hasOwnProperty("oldValue")) {   //is it valid float number?
             curval= self.oldValue.replace(/Rp|,/g, "");
         }
-        self.nextSibling.nextSibling.value=parseFloat(curval).toFixed(2)
-    });
+        var raw=parseFloat(curval).toFixed(2);
+        self.nextSibling.nextSibling.value=raw;
+
+        $target.val(self.value).change().blur();
+        $target[0].nextSibling.nextSibling.value=raw;
+    }
     
+    $('#debit').focusout(function(e) {debitSamaDenganKredit(e.target, $('#kredit'));});
+    $('#debit-edit').focusout(function(e) {debitSamaDenganKredit(e.target, $('#kredit-edit'));});
 } );
 </script>
 <script type="text/javascript">
