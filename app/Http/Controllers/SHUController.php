@@ -34,24 +34,68 @@ class SHUController extends Controller
 
         $ac->getStyle('C:G')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
 
-        // JUDUL
-        $ac->getCell('B2')->setValue("KPRI. SETDAPROV. JATIM");
-        $ac->getCell('B3')->setValue("SELISIH HASIL USAHA");
-        $ac->getCell('B4')->setValue("Periode ".$tanggalString);
+        // KOP
+        $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+        $drawing->setPath('public/img/logo.png');
+        $drawing->setCoordinates('B1');
+        $drawing->setOffsetX(100);
+        $drawing->setOffsetY(5);
+        $drawing->setHeight(80);
+        $drawing->setWorksheet($ex->getActiveSheet());
+
+        $ac->mergeCells('B1:G1');
+        $ac->getCell('B1')->setValue("KOPERASI KONSUMEN PEGAWAI REPUBLIK INDONESIA");
         $ac->mergeCells('B2:G2');
+        $ac->getCell('B2')->setValue("SEKRETARIAT DAERAH TINGKAT PROVINSI JAWA TIMUR");
         $ac->mergeCells('B3:G3');
+        $ac->getCell('B3')->setValue("Jl. PAHLAWAN   No. 110   TELP. (031) 3524001-11  Ps. 1516, 1514, 1519 ");
         $ac->mergeCells('B4:G4');
-        $ac->getStyle('B2:G4')->getFont()->setSize(16)->setBold(true);
-        $ac->getStyle('B2:G4')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $ac->getCell('B4')->setValue("S U R A B A Y A");
+
+        $titleStyle = [
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 15,
+            ],
+        ];
+        $title2Style = [
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+            'borders' => [
+                'bottom' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK,
+                ]
+            ]
+        ];
+        $ac->getStyle('B1:G1')->applyFromArray($titleStyle);
+        $ac->getStyle('B2:G4')->applyFromArray($title2Style);
+
+        // JUDUL
+        $ac->getCell('B6')->setValue("SELISIH HASIL USAHA");
+        $ac->mergeCells('B6:G6');
+        $ac->getStyle('B6:G6')->getFont()->setSize(15)->setBold(true);
+        $ac->getStyle('B6:G6')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);;
         
+        $ac->getCell('B7')->setValue("Periode ".$tanggalString);
+        $ac->mergeCells('B7:G7');
+        $ac->getStyle('B7:G7')->getFont()->setSize(12)->setBold(true);
+        $ac->getStyle('B7:G7')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);;
 
         // HEAD TABEL
-        $ac->getCell('B6')->setValue("KETERANGAN");
-        $ac->getCell('C6')->setValue("AWAL PERIODE");
-        $ac->getCell('D6')->setValue("PERIODE BERJALAN");
-        $ac->getCell('E6')->setValue("AKHIR PERIODE");
-        $ac->getCell('F6')->setValue("KOREKSI");
-        $ac->getCell('G6')->setValue("FISKAL");
+        $ac->getCell('B9')->setValue("KETERANGAN");
+        $ac->getCell('C9')->setValue("AWAL PERIODE");
+        $ac->getCell('D9')->setValue("PERIODE BERJALAN");
+        $ac->getCell('E9')->setValue("AKHIR PERIODE");
+        $ac->getCell('F9')->setValue("KOREKSI");
+        $ac->getCell('G9')->setValue("FISKAL");
         
         $ac->getColumnDimension('B')->setWidth(35);
         $ac->getColumnDimension('C')->setWidth(18);
@@ -59,11 +103,11 @@ class SHUController extends Controller
         $ac->getColumnDimension('E')->setWidth(18);
         $ac->getColumnDimension('F')->setWidth(18);
         $ac->getColumnDimension('G')->setWidth(18);
-        $ac->getStyle('B6:G6')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $ac->getStyle('B6:G6')->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        $ac->getStyle('B9:G9')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $ac->getStyle('B9:G9')->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
         // Isi Aset
-        $from=7;
+        $from=10;
         $walk=0;
         $master=[];
         foreach($d['kategoris'] as $k => $kd){

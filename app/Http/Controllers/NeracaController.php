@@ -35,30 +35,70 @@ class NeracaController extends Controller
         $ac->getStyle('C:E')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
         $ac->getStyle('H:J')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
 
+        // KOP
+        $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+        $drawing->setPath('public/img/logo.png');
+        $drawing->setCoordinates('C1');
+        $drawing->setOffsetX(70);
+        $drawing->setOffsetY(5);
+        $drawing->setHeight(80);
+        $drawing->setWorksheet($ex->getActiveSheet());
+
+        $ac->mergeCells('C1:J1');
+        $ac->getCell('C1')->setValue("KOPERASI KONSUMEN PEGAWAI REPUBLIK INDONESIA");
+        $ac->mergeCells('C2:J2');
+        $ac->getCell('C2')->setValue("SEKRETARIAT DAERAH TINGKAT PROVINSI JAWA TIMUR");
+        $ac->mergeCells('C3:J3');
+        $ac->getCell('C3')->setValue("Jl. PAHLAWAN   No. 110   TELP. (031) 3524001-11  Ps. 1516, 1514, 1519 ");
+        $ac->mergeCells('C4:J4');
+        $ac->getCell('C4')->setValue("S U R A B A Y A");
+
+        $titleStyle = [
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 15,
+            ],
+        ];
+        $title2Style = [
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+            'borders' => [
+                'bottom' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK,
+                ]
+            ]
+        ];
+        $ac->getStyle('B1:J1')->applyFromArray($titleStyle);
+        $ac->getStyle('B2:J4')->applyFromArray($title2Style);
+
         // JUDUL
-        $ac->getCell('B2')->setValue("KPRI. SETDAPROV. JATIM");
-        $ac->getCell('B3')->setValue("NERACA PUSAT");
-        $ac->getCell('B4')->setValue("Periode ".$tanggalString);
-        $ac->mergeCells('B2:J2');
-        $ac->getStyle('B2:J2')->getFont()->setSize(16)->setBold(true);
-        $ac->getStyle('B2:J2')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $ac->mergeCells('B3:J3');
-        $ac->getStyle('B3:J3')->getFont()->setSize(14)->setBold(true);
-        $ac->getStyle('B3:J3')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);;
-        $ac->mergeCells('B4:J4');
-        $ac->getStyle('B4:J4')->getFont()->setSize(14)->setBold(true);
-        $ac->getStyle('B4:J4')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);;
-        
+        $ac->mergeCells('B6:J6');
+        $ac->getCell('B6')->setValue("NERACA PUSAT");
+        $ac->getStyle('B6:J6')->getFont()->setSize(15)->setBold(true);
+        $ac->getStyle('B6:J6')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        $ac->mergeCells('B7:J7');
+        $ac->getCell('B7')->setValue("Periode ".$tanggalString);
+        $ac->getStyle('B7:J7')->getFont()->setSize(12)->setBold(true);
+        $ac->getStyle('B7:J7')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);;
 
         // HEAD TABEL
-        $ac->getCell('B6')->setValue("KETERANGAN");
-        $ac->getCell('C6')->setValue("AWAL PERIODE");
-        $ac->getCell('D6')->setValue("PERIODE BERJALAN");
-        $ac->getCell('E6')->setValue("AKHIR PERIODE");
-        $ac->getCell('G6')->setValue("KETERANGAN");
-        $ac->getCell('H6')->setValue("AWAL PERIODE");
-        $ac->getCell('I6')->setValue("PERIODE BERJALAN");
-        $ac->getCell('J6')->setValue("AKHIR PERIODE");
+        $ac->getCell('B10')->setValue("KETERANGAN");
+        $ac->getCell('C10')->setValue("AWAL PERIODE");
+        $ac->getCell('D10')->setValue("PERIODE BERJALAN");
+        $ac->getCell('E10')->setValue("AKHIR PERIODE");
+        $ac->getCell('G10')->setValue("KETERANGAN");
+        $ac->getCell('H10')->setValue("AWAL PERIODE");
+        $ac->getCell('I10')->setValue("PERIODE BERJALAN");
+        $ac->getCell('J10')->setValue("AKHIR PERIODE");
         $ac->getColumnDimension('B')->setWidth(35);
         $ac->getColumnDimension('G')->setWidth(35);
         $ac->getColumnDimension('C')->setWidth(18);
@@ -68,12 +108,12 @@ class NeracaController extends Controller
         $ac->getColumnDimension('I')->setWidth(18);
         $ac->getColumnDimension('J')->setWidth(18);
         $ac->getColumnDimension('F')->setWidth(2); //pembatas
-        $ac->getStyle('B6:J6')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $ac->getStyle('B6:E6')->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-        $ac->getStyle('G6:J6')->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        $ac->getStyle('B10:J10')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $ac->getStyle('B10:E10')->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        $ac->getStyle('G10:J10')->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
         // Isi Aset
-        $from=7;
+        $from=10;
         $walk=0;
         $total_saldo_berjalan=0;
         $total_saldo_awal=0;
@@ -123,7 +163,7 @@ class NeracaController extends Controller
         $AsetMaxWalk=$walk;
 
         // Isi KEWAJIBAN
-        $from=7;
+        $from=10;
         $walk=0;
         $total_saldo_berjalan=0;
         $total_saldo_awal=0;
@@ -189,19 +229,18 @@ class NeracaController extends Controller
         $ac->getStyle("G{$from}:J{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
         if($akhir_aset!==$ASET_akhir_aset){
-            $ac->getCell('B1')->setValue( "SALDO TIDAK SEIMBANG" );
-            $ac->getStyle('B1')->getFill()
+            $ac->getCell('B5')->setValue( "SALDO TIDAK SEIMBANG" );
+            $ac->getStyle('B5')->getFill()
                 ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                 ->getStartColor()->setRGB('FFFF00');
         }else{
-            $ac->getCell('B1')->setValue( "SALDO SEIMBANG" );
-            $ac->getStyle('B1')->getFill()
+            $ac->getCell('B5')->setValue( "SALDO SEIMBANG" );
+            $ac->getStyle('B5')->getFill()
                 ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                 ->getStartColor()->setRGB('80FF00');
         }
-        $ac->getStyle('B1')->getFont()->setSize(14)->setBold(true);
-        $ac->getStyle('B1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $ac->setPrintGridlines(false);
+        $ac->getStyle('B5')->getFont()->setSize(14)->setBold(true);
+        $ac->getStyle('B5')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
 
         if($cmd==='view-gabungan'){

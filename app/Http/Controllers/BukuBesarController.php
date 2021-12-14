@@ -7,6 +7,8 @@ use Carbon\Carbon;
 use App\Jurnal;
 use App\Akun;
 use App\Saldo;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class BukuBesarController extends Controller
 {
@@ -84,43 +86,60 @@ class BukuBesarController extends Controller
         $ex = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $ex->getProperties()->setCreator("siannasGG");
         $ac = $ex->getActiveSheet();
-        $ac->mergeCells('A1:F1');
-        $ac->getCell('A1')->setValue("BUKU BESAR");
-        $ac->getCell('A3')->setValue("NO. AKUN");
-        $ac->getCell('A4')->setValue("NAMA AKUN");
 
-        $ac->getCell('B3')->setValue(": ".$tipePen->{'no-akun'});
-        $ac->getCell('B4')->setValue(": ".$tipePen->{'nama-akun'});
+        $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+        $drawing->setPath('public/img/logo.png');
+        $drawing->setCoordinates('A1');
+        $drawing->setOffsetX(70);
+        $drawing->setOffsetY(5);
+        $drawing->setHeight(80);
+        $drawing->setWorksheet($ex->getActiveSheet());
 
-        $ac->getCell('E3')->setValue("SALDO AWAL");
-        $ac->getCell('E4')->setValue("SALDO AKHIR");
+        $ac->mergeCells('C1:F1');
+        $ac->getCell('C1')->setValue("KOPERASI KONSUMEN PEGAWAI REPUBLIK INDONESIA");
+        $ac->mergeCells('C2:F2');
+        $ac->getCell('C2')->setValue("SEKRETARIAT DAERAH TINGKAT PROVINSI JAWA TIMUR");
+        $ac->mergeCells('C3:F3');
+        $ac->getCell('C3')->setValue("Jl. PAHLAWAN   No. 110   TELP. (031) 3524001-11  Ps. 1516, 1514, 1519 ");
+        $ac->mergeCells('C4:F4');
+        $ac->getCell('C4')->setValue("S U R A B A Y A");
 
-        $ac->getCell('F3')->setValue(": Rp ".number_format($saldoAwal->saldo, 2));
-        // $ac->getCell('F4')->setValue(": Rp 450,000.00");
+        $ac->mergeCells('A6:F6');
+        $ac->getCell('A6')->setValue("BUKU BESAR ".(strtoupper($tipe->tipe)));
+        $ac->getCell('A8')->setValue("NO. AKUN");
+        $ac->getCell('A9')->setValue("NAMA AKUN");
 
-        $ac->mergeCells('A6:A7');
-        $ac->getCell('A6')->setValue("TANGGAL");
-        $ac->mergeCells('B6:B7');
-        $ac->getCell('B6')->setValue("NO. REF");
-        $ac->mergeCells('C6:C7');
-        $ac->getCell('C6')->setValue("URAIAN TRANSAKSI");
-        $ac->mergeCells('D6:D7');
-        $ac->getCell('D6')->setValue("DEBIT");
-        $ac->mergeCells('E6:E7');
-        $ac->getCell('E6')->setValue("KREDIT");
-        $ac->mergeCells('F6:F7');
-        $ac->getCell('F6')->setValue("SALDO");
+        $ac->getCell('B8')->setValue(": ".$tipePen->{'no-akun'});
+        $ac->getCell('B9')->setValue(": ".$tipePen->{'nama-akun'});
+
+        $ac->getCell('E8')->setValue("SALDO AWAL");
+        $ac->getCell('E9')->setValue("SALDO AKHIR");
+
+        $ac->getCell('F8')->setValue(": Rp ".number_format($saldoAwal->saldo, 2));
+
+        $ac->mergeCells('A11:A12');
+        $ac->getCell('A11')->setValue("TANGGAL");
+        $ac->mergeCells('B11:B12');
+        $ac->getCell('B11')->setValue("NO. REF");
+        $ac->mergeCells('C11:C12');
+        $ac->getCell('C11')->setValue("URAIAN TRANSAKSI");
+        $ac->mergeCells('D11:D12');
+        $ac->getCell('D11')->setValue("DEBIT");
+        $ac->mergeCells('E11:E12');
+        $ac->getCell('E11')->setValue("KREDIT");
+        $ac->mergeCells('F11:F12');
+        $ac->getCell('F11')->setValue("SALDO");
         
-        $ac->getCell('C8')->setValue('SALDO AWAL');
-        $ac->getCell('F8')->setValue(number_format($saldoAwal->saldo, 2));
+        $ac->getCell('C13')->setValue('SALDO AWAL');
+        $ac->getCell('F13')->setValue(number_format($saldoAwal->saldo, 2));
 
         $jumlah = $saldoAwal->saldo;
         for($x=0;$x<count($jurnal);$x++){
-            $ac->getCell('A'.($x+9))->setValue($jurnal[$x]->tanggal);
-            $ac->getCell('B'.($x+9))->setValue($jurnal[$x]->{'no-ref'});
-            $ac->getCell('C'.($x+9))->setValue($jurnal[$x]->keterangan);
+            $ac->getCell('A'.($x+14))->setValue($jurnal[$x]->tanggal);
+            $ac->getCell('B'.($x+14))->setValue($jurnal[$x]->{'no-ref'});
+            $ac->getCell('C'.($x+14))->setValue($jurnal[$x]->keterangan);
             if($jurnal[$x]->{'id-debit'}==$tipePen->id){
-                $ac->getCell('D'.($x+9))->setValue(number_format($jurnal[$x]->debit,2));
+                $ac->getCell('D'.($x+14))->setValue(number_format($jurnal[$x]->debit,2));
                 if($tipePen->getKategori->{'tipe-pendapatan'} == 'debit'){
                     $jumlah += intval($jurnal[$x]->debit);
                 }
@@ -129,10 +148,10 @@ class BukuBesarController extends Controller
                 }
             }
             else{
-                $ac->getCell('D'.($x+9))->setValue('-');
+                $ac->getCell('D'.($x+14))->setValue('-');
             }
             if($jurnal[$x]->{'id-kredit'}==$tipePen->id){
-                $ac->getCell('E'.($x+9))->setValue(number_format($jurnal[$x]->kredit,2));
+                $ac->getCell('E'.($x+14))->setValue(number_format($jurnal[$x]->kredit,2));
                 if($tipePen->getKategori->{'tipe-pendapatan'} == 'debit'){
                     $jumlah -= intval($jurnal[$x]->kredit);
                 }
@@ -141,12 +160,12 @@ class BukuBesarController extends Controller
                 }
             }
             else{
-                $ac->getCell('E'.($x+9))->setValue('-');
+                $ac->getCell('E'.($x+14))->setValue('-');
             }
             
-            $ac->getCell('F'.($x+9))->setValue(number_format($jumlah,2));
+            $ac->getCell('F'.($x+14))->setValue(number_format($jumlah,2));
         }
-        $ac->getCell('F4')->setValue(": Rp ".(number_format($jumlah,2)));
+        $ac->getCell('F9')->setValue(": Rp ".(number_format($jumlah,2)));
         
         
         $titleStyle = [
@@ -157,6 +176,20 @@ class BukuBesarController extends Controller
                 'bold' => true,
                 'size' => 15,
             ],
+        ];
+        $title2Style = [
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+            'borders' => [
+                'bottom' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK,
+                ]
+            ]
         ];
 
         $headerStyle = [
@@ -179,10 +212,12 @@ class BukuBesarController extends Controller
         $ac->getColumnDimension('E')->setWidth(20);
         $ac->getColumnDimension('F')->setWidth(20);
         $ac->getColumnDimension('C')->setWidth(40);
-        $ac->getStyle('A1')->applyFromArray($titleStyle);
-        $ac->getStyle('A6:'.$col.(count($jurnal)+8))->applyFromArray($headerStyle);
+        $ac->getStyle('C1')->applyFromArray($titleStyle);
+        $ac->getStyle('A6')->applyFromArray($titleStyle);
+        $ac->getStyle('A2:F4')->applyFromArray($title2Style);
+        $ac->getStyle('A11:'.$col.(count($jurnal)+13))->applyFromArray($headerStyle);
         
-        $fileName="BukuBesar_".$tipePen->{'nama-akun'}.".xlsx";
+        $fileName="BukuBesar_".$tipePen->{'nama-akun'}."_".$request->bulan.".xlsx";
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="'. urlencode($fileName).'"');
         header('Cache-Control: max-age=0');
