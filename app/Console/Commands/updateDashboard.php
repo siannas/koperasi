@@ -62,11 +62,34 @@ class updateDashboard extends Command
         $meta_baru->value = $jurnal_tk;
         $meta_baru->save();
 
+        // 5 saldo teratas global
         $saldo_teratas = Akun::select('no-akun', 'nama-akun', 'saldo')->orderBy('saldo', 'desc')->take(5)->get();
         $meta_baru = Meta::where('key', '5_akun_ini')->first();
         $meta_baru->value = $saldo_teratas;
         $meta_baru->save();
 
+        // 5 saldo teratas usp
+        $saldo_teratas = Akun::select('no-akun', 'id-tipe', 'nama-akun', 'saldo')->where('id-tipe', 1)->orderBy('saldo', 'desc')->take(5)->get();
+        $meta_baru = Meta::where('key', '5_akun_usp')->first();
+        $meta_baru->value = $saldo_teratas;
+        
+        $meta_baru->save();
+
+        // 5 saldo teratas fc
+        $saldo_teratas = Akun::select('no-akun', 'id-tipe', 'nama-akun', 'saldo')->where('id-tipe', 2)->orderBy('saldo', 'desc')->take(5)->get();
+        $meta_baru = Meta::where('key', '5_akun_fc')->first();
+        $meta_baru->value = $saldo_teratas;
+        
+        $meta_baru->save();
+
+        // 5 saldo teratas tk
+        $saldo_teratas = Akun::select('no-akun', 'id-tipe', 'nama-akun', 'saldo')->where('id-tipe', 3)->orderBy('saldo', 'desc')->take(5)->get();
+        $meta_baru = Meta::where('key', '5_akun_tk')->first();
+        $meta_baru->value = $saldo_teratas;
+        
+        $meta_baru->save();
+
+        // Recent Activity
         $aktivitas_baru = LogJurnal::select('keterangan', 'created_at')->orderBy('created_at', 'desc')->take(5)->get();
         $meta_baru = Meta::where('key', 'recent_activity')->first();
         $meta_baru->value = $aktivitas_baru;
