@@ -59,7 +59,7 @@
   </nav>
   <!-- End Navbar -->
   <div class="wrapper wrapper-full-page">
-    <div class="page-header login-page header-filter" filter-color="black" style="background-image: url('{{asset('public/img/login.jpg')}}'); background-size: cover; background-position: top center;">
+    <div class="page-header login-page header-filter" filter-color="black" style="background-image: url('{{asset('public/img/login.jpeg')}}'); background-size: cover; background-position: bottom center;">
       <!--   you can change the color of the filter page using: data-color="blue | purple | green | orange | red | rose " -->
       <div class="container">
         <div class="row">
