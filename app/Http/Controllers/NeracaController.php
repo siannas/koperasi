@@ -113,7 +113,7 @@ class NeracaController extends Controller
         $ac->getStyle('G10:J10')->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
         // Isi Aset
-        $from=10;
+        $from=11;
         $walk=0;
         $total_saldo_berjalan=0;
         $total_saldo_awal=0;
@@ -163,7 +163,7 @@ class NeracaController extends Controller
         $AsetMaxWalk=$walk;
 
         // Isi KEWAJIBAN
-        $from=10;
+        $from=11;
         $walk=0;
         $total_saldo_berjalan=0;
         $total_saldo_awal=0;
