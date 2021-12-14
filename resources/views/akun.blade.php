@@ -47,6 +47,11 @@ active
                 <label for="nama-akun" class="bmd-label-floating">Nama Akun</label>
                 <input id="nama-akun" name="nama-akun" type="text" class="form-control" required>
             </div>
+            <div class="form-group">
+                <label for="saldo" class="bmd-label-floating">Saldo</label>
+                <input id="saldo" name="saldo" type="text" class="form-control rupiah-input" required>
+                <input type="hidden" readonly name="saldo" required>
+            </div>
         </div>
         <div class="modal-footer">
             <button type="submit" class="btn btn-primary btn-link">Simpan</button>
@@ -98,6 +103,11 @@ active
             <div class="form-group">
                 <label for="nama-akun" class="bmd-label-floating">Nama Akun</label>
                 <input id="nama_akun" name="nama-akun" type="text" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="saldo" class="bmd-label-floating">Saldo</label>
+                <input id="_saldo" name="saldo" type="text" class="form-control rupiah-input" readonly required>
+                <input type="hidden" readonly name="saldo" required>
             </div>
         </div>
         <div class="modal-footer">
@@ -158,6 +168,7 @@ active
                     <th data-priority="3">Kategori</th>
                     <th data-priority="2">No Akun</th>
                     <th data-priority="1">Nama Akun</th>
+                    <th data-priority="4">Saldo</th>
                     <th data-priority="1" class="disabled-sorting text-right">Aksi</th>
                 </tr>
                 </thead>
@@ -167,6 +178,7 @@ active
                     <th>Kategori</th>
                     <th>No Akun</th>
                     <th>Nama Akun</th>
+                    <th>Saldo</th>
                     <th class="text-right">Aksi</th>
                 </tr>
                 </tfoot>
@@ -177,6 +189,7 @@ active
                     <td>{{ucwords($unit->getKategori->kategori)}}</td>
                     <td>{{$unit->{'no-akun'} }}</td>
                     <td>{{$unit->{'nama-akun'} }}</td>
+                    <td>Rp {{ number_format($unit->saldo,2) }}</td>
                     <td class="text-right">
                         <button type="button" class="btn btn-sm btn-link btn-warning btn-just-icon edit" 
                             key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></button>
@@ -216,6 +229,7 @@ function onEdit(self) {
     $modal.find('[name=id-kategori]').val(j['id-kategori']).change();
     $modal.find('[name=no-akun]').val(j['no-akun']).change();
     $modal.find('[name=nama-akun]').val(j['nama-akun']).change();
+    $modal.find('[name=saldo]').val(j['saldo']).change().blur();
     $modal.find('form').attr('action', "{{route('akun.update', ['akun'=>''])}}/"+j['id']);
     $modal.modal('show');
 }
@@ -247,5 +261,15 @@ $(document).ready(function() {
 
 });
 
+</script>
+<script>
+    $('.rupiah-input').change(function(e){
+        var self=e.target;
+        var curval= self.value.replace(/Rp|,/g, "");
+        if (curval.trim()==='' && self.hasOwnProperty("oldValue")) {   //is it valid float number?
+            curval= self.oldValue.replace(/Rp|,/g, "");
+        }
+        self.nextSibling.nextSibling.value=parseFloat(curval).toFixed(2)
+    });
 </script>
 @endsection
