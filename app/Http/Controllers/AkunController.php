@@ -20,7 +20,6 @@ class AkunController extends Controller
     public function store(Request $request){
         try{
             $akun_baru = new Akun($request->all());
-            $akun_baru->saldo=0;
             $akun_baru->save();
         }catch(QueryException $exception){
             $this->flashError($exception->getMessage());
