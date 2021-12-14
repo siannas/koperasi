@@ -23,7 +23,7 @@ class NeracaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function excel(Request $request){
+    public function excel(Request $request, $cmd=NULL){
         $d = $this->init($request);
 
         $tanggalString = Carbon::createFromFormat('m/Y', $d['date'])->isoFormat('MMMM Y');
@@ -201,15 +201,26 @@ class NeracaController extends Controller
         }
         $ac->getStyle('B1')->getFont()->setSize(14)->setBold(true);
         $ac->getStyle('B1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $ac->setPrintGridlines(false);
 
-        // send file ke user
-        $fileName="Neraca_".$tanggalString.".xlsx";
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="'. urlencode($fileName).'"');
-        header('Cache-Control: max-age=0');
-        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($ex, 'Xlsx');
-        $writer->save('php://output');
-        exit;
+
+        if($cmd==='view-gabungan'){
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Html($ex);
+            // $header = $writer->generateHTMLHeader();
+            echo $writer->generateStyles();
+            echo "<style>.gridlines td {border: 0;}</style>\n</head>";
+            echo $writer->generateSheetData();
+            echo $writer->generateHTMLFooter();
+        }else{
+            // send file ke user
+            $fileName="Neraca_".$tanggalString.".xlsx";
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment; filename="'. urlencode($fileName).'"');
+            header('Cache-Control: max-age=0');
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($ex, 'Xlsx');
+            $writer->save('php://output');
+            exit;
+        }
     }
 
     /**

@@ -35,14 +35,15 @@ active
                         <form action="{{route('shu.filter', ['tipe' => $currentTipe->tipe])}}" method="POST">
                         @csrf
                         <div class="form-group d-inline-block">
-                            <input name="date" type="text" class="form-control monthyearpicker" value="{{$date}}">
+                            <input name="date" type="text" class="form-control monthyearpicker" value="{{$date}}" id="date-filter">
                         </div>
                         <button type="submit" class="btn btn-primary btn-round"><i class="material-icons">filter_alt</i> Proses</button>
                         </form>
                     </div>
                     <div class="col-6 text-right">
-                        <form action="{{route('shu.excel', ['tipe' => $currentTipe->tipe])}}" method="POST">
+                        <form action="{{route('shu.excel', ['tipe' => $currentTipe->tipe])}}" method="POST" onsubmit="setFormDate(event)">
                         @csrf
+                        <input type="hidden" name="date">
                         <button type="submit" class="btn btn-success btn-sm">Download</button>
                         </form>
                     </div>
@@ -156,6 +157,14 @@ active
 
 @section('script')
 <script>
+
+//fungsi nge-set informasi date di dalam form
+const setFormDate = function(e){
+    var date = $('#date-filter').val();
+    $self=$(e.target);
+    $self.find('input[name=date]').val(date)
+    return true;
+}
 
 $(document).ready(function() {
     my.initFormExtendedDatetimepickers();
