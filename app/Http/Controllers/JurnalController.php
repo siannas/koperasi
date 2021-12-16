@@ -238,43 +238,60 @@ class JurnalController extends Controller
         $ex = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $ex->getProperties()->setCreator("siannasGG");
         $ac = $ex->getActiveSheet();
-        $ac->mergeCells('A1:I1');
-        $ac->getCell('A1')->setValue("JURNAL ".(strtoupper($tipe->tipe)));
-        $ac->getCell('A3')->setValue("PERIODE");
-        
-        $ac->getCell('B3')->setValue(": ".$bulan[$month-1]." ".$year);
 
-        $ac->mergeCells('A6:A7');
-        $ac->getCell('A6')->setValue("TANGGAL");
-        $ac->mergeCells('B6:B7');
-        $ac->getCell('B6')->setValue("NO. REF");
-        $ac->mergeCells('C6:C7');
-        $ac->getCell('C6')->setValue("KETERANGAN");
-        $ac->mergeCells('D6:D7');
-        $ac->getCell('D6')->setValue("NO. AKUN");
-        $ac->mergeCells('E6:E7');
-        $ac->getCell('E6')->setValue("NAMA AKUN");
-        $ac->mergeCells('F6:F7');
-        $ac->getCell('F6')->setValue("DEBIT");
-        $ac->mergeCells('G6:G7');
-        $ac->getCell('G6')->setValue("NO. AKUN");
-        $ac->mergeCells('H6:H7');
-        $ac->getCell('H6')->setValue("NAMA AKUN");
-        $ac->mergeCells('I6:I7');
-        $ac->getCell('I6')->setValue("KREDIT");
+        $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+        $drawing->setPath('public/img/logo.png');
+        $drawing->setCoordinates('C1');
+        $drawing->setOffsetX(180);
+        $drawing->setOffsetY(5);
+        $drawing->setHeight(80);
+        $drawing->setWorksheet($ex->getActiveSheet());
+
+        $ac->mergeCells('C1:I1');
+        $ac->getCell('C1')->setValue("KOPERASI KONSUMEN PEGAWAI REPUBLIK INDONESIA");
+        $ac->mergeCells('C2:I2');
+        $ac->getCell('C2')->setValue("SEKRETARIAT DAERAH TINGKAT PROVINSI JAWA TIMUR");
+        $ac->mergeCells('C3:I3');
+        $ac->getCell('C3')->setValue("Jl. PAHLAWAN   No. 110   TELP. (031) 3524001-11  Ps. 1516, 1514, 1519 ");
+        $ac->mergeCells('C4:I4');
+        $ac->getCell('C4')->setValue("S U R A B A Y A");
+
+        $ac->mergeCells('A6:I6');
+        $ac->getCell('A6')->setValue("JURNAL ".(strtoupper($tipe->tipe)));
+        $ac->mergeCells('A7:I7');
+        $ac->getCell('A7')->setValue("Periode ".$bulan[$month-1]." ".$year);
+
+        $ac->mergeCells('A10:A11');
+        $ac->getCell('A10')->setValue("TANGGAL");
+        $ac->mergeCells('B10:B11');
+        $ac->getCell('B10')->setValue("NO. REF");
+        $ac->mergeCells('C10:C11');
+        $ac->getCell('C10')->setValue("KETERANGAN");
+        $ac->mergeCells('D10:D11');
+        $ac->getCell('D10')->setValue("NO. AKUN");
+        $ac->mergeCells('E10:E11');
+        $ac->getCell('E10')->setValue("NAMA AKUN");
+        $ac->mergeCells('F10:F11');
+        $ac->getCell('F10')->setValue("DEBIT");
+        $ac->mergeCells('G10:G11');
+        $ac->getCell('G10')->setValue("NO. AKUN");
+        $ac->mergeCells('H10:H11');
+        $ac->getCell('H10')->setValue("NAMA AKUN");
+        $ac->mergeCells('I10:I11');
+        $ac->getCell('I10')->setValue("KREDIT");
         
         // $ac->getCell('F8')->setValue(number_format($saldoAwal->saldo, 2));
 
         for($x=0;$x<count($jurnal);$x++){
-            $ac->getCell('A'.($x+8))->setValue($jurnal[$x]->tanggal);
-            $ac->getCell('B'.($x+8))->setValue($jurnal[$x]->{'no-ref'});
-            $ac->getCell('C'.($x+8))->setValue($jurnal[$x]->keterangan);
-            $ac->getCell('D'.($x+8))->setValue($jurnal[$x]->akunDebit->{'no-akun'});
-            $ac->getCell('E'.($x+8))->setValue($jurnal[$x]->akunDebit->{'nama-akun'});
-            $ac->getCell('F'.($x+8))->setValue(number_format($jurnal[$x]->debit,2));
-            $ac->getCell('G'.($x+8))->setValue($jurnal[$x]->akunKredit->{'no-akun'});
-            $ac->getCell('H'.($x+8))->setValue($jurnal[$x]->akunKredit->{'nama-akun'});
-            $ac->getCell('I'.($x+8))->setValue(number_format($jurnal[$x]->kredit,2));
+            $ac->getCell('A'.($x+12))->setValue($jurnal[$x]->tanggal);
+            $ac->getCell('B'.($x+12))->setValue($jurnal[$x]->{'no-ref'});
+            $ac->getCell('C'.($x+12))->setValue($jurnal[$x]->keterangan);
+            $ac->getCell('D'.($x+12))->setValue($jurnal[$x]->akunDebit->{'no-akun'});
+            $ac->getCell('E'.($x+12))->setValue($jurnal[$x]->akunDebit->{'nama-akun'});
+            $ac->getCell('F'.($x+12))->setValue(number_format($jurnal[$x]->debit,2));
+            $ac->getCell('G'.($x+12))->setValue($jurnal[$x]->akunKredit->{'no-akun'});
+            $ac->getCell('H'.($x+12))->setValue($jurnal[$x]->akunKredit->{'nama-akun'});
+            $ac->getCell('I'.($x+12))->setValue(number_format($jurnal[$x]->kredit,2));
         }
         
         
@@ -286,6 +303,31 @@ class JurnalController extends Controller
             'font' => [
                 'bold' => true,
                 'size' => 15,
+            ],
+        ];
+
+        $title2Style = [
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+            'borders' => [
+                'bottom' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK,
+                ]
+            ]
+        ];
+
+        $title3Style = [
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
             ],
         ];
 
@@ -310,10 +352,13 @@ class JurnalController extends Controller
         $ac->getColumnDimension('F')->setWidth(20);
         $ac->getColumnDimension('I')->setWidth(20);
         $ac->getColumnDimension('C')->setWidth(40);
-        $ac->getStyle('A1')->applyFromArray($titleStyle);
-        $ac->getStyle('A6:'.$col.(count($jurnal)+7))->applyFromArray($headerStyle);
+        $ac->getStyle('C1')->applyFromArray($titleStyle);
+        $ac->getStyle('A6')->applyFromArray($titleStyle);
+        $ac->getStyle('A2:I4')->applyFromArray($title2Style);
+        $ac->getStyle('A7')->applyFromArray($title3Style);
+        $ac->getStyle('A10:'.$col.(count($jurnal)+11))->applyFromArray($headerStyle);
         
-        $fileName="Jurnal_".ucwords($tipe->tipe).".xlsx";
+        $fileName="Jurnal_".ucwords($tipe->tipe)."_".$request->date.".xlsx";
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="'. urlencode($fileName).'"');
         header('Cache-Control: max-age=0');

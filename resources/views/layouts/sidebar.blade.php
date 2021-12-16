@@ -16,7 +16,7 @@ $reguler = [];
     <div class="sidebar-wrapper">
         <div class="user">
             <div class="photo">
-                <img src="{{asset('public/img/faces/avatar.jpg')}}" />
+                <img src="{{asset('public/img/logo.png')}}" />
             </div>
             <div class="user-info">
                 <a data-toggle="collapse" href="#collapseExample" class="username">
