@@ -9,9 +9,15 @@ Neraca
 show
 @endsection
 
+@if($currentTipe)
 @section('neraca'.$currentTipe->tipe)
 active
 @endsection
+@else
+@section('neraca')
+active
+@endsection
+@endif
 
 @section('modal')
 
@@ -26,13 +32,21 @@ active
             <div class="card-icon">
                 <i class="material-icons">account_balance_wallet</i>
             </div>
+            @if($currentTipe)
             <h4 class="card-title">Neraca {{ucwords($currentTipe->tipe)}}</h4>
+            @else
+            <h4 class="card-title">Neraca Gabungan</h4>
+            @endif
         </div>
         <div class="card-body">
             <div class="toolbar mb-5">
                 <div class="row ">
                     <div class="col-6">
+                        @if($currentTipe)
                         <form action="{{route('neraca.filter', ['tipe' => $currentTipe->tipe])}}" method="POST">
+                        @else
+                        <form action="{{route('neraca.filter.gabungan')}}" method="POST">
+                        @endif
                         @csrf
                         <div class="form-group d-inline-block">
                             <input name="date" type="text" class="form-control monthyearpicker" value="{{$date}}" id="date-filter">
@@ -41,12 +55,20 @@ active
                         </form>
                     </div>
                     <div class="col-6 text-right">
+                        @if($currentTipe)
                         <form class="d-inline-block" action="{{route('neraca.excel', ['tipe' => $currentTipe->tipe])}}" method="POST" onsubmit="setFormDate(event)">
+                        @else
+                        <form class="d-inline-block" action="{{route('neraca.excel.gabungan')}}" method="POST" onsubmit="setFormDate(event)">
+                        @endif
                         @csrf
                         <input type="hidden" name="date">
                         <button type="submit" class="btn btn-success btn-sm">Download</button>
                         </form>
+                        @if($currentTipe)
                         <form target="_blank" class="d-inline-block" action="{{route('neraca.excel', ['tipe' => $currentTipe->tipe, 'cmd'=>'view-gabungan'])}}" method="POST" onsubmit="setFormDate(event)">
+                        @else
+                        <form target="_blank" class="d-inline-block" action="{{route('neraca.excel.gabungan', ['cmd'=>'view-gabungan'])}}" method="POST" onsubmit="setFormDate(event)">
+                        @endif
                         @csrf
                         <input type="hidden" name="date">
                         <button type="submit" class="btn btn-primary btn-sm">View Gabungan</button>
@@ -96,7 +118,7 @@ active
                         $total_saldo_awal=0;
                         @endphp
                         @foreach($kategoris_debit as $k => $kd)
-                        @if($kd->getAkun->isEmpty() === false and intval($kd->getAkun[0]->{'id-tipe'})===$currentTipe->id)
+                        @if($kd->getAkun->isEmpty() === false and ($currentTipe===NULL or intval($kd->getAkun[0]->{'id-tipe'})===$currentTipe->id))
                         @php
                         $saldo_berjalan=0;
                         $saldo_awal=0;
@@ -177,7 +199,7 @@ active
                         $total_saldo_awal=0;
                         @endphp
                         @foreach($kategoris_kredit as $k => $kd)
-                        @if($kd->getAkun->isEmpty() === false and intval($kd->getAkun[0]->{'id-tipe'})===$currentTipe->id)
+                        @if($kd->getAkun->isEmpty() === false and ($currentTipe===NULL or intval($kd->getAkun[0]->{'id-tipe'})===$currentTipe->id))
                         @php
                         $saldo_berjalan=0;
                         $saldo_awal=0;

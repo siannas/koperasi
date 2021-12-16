@@ -136,6 +136,14 @@ $reguler = [];
                 </li>
                 @endif
                 @endforeach
+                @if($role=='Spesial')
+                <li class="nav-item @yield('neraca')">
+                    <a class="nav-link" href="{{url('/neraca')}}">
+                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-normal"> Neraca Gabungan </span>
+                    </a>
+                </li>
+                @endif
                 </ul>
             </div>
         </li>

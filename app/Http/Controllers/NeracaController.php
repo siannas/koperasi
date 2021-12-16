@@ -14,7 +14,12 @@ class NeracaController extends Controller
      */
     public function index(Request $request)
     {
-        $data = $this->init($request);
+        if($tipe=$request->get('tipe')){
+            $data = $this->init($request, $tipe);
+        }else{
+            $data = $this->initGabungan($request);
+        }
+        
         return view('neraca', $data);
     }
 
@@ -24,7 +29,11 @@ class NeracaController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function excel(Request $request, $cmd=NULL){
-        $d = $this->init($request);
+        if($tipe=$request->get('tipe')){
+            $d = $this->init($request, $tipe);
+        }else{
+            $d = $this->initGabungan($request);
+        }
 
         $tanggalString = Carbon::createFromFormat('m/Y', $d['date'])->isoFormat('MMMM Y');
         
@@ -118,7 +127,7 @@ class NeracaController extends Controller
         $total_saldo_berjalan=0;
         $total_saldo_awal=0;
         foreach($d['kategoris_debit'] as $k => $kd){
-            if($kd->getAkun->isEmpty() === false and intval($kd->getAkun[0]->{'id-tipe'})===$d['currentTipe']->id){
+            if($kd->getAkun->isEmpty() === false and ($d['currentTipe']===NULL or intval($kd->getAkun[0]->{'id-tipe'})===$d['currentTipe']->id)){
                 $saldo_berjalan=0;
                 $saldo_awal=0;
 
@@ -168,7 +177,7 @@ class NeracaController extends Controller
         $total_saldo_berjalan=0;
         $total_saldo_awal=0;
         foreach($d['kategoris_kredit'] as $k => $kd){
-            if($kd->getAkun->isEmpty() === false and intval($kd->getAkun[0]->{'id-tipe'})===$d['currentTipe']->id){
+            if($kd->getAkun->isEmpty() === false and ($d['currentTipe']===NULL or intval($kd->getAkun[0]->{'id-tipe'})===$d['currentTipe']->id)){
                 $saldo_berjalan=0;
                 $saldo_awal=0;
 
@@ -267,7 +276,7 @@ class NeracaController extends Controller
      *
      * @return Object
      */
-    private function init(Request $request){
+    private function init(Request $request, $tipe){
         //dapetin tanggal neraca yg ingin di download
         $month = $this->date['m'];
         $year = $this->date['y'];
@@ -278,7 +287,6 @@ class NeracaController extends Controller
             $year = $my->year;
             $backDate=$my->subMonths(1);
         }
-        $tipe=$request->get('tipe');
         
         $saldos=\App\Saldo::whereMonth('tanggal', $backDate->month)
             ->whereYear('tanggal', $backDate->year)
@@ -322,6 +330,70 @@ class NeracaController extends Controller
     
         return [
             'currentTipe'=>$tipe,
+            'date'=> $month.'/'.$year,
+            'kategoris_debit' => $kategoris_debit,
+            'kategoris_kredit' => $kategoris_kredit,
+            'jurnal_debit' => $jurnal_debit,
+            'jurnal_kredit' => $jurnal_kredit,
+            'saldos'=>$saldos,
+        ];
+    }
+
+    /**
+     * Init data-data.
+     *
+     * @return Object
+     */
+    private function initGabungan(Request $request){
+        //dapetin tanggal neraca yg ingin di download
+        $month = $this->date['m'];
+        $year = $this->date['y'];
+        $backDate=Carbon::instance($this->date['date'])->subMonths(1);
+        if($request->input('date')){
+            $my=Carbon::createFromFormat('m/Y', $request->input('date'));
+            $month = $my->month;
+            $year = $my->year;
+            $backDate=$my->subMonths(1);
+        }
+        
+        $saldos=\App\Saldo::whereMonth('tanggal', $backDate->month)
+            ->whereYear('tanggal', $backDate->year)
+            ->select('id','id-kategori','id-akun','saldo')
+            ->get()->keyBy('id-akun');
+
+        // Ambil kategori parent yang non SHU
+        $nonSHU=\App\Kategori::where('kategori','NON-SHU')->select('id')->first();
+        
+        $kategoris_debit=\App\Kategori::with(['getAkun' => function($q){
+                $q->select('id','nama-akun','no-akun', 'id-kategori','id-tipe');
+            }])
+            ->where('tipe-pendapatan', 'debit')
+            ->where('parent',$nonSHU->id)
+            ->get();
+
+        $kategoris_kredit=\App\Kategori::with(['getAkun' => function($q){
+                $q->select('id','nama-akun','no-akun', 'id-kategori','id-tipe');
+            }])
+            ->where('tipe-pendapatan', 'kredit')
+            ->where('parent',$nonSHU->id)
+            ->get();
+
+        $jurnal_debit=\App\Jurnal::selectRaw('`id-debit`, sum(debit) as debit')
+            ->groupBy('id-debit')
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
+            ->where('validasi',1)
+            ->get()->keyBy('id-debit');
+
+        $jurnal_kredit=\App\Jurnal::selectRaw('`id-kredit`, sum(kredit) as kredit')
+            ->groupBy('id-kredit')
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
+            ->where('validasi',1)
+            ->get()->keyBy('id-kredit');
+    
+        return [
+            'currentTipe'=>NULL,
             'date'=> $month.'/'.$year,
             'kategoris_debit' => $kategoris_debit,
             'kategoris_kredit' => $kategoris_kredit,

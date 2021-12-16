@@ -56,9 +56,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('buku-besar', 'BukuBesarController@filter');
             Route::post('buku-besar/excel', 'BukuBesarController@excel');
 
-            Route::get('shu', 'SHUController@index')->name('shu.index');;
-            Route::post('shu', 'SHUController@index')->name('shu.filter');;
-            Route::post('shu/excel', 'SHUController@excel')->name('shu.excel');;
+            Route::get('shu', 'SHUController@index')->name('shu.index');
+            Route::post('shu', 'SHUController@index')->name('shu.filter');
+            Route::post('shu/excel', 'SHUController@excel')->name('shu.excel');
         });
             
 
@@ -73,6 +73,15 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('user', 'DashboardController')->except([
             'create',
         ]);
+    });
+
+    /*
+    **  Spesial Only: dapat melihat neraca gabungan antara ketiganya
+    */
+    Route::middleware(['role:Spesial'])->group(function(){
+        Route::get('neraca', 'NeracaController@index')->name('neraca.index.gabungan');
+        Route::post('neraca', 'NeracaController@index')->name('neraca.filter.gabungan');
+        Route::post('neraca/excel/{cmd?}', 'NeracaController@excel')->name('neraca.excel.gabungan');
     });
     
 });

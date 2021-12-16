@@ -43,10 +43,13 @@ class BukuBesarController extends Controller
                 }])->where('akun.id', $request->akun)->first();
 
         $jurnal = Jurnal::where('id-tipe', $tipe->id)
+            ->where('validasi', 1)
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
-            ->where('id-debit', $request->akun)
-            ->orWhere('id-kredit', $request->akun)
+            ->where(function($q) use($request){
+                $q->where('id-debit', $request->akun)
+                  ->orWhere('id-kredit', $request->akun);
+            })
             ->get()->sortBy('tanggal');
 
         return view('bukuBesar', ['currentTipe'=>$tipe, 
@@ -77,10 +80,13 @@ class BukuBesarController extends Controller
                 }])->where('akun.id', $request->akun)->first();
 
         $jurnal = Jurnal::where('id-tipe', $tipe->id)
+            ->where('validasi', 1)
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
-            ->where('id-debit', $request->akun)
-            ->orWhere('id-kredit', $request->akun)
+            ->where(function($q) use($request){
+                $q->where('id-debit', $request->akun)
+                  ->orWhere('id-kredit', $request->akun);
+            })
             ->get()->sortBy('tanggal');
         
         $ex = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
