@@ -270,6 +270,7 @@ class NeracaController extends Controller
             ->groupBy('id-debit')
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
+            ->where('validasi',1)
             ->get()->keyBy('id-debit');
 
         $jurnal_kredit=\App\Jurnal::where('id-tipe',$tipe->id)
@@ -277,6 +278,7 @@ class NeracaController extends Controller
             ->groupBy('id-kredit')
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
+            ->where('validasi',1)
             ->get()->keyBy('id-kredit');
     
         return [
