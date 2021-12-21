@@ -14,7 +14,12 @@ class SHUController extends Controller
      */
     public function index(Request $request)
     {
-        $data = $this->init($request);
+        if($tipe=$request->get('tipe')){
+            $data = $this->init($request, $tipe);
+        }else{
+            $data = $this->initGabungan($request);
+        }
+
         return view('shu', $data);
     }
 
@@ -23,8 +28,12 @@ class SHUController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function excel(Request $request){
-        $d = $this->init($request);
+    public function excel(Request $request, $cmd=NULL){
+        if($tipe=$request->get('tipe')){
+            $d = $this->init($request, $tipe);
+        }else{
+            $d = $this->initGabungan($request);
+        }
 
         $tanggalString = Carbon::createFromFormat('m/Y', $d['date'])->isoFormat('MMMM Y');
         
@@ -36,7 +45,7 @@ class SHUController extends Controller
 
         // KOP
         $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-        $drawing->setPath('public/img/logo.png');
+        $drawing->setPath( $cmd==='view-gabungan' ? asset('public/img/logo.png') : 'public/img/logo.png');
         $drawing->setCoordinates('B1');
         $drawing->setOffsetX(100);
         $drawing->setOffsetY(5);
@@ -111,27 +120,41 @@ class SHUController extends Controller
         $walk=0;
         $master=[];
         foreach($d['kategoris'] as $k => $kd){
-            if($kd->getAkun->isEmpty() === false and intval($kd->getAkun[0]->{'id-tipe'})===$d['currentTipe']->id){
+            if($kd->getAkun->isEmpty() === false and ($d['currentTipe']===NULL or intval($kd->getAkun[0]->{'id-tipe'})===$d['currentTipe']->id)){
                 $saldo_berjalan=0;
                 $saldo_awal=0;
                 $coef= ($kd->{'tipe-pendapatan'} ==='kredit') ? -1 : 1;
 
+                $visited=[];
+                $visited2=[];
+                foreach($kd->getAkun as $akun){
+                    $visited[ $akun->{'nama-akun'} ][]=$akun->id;
+                }
                 // display per kategori
                 $now=$walk;
                 foreach($kd->getAkun as $akun){
-                    $walk++;
+                    // pastikan nama akun belum di-visit (guna view gabungan untuk nama akun yg sama)
+                    if (array_key_exists($akun->{'nama-akun'}, $visited2) === false) {
+                        $walk++;
 
-                    $debit=$d['jurnal_debit']->has($akun->id) ? $d['jurnal_debit'][$akun->id]->debit : 0;
-                    $kredit=$d['jurnal_kredit']->has($akun->id) ? $d['jurnal_kredit'][$akun->id]->kredit : 0;
-                    $cur=$coef*($debit-$kredit);
-                    $awal=$d['saldos']->has($akun->id) ? $d['saldos'][$akun->id]->saldo : 0;
-                    $saldo_awal+=$awal;
-                    $saldo_berjalan+=$cur;
+                        $awal=0;
+                        $cur=0;
+                        foreach ($visited[$akun->{'nama-akun'} ] as $id_ak) {
+                            $debit=$d['jurnal_debit']->has($id_ak) ? $d['jurnal_debit'][$id_ak]->debit : 0;
+                            $kredit=$d['jurnal_kredit']->has($id_ak) ? $d['jurnal_kredit'][$id_ak]->kredit : 0;
+                            $cur+=$coef*($debit-$kredit);
+                            $awal+=$d['saldos']->has($id_ak) ? $d['saldos'][$id_ak]->saldo : 0;
+                            $saldo_awal+=$awal;
+                            $saldo_berjalan+=$cur;
+                        }
 
-                    $ac->getCell('B'.($from+$walk))->setValue( "      ".$akun->{'nama-akun'} );
-                    $ac->getCell('C'.($from+$walk))->setValue( number_format($awal,2) );
-                    $ac->getCell('D'.($from+$walk))->setValue( number_format($cur,2) );
-                    $ac->getCell('E'.($from+$walk))->setValue( number_format($awal+$cur,2) );   
+                        $ac->getCell('B'.($from+$walk))->setValue("      ".$akun->{'nama-akun'});
+                        $ac->getCell('C'.($from+$walk))->setValue(number_format($awal, 2));
+                        $ac->getCell('D'.($from+$walk))->setValue(number_format($cur, 2));
+                        $ac->getCell('E'.($from+$walk))->setValue(number_format($awal+$cur, 2));
+
+                        $visited2[ $akun->{'nama-akun'} ]=1;
+                    }
                 }
 
                 // display total saldo kategori
@@ -172,14 +195,23 @@ class SHUController extends Controller
         //set border luar tabel
         $ac->getStyle("B{$from}:G{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
-        // send file ke user
-        $fileName="SHU_".$tanggalString.".xlsx";
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="'. urlencode($fileName).'"');
-        header('Cache-Control: max-age=0');
-        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($ex, 'Xlsx');
-        $writer->save('php://output');
-        exit;
+        if($cmd==='view-gabungan'){
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Html($ex);
+            // $header = $writer->generateHTMLHeader();
+            echo $writer->generateStyles();
+            echo "<style>.gridlines td {border: 0;}</style>\n</head>";
+            echo $writer->generateSheetData();
+            echo $writer->generateHTMLFooter();
+        }else{
+            // send file ke user
+            $fileName="SHU_".$tanggalString.".xlsx";
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment; filename="'. urlencode($fileName).'"');
+            header('Cache-Control: max-age=0');
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($ex, 'Xlsx');
+            $writer->save('php://output');
+            exit;
+        }
     }
 
     /**
@@ -232,6 +264,67 @@ class SHUController extends Controller
             ->get()->keyBy('id-kredit');
 
         $metaForeKey="shu_".strtolower($tipe->slug).'_';
+        $meta=\App\Meta::where('key','like',$metaForeKey.'%')->get();
+        
+        return [
+            'metaKeyLen' => strlen($metaForeKey),
+            'meta'=>$meta,
+            'currentTipe'=>$tipe,
+            'date'=> $month.'/'.$year,
+            'kategoris' => $kategoris,
+            'jurnal_debit' => $jurnal_debit,
+            'jurnal_kredit' => $jurnal_kredit,
+            'saldos'=>$saldos,
+        ];
+    }
+
+    /**
+     * Init data-data.
+     *
+     * @return Object
+     */
+    private function initGabungan(Request $request){
+        //dapetin tanggal shu
+        $month = $this->date['m'];
+        $year = $this->date['y'];
+        $backDate=Carbon::instance($this->date['date'])->subMonths(1);
+        if ($request->input('date')) {
+            $my=Carbon::createFromFormat('m/Y', $request->input('date'));
+            $month = $my->month;
+            $year = $my->year;
+            $backDate=$my->subMonths(1);
+        }
+        $tipe=$request->get('tipe');
+        
+        $saldos=\App\Saldo::whereMonth('tanggal', $backDate->month)
+            ->whereYear('tanggal', $backDate->year)
+            ->select('id', 'id-kategori', 'id-akun', 'saldo')
+            ->get()->keyBy('id-akun');
+
+        // Ambil kategori parent yang SHU
+        $SHU=\App\Kategori::where('kategori', 'SHU')->select('id')->first();
+
+        $kategoris=\App\Kategori::with(['getAkun' => function($q) use($tipe) {
+            $q->select('id','nama-akun','no-akun', 'id-kategori','id-tipe');
+            }])
+            ->where('parent',$SHU->id)
+            ->get();
+    
+        $jurnal_debit=\App\Jurnal::selectRaw('`id-debit`, sum(debit) as debit')
+            ->groupBy('id-debit')
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
+            ->where('validasi',1)
+            ->get()->keyBy('id-debit');
+
+        $jurnal_kredit=\App\Jurnal::selectRaw('`id-kredit`, sum(kredit) as kredit')
+            ->groupBy('id-kredit')
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
+            ->where('validasi',1)
+            ->get()->keyBy('id-kredit');
+
+        $metaForeKey="shu_usp_";
         $meta=\App\Meta::where('key','like',$metaForeKey.'%')->get();
         
         return [

@@ -139,8 +139,6 @@ active
                         @php
                         $visited=[];
                         $visited2=[];
-                        @endphp
-                        @php
                         foreach($kd->getAkun as $akun){
                             $visited[ $akun->{'nama-akun'} ][]=$akun->id;
                         }
@@ -238,8 +236,6 @@ active
                         @php
                         $visited=[];
                         $visited2=[];
-                        @endphp
-                        @php
                         foreach($kd->getAkun as $akun){
                             $visited[ $akun->{'nama-akun'} ][]=$akun->id;
                         }
@@ -252,7 +248,7 @@ active
                         foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
                             $debit=$jurnal_debit->has($id_ak) ? $jurnal_debit[$id_ak]->debit : 0;
                             $kredit=$jurnal_kredit->has($id_ak) ? $jurnal_kredit[$id_ak]->kredit : 0;
-                            $cur=$kredit-$debit;
+                            $cur+=$kredit-$debit;
                             $awal+=$saldos->has($id_ak) ? $saldos[$id_ak]->saldo : 0;
                             $saldo_awal+=$awal;
                             $saldo_berjalan+=$cur;

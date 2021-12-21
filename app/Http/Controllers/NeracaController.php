@@ -46,7 +46,7 @@ class NeracaController extends Controller
 
         // KOP
         $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-        $drawing->setPath('public/img/logo.png');
+        $drawing->setPath( $cmd==='view-gabungan' ? asset('public/img/logo.png') : 'public/img/logo.png');
         $drawing->setCoordinates('C1');
         $drawing->setOffsetX(70);
         $drawing->setOffsetY(5);
@@ -139,6 +139,7 @@ class NeracaController extends Controller
                 // display per kategori
                 $now=$walk;
                 foreach($kd->getAkun as $akun){
+                    // pastikan nama akun belum di-visit (guna view gabungan untuk nama akun yg sama)
                     if(array_key_exists($akun->{'nama-akun'} , $visited2) === FALSE){
                         $walk++;
 
@@ -147,7 +148,7 @@ class NeracaController extends Controller
                         foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
                             $debit=$d['jurnal_debit']->has($id_ak) ? $d['jurnal_debit'][$id_ak]->debit : 0;
                             $kredit=$d['jurnal_kredit']->has($id_ak) ? $d['jurnal_kredit'][$id_ak]->kredit : 0;
-                            $cur=$debit-$kredit;
+                            $cur+=$debit-$kredit;
                             $awal+=$d['saldos']->has($id_ak) ? $d['saldos'][$id_ak]->saldo : 0;
                             $saldo_awal+=$awal;
                             $saldo_berjalan+=$cur;

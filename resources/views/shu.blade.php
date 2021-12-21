@@ -9,9 +9,16 @@ Selisih Hasil Usaha
 show
 @endsection
 
+@if($currentTipe)
 @section('shu'.$currentTipe->tipe)
 active
 @endsection
+@else
+@section('shu')
+active
+@endsection
+@endif
+
 
 @section('modal')
 
@@ -26,13 +33,22 @@ active
             <div class="card-icon">
                 <i class="material-icons">account_balance_wallet</i>
             </div>
+            @if($currentTipe)
             <h4 class="card-title">SHU {{ucwords($currentTipe->tipe)}}</h4>
+            @else
+            <h4 class="card-title">SHU Gabungan</h4>
+            @endif
+            
         </div>
         <div class="card-body">
             <div class="toolbar mb-5">
                 <div class="row ">
                     <div class="col-6">
+                        @if($currentTipe)
                         <form action="{{route('shu.filter', ['tipe' => $currentTipe->tipe])}}" method="POST">
+                        @else
+                        <form action="{{route('shu.filter.gabungan')}}" method="POST">
+                        @endif
                         @csrf
                         <div class="form-group d-inline-block">
                             <input name="date" type="text" class="form-control monthyearpicker" value="{{$date}}" id="date-filter">
@@ -41,10 +57,23 @@ active
                         </form>
                     </div>
                     <div class="col-6 text-right">
-                        <form action="{{route('shu.excel', ['tipe' => $currentTipe->tipe])}}" method="POST" onsubmit="setFormDate(event)">
+                        @if($currentTipe)
+                        <form class="d-inline-block" action="{{route('shu.excel', ['tipe' => $currentTipe->tipe])}}" method="POST" onsubmit="setFormDate(event)">
+                        @else
+                        <form class="d-inline-block" action="{{route('shu.excel.gabungan')}}" method="POST" onsubmit="setFormDate(event)">
+                        @endif
                         @csrf
                         <input type="hidden" name="date">
                         <button type="submit" class="btn btn-success btn-sm">Download</button>
+                        </form>
+                        @if($currentTipe)
+                        <form target="_blank" class="d-inline-block" action="{{route('shu.excel', ['tipe' => $currentTipe->tipe, 'cmd'=>'view-gabungan'])}}" method="POST" onsubmit="setFormDate(event)">
+                        @else
+                        <form target="_blank" class="d-inline-block" action="{{route('shu.excel.gabungan', ['cmd'=>'view-gabungan'])}}" method="POST" onsubmit="setFormDate(event)">
+                        @endif
+                        @csrf
+                        <input type="hidden" name="date">
+                        <button type="submit" class="btn btn-primary btn-sm">View Gabungan</button>
                         </form>
                     </div>
                 </div>
@@ -68,7 +97,7 @@ active
                     $master=[];
                     @endphp
                     @foreach($kategoris as $k => $kd)
-                    @if($kd->getAkun->isEmpty() === false and intval($kd->getAkun[0]->{'id-tipe'})===$currentTipe->id)
+                    @if($kd->getAkun->isEmpty() === false and ($currentTipe===NULL or intval($kd->getAkun[0]->{'id-tipe'})===$currentTipe->id))
                     @php
                     $saldo_berjalan=0;
                     $saldo_awal=0;
@@ -84,14 +113,26 @@ active
                     </tr>
                     </tbody>
                     <tbody class="no-anim collapse" id="collapse{{$k}}">
-                    @foreach($kd->getAkun as $akun)
                     @php
-                    $debit=$jurnal_debit->has($akun->id) ? $jurnal_debit[$akun->id]->debit : 0;
-                    $kredit=$jurnal_kredit->has($akun->id) ? $jurnal_kredit[$akun->id]->kredit : 0;
-                    $cur=$coef*($debit-$kredit);
-                    $awal=$saldos->has($akun->id) ? $saldos[$akun->id]->saldo : 0;
-                    $saldo_awal+=$awal;
-                    $saldo_berjalan+=$cur;
+                    $visited=[];
+                    $visited2=[];
+                    foreach($kd->getAkun as $akun){
+                        $visited[ $akun->{'nama-akun'} ][]=$akun->id;
+                    }
+                    @endphp
+                    @foreach($kd->getAkun as $akun)
+                    @if(array_key_exists($akun->{'nama-akun'} , $visited2) === FALSE)
+                    @php
+                    $awal=0;
+                    $cur=0;
+                    foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
+                        $debit=$jurnal_debit->has($id_ak) ? $jurnal_debit[$id_ak]->debit : 0;
+                        $kredit=$jurnal_kredit->has($id_ak) ? $jurnal_kredit[$id_ak]->kredit : 0;
+                        $cur+=$coef*($debit-$kredit);
+                        $awal+=$saldos->has($id_ak) ? $saldos[$id_ak]->saldo : 0;
+                        $saldo_awal+=$awal;
+                        $saldo_berjalan+=$cur;
+                    }
                     @endphp
                     <tr>
                         <td></td>
@@ -102,6 +143,10 @@ active
                         <td></td>
                         <td></td>
                     </tr>     
+                    @php
+                    $visited2[ $akun->{'nama-akun'} ]=1;
+                    @endphp    
+                    @endif
                     @endforeach
                     </tbody>
                     <tbody>

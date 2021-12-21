@@ -58,7 +58,7 @@ Route::middleware(['auth'])->group(function () {
 
             Route::get('shu', 'SHUController@index')->name('shu.index');
             Route::post('shu', 'SHUController@index')->name('shu.filter');
-            Route::post('shu/excel', 'SHUController@excel')->name('shu.excel');
+            Route::post('shu/excel/{cmd?}', 'SHUController@excel')->name('shu.excel');
         });
             
 
@@ -82,6 +82,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('neraca', 'NeracaController@index')->name('neraca.index.gabungan');
         Route::post('neraca', 'NeracaController@index')->name('neraca.filter.gabungan');
         Route::post('neraca/excel/{cmd?}', 'NeracaController@excel')->name('neraca.excel.gabungan');
+
+        Route::get('shu', 'SHUController@index')->name('shu.index.gabungan');
+        Route::post('shu', 'SHUController@index')->name('shu.filter.gabungan');
+        Route::post('shu/excel/{cmd?}', 'SHUController@excel')->name('shu.excel.gabungan');
     });
     
 });
