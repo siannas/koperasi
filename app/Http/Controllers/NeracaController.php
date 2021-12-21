@@ -131,22 +131,35 @@ class NeracaController extends Controller
                 $saldo_berjalan=0;
                 $saldo_awal=0;
 
+                $visited=[];
+                $visited2=[];
+                foreach($kd->getAkun as $akun){
+                    $visited[ $akun->{'nama-akun'} ][]=$akun->id;
+                }
                 // display per kategori
                 $now=$walk;
                 foreach($kd->getAkun as $akun){
-                    $walk++;
+                    if(array_key_exists($akun->{'nama-akun'} , $visited2) === FALSE){
+                        $walk++;
 
-                    $debit=$d['jurnal_debit']->has($akun->id) ? $d['jurnal_debit'][$akun->id]->debit : 0;
-                    $kredit=$d['jurnal_kredit']->has($akun->id) ? $d['jurnal_kredit'][$akun->id]->kredit : 0;
-                    $cur=$debit-$kredit;
-                    $awal=$d['saldos']->has($akun->id) ? $d['saldos'][$akun->id]->saldo : 0;
-                    $saldo_awal+=$awal;
-                    $saldo_berjalan+=$cur;
+                        $awal=0;
+                        $cur=0;
+                        foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
+                            $debit=$d['jurnal_debit']->has($id_ak) ? $d['jurnal_debit'][$id_ak]->debit : 0;
+                            $kredit=$d['jurnal_kredit']->has($id_ak) ? $d['jurnal_kredit'][$id_ak]->kredit : 0;
+                            $cur=$debit-$kredit;
+                            $awal+=$d['saldos']->has($id_ak) ? $d['saldos'][$id_ak]->saldo : 0;
+                            $saldo_awal+=$awal;
+                            $saldo_berjalan+=$cur;
+                        }
 
-                    $ac->getCell('B'.($from+$walk))->setValue( "      ".$akun->{'nama-akun'} );
-                    $ac->getCell('C'.($from+$walk))->setValue( number_format($awal,2) );
-                    $ac->getCell('D'.($from+$walk))->setValue( number_format($cur,2) );
-                    $ac->getCell('E'.($from+$walk))->setValue( number_format($awal+$cur,2) );   
+                        $ac->getCell('B'.($from+$walk))->setValue( "      ".$akun->{'nama-akun'} );
+                        $ac->getCell('C'.($from+$walk))->setValue( number_format($awal,2) );
+                        $ac->getCell('D'.($from+$walk))->setValue( number_format($cur,2) );
+                        $ac->getCell('E'.($from+$walk))->setValue( number_format($awal+$cur,2) );   
+
+                        $visited2[ $akun->{'nama-akun'} ]=1;
+                    }
                 }
 
                 // display total saldo kategori
@@ -181,22 +194,35 @@ class NeracaController extends Controller
                 $saldo_berjalan=0;
                 $saldo_awal=0;
 
+                $visited=[];
+                $visited2=[];
+                foreach($kd->getAkun as $akun){
+                    $visited[ $akun->{'nama-akun'} ][]=$akun->id;
+                }
                 // display per kategori kewajiban
                 $now=$walk;
                 foreach($kd->getAkun as $akun){
-                    $walk++;
+                    if (array_key_exists($akun->{'nama-akun'}, $visited2) === false) {
+                        $walk++;
 
-                    $debit=$d['jurnal_debit']->has($akun->id) ? $d['jurnal_debit'][$akun->id]->debit : 0;
-                    $kredit=$d['jurnal_kredit']->has($akun->id) ? $d['jurnal_kredit'][$akun->id]->kredit : 0;
-                    $cur=$kredit-$debit;
-                    $awal=$d['saldos']->has($akun->id) ? $d['saldos'][$akun->id]->saldo : 0;
-                    $saldo_awal+=$awal;
-                    $saldo_berjalan+=$cur;
+                        $awal=0;
+                        $cur=0;
+                        foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
+                            $debit=$d['jurnal_debit']->has($id_ak) ? $d['jurnal_debit'][$id_ak]->debit : 0;
+                            $kredit=$d['jurnal_kredit']->has($id_ak) ? $d['jurnal_kredit'][$id_ak]->kredit : 0;
+                            $cur=$kredit-$debit;
+                            $awal+=$d['saldos']->has($id_ak) ? $d['saldos'][$id_ak]->saldo : 0;
+                            $saldo_awal+=$awal;
+                            $saldo_berjalan+=$cur;
+                        }
 
-                    $ac->getCell('G'.($from+$walk))->setValue( "      ".$akun->{'nama-akun'} );
-                    $ac->getCell('H'.($from+$walk))->setValue( number_format($awal,2) );
-                    $ac->getCell('I'.($from+$walk))->setValue( number_format($cur,2) );
-                    $ac->getCell('J'.($from+$walk))->setValue( number_format($awal+$cur,2) );   
+                        $ac->getCell('G'.($from+$walk))->setValue("      ".$akun->{'nama-akun'});
+                        $ac->getCell('H'.($from+$walk))->setValue(number_format($awal, 2));
+                        $ac->getCell('I'.($from+$walk))->setValue(number_format($cur, 2));
+                        $ac->getCell('J'.($from+$walk))->setValue(number_format($awal+$cur, 2));
+
+                        $visited2[ $akun->{'nama-akun'} ]=1;
+                    }
                 }
 
                 // display total saldo kategori kewajiban

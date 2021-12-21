@@ -22,7 +22,7 @@ class Akun_Kategori_Saldo_Seeder extends Seeder
         ['PENDAPATAN LAIN-LAIN','debit','SHU']
     ];
 
-    private $toko_kategoris =[['Kas Toko','debit','NON-SHU'],
+    private $toko_kategoris =[['Kas','debit','NON-SHU'],
         ['Bank','debit','NON-SHU'],
         ['Piutang','debit','NON-SHU'],
         ['Persediaan','debit','NON-SHU'],

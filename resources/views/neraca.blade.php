@@ -136,14 +136,28 @@ active
                         </tr>
                         </tbody>
                         <tbody class="no-anim collapse" id="collapseDebit{{$k}}">
-                        @foreach($kd->getAkun as $akun)
                         @php
-                        $debit=$jurnal_debit->has($akun->id) ? $jurnal_debit[$akun->id]->debit : 0;
-                        $kredit=$jurnal_kredit->has($akun->id) ? $jurnal_kredit[$akun->id]->kredit : 0;
-                        $cur=$debit-$kredit;
-                        $awal=$saldos->has($akun->id) ? $saldos[$akun->id]->saldo : 0;
-                        $saldo_awal+=$awal;
-                        $saldo_berjalan+=$cur;
+                        $visited=[];
+                        $visited2=[];
+                        @endphp
+                        @php
+                        foreach($kd->getAkun as $akun){
+                            $visited[ $akun->{'nama-akun'} ][]=$akun->id;
+                        }
+                        @endphp
+                        @foreach($kd->getAkun as $akun)
+                        @if(array_key_exists($akun->{'nama-akun'} , $visited2) === FALSE)
+                        @php
+                        $awal=0;
+                        $cur=0;
+                        foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
+                            $debit=$jurnal_debit->has($id_ak) ? $jurnal_debit[$id_ak]->debit : 0;
+                            $kredit=$jurnal_kredit->has($id_ak) ? $jurnal_kredit[$id_ak]->kredit : 0;
+                            $cur+=$debit-$kredit;
+                            $awal+=$saldos->has($id_ak) ? $saldos[$id_ak]->saldo : 0;
+                            $saldo_awal+=$awal;
+                            $saldo_berjalan+=$cur;
+                        }
                         @endphp
                         <tr>
                             <td></td>
@@ -151,7 +165,11 @@ active
                             <td class="text-right">Rp {{ number_format($awal,2) }}</td>
                             <td class="text-right {{ $cur<0 ? 'text-danger':'text-success' }} ">Rp {{ number_format($cur,2) }}</td>
                             <td class="text-right">Rp {{ number_format($cur+$awal,2) }}</td>
-                        </tr>     
+                        </tr> 
+                        @php
+                        $visited2[ $akun->{'nama-akun'} ]=1;
+                        @endphp    
+                        @endif
                         @endforeach
                         </tbody>
                         <tbody>
@@ -217,14 +235,28 @@ active
                         </tr>
                         </tbody>
                         <tbody class="no-anim collapse" id="collapseKredit{{$k}}">
-                        @foreach($kd->getAkun as $akun)
                         @php
-                        $debit=$jurnal_debit->has($akun->id) ? $jurnal_debit[$akun->id]->debit : 0;
-                        $kredit=$jurnal_kredit->has($akun->id) ? $jurnal_kredit[$akun->id]->kredit : 0;
-                        $cur=$kredit-$debit;
-                        $awal=$saldos->has($akun->id) ? $saldos[$akun->id]->saldo : 0;
-                        $saldo_awal+=$awal;
-                        $saldo_berjalan+=$cur;
+                        $visited=[];
+                        $visited2=[];
+                        @endphp
+                        @php
+                        foreach($kd->getAkun as $akun){
+                            $visited[ $akun->{'nama-akun'} ][]=$akun->id;
+                        }
+                        @endphp
+                        @foreach($kd->getAkun as $akun)
+                        @if(array_key_exists($akun->{'nama-akun'} , $visited2) === FALSE)
+                        @php
+                        $awal=0;
+                        $cur=0;
+                        foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
+                            $debit=$jurnal_debit->has($id_ak) ? $jurnal_debit[$id_ak]->debit : 0;
+                            $kredit=$jurnal_kredit->has($id_ak) ? $jurnal_kredit[$id_ak]->kredit : 0;
+                            $cur=$kredit-$debit;
+                            $awal+=$saldos->has($id_ak) ? $saldos[$id_ak]->saldo : 0;
+                            $saldo_awal+=$awal;
+                            $saldo_berjalan+=$cur;
+                        }
                         @endphp
                         <tr>
                             <td></td>
@@ -232,7 +264,11 @@ active
                             <td class="text-right">Rp {{ number_format($awal,2) }}</td>
                             <td class="text-right {{ $cur<0 ? 'text-danger':'text-success' }}">Rp {{ number_format($cur,2) }}</td>
                             <td class="text-right">Rp {{ number_format($cur+$awal,2) }}</td>
-                        </tr>     
+                        </tr>
+                        @php
+                        $visited2[ $akun->{'nama-akun'} ]=1;
+                        @endphp    
+                        @endif
                         @endforeach
                         </tbody>
                         <tbody>
