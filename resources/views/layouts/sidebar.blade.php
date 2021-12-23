@@ -1,8 +1,8 @@
+@section('sidebar')
 @php
 $role = Auth::user()->role;
-$reguler = [];
+$role = explode(', ', $role);
 @endphp
-@section('sidebar')
 <div class="sidebar" data-color="green" data-background-color="black" data-image="{{asset('public/img/sidebar-1.jpg')}}">
         <!--
         Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
@@ -31,7 +31,7 @@ $reguler = [];
                 <p> Dashboard </p>
             </a>
         </li>
-        @if($role=='Admin')
+        @if($role[0]=='Admin')
         <li class="nav-item @yield('userStatus')">
             <a class="nav-link" href="{{url('/user')}}">
                 <i class="material-icons">people</i>
@@ -51,7 +51,21 @@ $reguler = [];
             </a>
         </li>
         @endif
-        @if($role!='Admin')
+        @if($role[0]!='Admin')
+        @php
+        foreach($tipe as $unit){
+            foreach($role as $unitRole){
+                $cekReguler = preg_match("/Reguler/i", $unitRole);
+                if($cekReguler==1){
+                    $a = preg_match("/".$unit->slug."/i", $unitRole);
+                    if($a == 1)
+                        $cek[$unit->id] = 1;
+                    elseif(empty($cek[$unit->id]))
+                        $cek[$unit->id] = 0;
+                }
+            }
+        }
+        @endphp
         <li class="nav-item ">
             <a class="nav-link" data-toggle="collapse" href="#jurnal">
                 <i class="material-icons">account_balance_wallet</i>
@@ -62,14 +76,15 @@ $reguler = [];
             <div class="collapse @yield('jurnalShow')" id="jurnal">
                 <ul class="nav">
                 @foreach($tipe as $unit)
-                @if($role=='Supervisor' || $role=='Spesial')
+                @if(array_intersect($role, ['Supervisor', 'Spesial']))
                 <li class="nav-item @yield('jurnal'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/jurnal')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
-                @elseif($role!='Admin' && preg_match("/".$unit->slug."/i", $role))
+                
+                @elseif(!in_array('Admin', $role) && $cek[$unit->id]==1)
                 <li class="nav-item @yield('jurnal'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/jurnal')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
@@ -91,14 +106,14 @@ $reguler = [];
             <div class="collapse @yield('bukuShow')" id="bukuBesar">
                 <ul class="nav">
                 @foreach($tipe as $unit)
-                @if($role=='Supervisor' || $role=='Spesial')
+                @if(array_intersect($role, ['Supervisor', 'Spesial']))
                 <li class="nav-item @yield('buku'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/buku-besar')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
-                @elseif($role!='Admin' && preg_match("/".$unit->slug."/i", $role))
+                @elseif(!in_array('Admin', $role) && $cek[$unit->id]==1)
                 <li class="nav-item @yield('buku'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/buku-besar')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
@@ -120,14 +135,14 @@ $reguler = [];
             <div class="collapse @yield('neracaShow')" id="neraca">
                 <ul class="nav">
                 @foreach($tipe as $unit)
-                @if($role=='Supervisor' || $role=='Spesial')
+                @if(array_intersect($role, ['Supervisor', 'Spesial']))
                 <li class="nav-item @yield('neraca'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/neraca')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
-                @elseif($role!='Admin' && preg_match("/".$unit->slug."/i", $role))
+                @elseif(!in_array('Admin', $role) && $cek[$unit->id]==1)
                 <li class="nav-item @yield('neraca'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/neraca')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
@@ -136,7 +151,7 @@ $reguler = [];
                 </li>
                 @endif
                 @endforeach
-                @if($role=='Spesial')
+                @if(in_array('Spesial', $role))
                 <li class="nav-item @yield('neraca')">
                     <a class="nav-link" href="{{url('/neraca')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
@@ -157,14 +172,14 @@ $reguler = [];
             <div class="collapse @yield('shuShow')" id="shu">
                 <ul class="nav">
                 @foreach($tipe as $unit)
-                @if($role=='Supervisor' || $role=='Spesial')
+                @if(array_intersect($role, ['Supervisor', 'Spesial']))
                 <li class="nav-item @yield('shu'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/shu')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
-                @elseif($role!='Admin' && preg_match("/".$unit->slug."/i", $role))
+                @elseif(!in_array('Admin', $role) && $cek[$unit->id]==1)
                 <li class="nav-item @yield('shu'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/'.$unit->tipe.'/shu')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
@@ -173,7 +188,7 @@ $reguler = [];
                 </li>
                 @endif
                 @endforeach
-                @if($role=='Spesial')
+                @if(in_array('Spesial', $role))
                 <li class="nav-item @yield('shu')">
                     <a class="nav-link" href="{{url('/shu')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>

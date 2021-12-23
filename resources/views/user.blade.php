@@ -1,6 +1,11 @@
 @extends('layouts.layout')
 @extends('layouts.sidebar')
 
+@php
+$role = Auth::user()->role;
+$role = explode(', ', $role);
+@endphp
+
 @section('title')
 User
 @endsection
@@ -40,12 +45,13 @@ active
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <select id="selectrole" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Role" name="role" required>
-                            <option value="Spesial">Spesial</option>
-                            <option value="Supervisor">Supervisor</option>
-                            <option value="Reguler-USP">Reguler-USP</option>
-                            <option value="Reguler-FC">Reguler-FC</option>
-                            <option value="Reguler-TK">Reguler-TK</option>
+                        <select id="selectrole" name="role[]" class="selectpicker" data-style="select-with-transition" multiple title="Role" data-size="7">
+                            <option>Pusat</option>
+                            <option>Spesial</option>
+                            <option>Supervisor</option>
+                            <option>Reguler-USP</option>
+                            <option>Reguler-FC</option>
+                            <option>Reguler-TK</option>
                         </select>
                     </div>
                 </div>
@@ -98,12 +104,13 @@ active
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <select id="selectrole" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Role" name="role" required>
-                            <option value="Spesial">Spesial</option>
-                            <option value="Supervisor">Supervisor</option>
-                            <option value="Reguler-USP">Reguler-USP</option>
-                            <option value="Reguler-FC">Reguler-FC</option>
-                            <option value="Reguler-TK">Reguler-TK</option>
+                        <select id="selectroles" name="role[]" class="selectpicker" data-style="select-with-transition" multiple="multiple" title="Role" data-size="7" required>
+                            <option>Pusat</option>
+                            <option>Spesial</option>
+                            <option>Supervisor</option>
+                            <option>Reguler-USP</option>
+                            <option>Reguler-FC</option>
+                            <option>Reguler-TK</option>
                         </select>
                     </div>
                 </div>
@@ -214,9 +221,14 @@ active
                     <td>{{$unit->username}}</td>
                     <td>{{$unit->nip }}</td>
                     <td>{{$unit->nama}}</td>
-                    <td>{{$unit->role }}</td>
+                    <td>@foreach($unit->role as $unitrole)
+                        <div class="bootstrap-tagsinput info-badge" style="padding:0 0;">
+                            <span class="tag badge">{{$unitrole}}</span>
+                        </div>
+                        @endforeach
+                    </td>
                     <td class="text-right">
-                        @if($unit->role=="Admin")
+                        @if($unit->role[0]=="Admin")
                         <a href="#" class="btn btn-link btn-sm text-dark btn-just-icon disabled"><i class="material-icons">lock</i></a>
                         @else
                         <a href="#" class="btn btn-link btn-warning btn-just-icon edit btn-sm" key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></a>
@@ -241,6 +253,8 @@ active
 @endsection
 
 @section('script')
+<!--	Plugin for Tags, full documentation here: https://github.com/bootstrap-tagsinput/bootstrap-tagsinputs  -->
+<script src="{{asset('public/js/plugins/bootstrap-tagsinput.js')}}"></script>
 <script>
 var table;
 var myUsers = @json($user);
@@ -249,12 +263,14 @@ var myUsers = @json($user);
 function onEdit(self) {
     var key = $(self).attr('key');
     var j = myUsers[key];
+    
     $modal=$('#modalEdit');
     
     $modal.find('[name=username]').val(j['username']).change();
     $modal.find('[name=nip]').val(j['nip']).change();
     $modal.find('[name=nama]').val(j['nama']).change();
-    $modal.find('[name=role]').val(j['role']).change().blur();
+    $modal.find('[name=\'role[]\']').val(j['role']).change().blur();
+    
     $modal.find('form').attr('action', "{{route('user.update', ['id'=>''])}}/"+j['id']);
     $modal.modal('show');
 } 

@@ -3,6 +3,7 @@
 
 @php
 $role = Auth::user()->role;
+$role = explode(', ', $role);
 @endphp
 
 @section('title')
@@ -13,7 +14,7 @@ Dashboard
 active
 @endsection
 
-@if($role=='Admin'||$role=='Spesial'||$role=='Supervisor')
+@if(array_intersect($role, ['Admin', 'Spesial', 'Supervisor']))
 @section('content')
 <div class="container-fluid">
 <div class="row">
@@ -126,7 +127,7 @@ active
 <div class="container-fluid">
 <div class="row">
     <div class="col-lg-6 col-md-6 col-sm-6">
-        @if($role=='Reguler-TK')
+        @if(in_array('Reguler-TK', $role))
         <div class="card card-stats">
             <div class="card-header card-header-warning card-header-icon">
                 <div class="card-icon">
@@ -141,7 +142,7 @@ active
                 </div>
             </div>
         </div>
-        @elseif($role=='Reguler-USP')
+        @elseif(in_array('Reguler-USP', $role))
         <div class="card card-stats">
             <div class="card-header card-header-rose card-header-icon">
                 <div class="card-icon">
@@ -156,7 +157,7 @@ active
                 </div>
             </div>
         </div>
-        @elseif($role=='Reguler-FC')
+        @elseif(in_array('Reguler-FC', $role))
         <div class="card card-stats">
             <div class="card-header card-header-success card-header-icon">
                 <div class="card-icon">
@@ -183,13 +184,13 @@ active
                     <table class="table">
                     <tbody>
                         @php
-                        if($role=='Reguler-USP'){
+                        if(in_array('Reguler-USP', $role)){
                             $saldo = json_decode($meta[9]->value);
                         }
-                        elseif($role=='Reguler-FC'){
+                        elseif(in_array('Reguler-FC', $role)){
                             $saldo = json_decode($meta[10]->value);
                         }
-                        elseif($role=='Reguler-TK'){
+                        elseif(in_array('Reguler-TK', $role)){
                             $saldo = json_decode($meta[11]->value);
                         }
                         @endphp

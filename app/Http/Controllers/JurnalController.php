@@ -99,7 +99,7 @@ class JurnalController extends Controller
             $jurnal = new \App\Jurnal($data);
             $jurnal->{'id-tipe'} = $tipe->id;
             $jurnal->tanggal = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->format('Y-m-d');
-            $diff = date_diff($today, date_create($jurnal->tanggal));
+            $bulan = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->month;
             
             // Jika pengisian lebih dari today
             if($jurnal->tanggal > $today){
@@ -107,7 +107,7 @@ class JurnalController extends Controller
                 return redirect(url('/'.$tipe->tipe.'/jurnal'));
             }
             // Jika selisih pengisian & today lebih dari 14 hari
-            elseif($diff->days > 14){
+            elseif($bulan != Carbon::today()->month){
                 $this->flashError('Tanggal Sudah Melewati Batas Waktu Pengisian');
                 return redirect(url('/'.$tipe->tipe.'/jurnal'));
             }

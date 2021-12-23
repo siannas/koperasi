@@ -3,6 +3,7 @@
 
 @php
 $role = Auth::user()->role;
+$role = explode(', ', $role);
 @endphp
 
 @section('title')
@@ -219,10 +220,10 @@ active
                 </div>
                 <div class="col-md-4 text-right">
                     <button type="submit" class="btn btn-success btn-sm" formaction="{{url($currentTipe->tipe.'/jurnal/excel')}}">Download</button>
-                    @if($role!='Supervisor' && $role!='Admin')
+                    @if(!array_intersect($role, ['Supervisor', 'Admin']))
                     <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalTambah">Tambah</button>
                     @endif
-                    @if($role=='Supervisor')
+                    @if(in_array('Supervisor', $role))
                     <button type="button" class="btn btn-warning btn-sm validasi" data-toggle="modal" data-target="#modalValidasi" >Validasi</button>
                     @endif
                 </div>
@@ -278,13 +279,13 @@ active
                     $m2 = Carbon\Carbon::createFromDate($j->tanggal);
                     @endphp
                     
-                    @if($j->validasi==1 && $m2->month < $my->month)
+                    @if($j->validasi==1 && $m2->month != $my->month)
                     <a href="#" class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">lock</i></a>
-                    @elseif($role=='Supervisor' && $j->validasi==1)
+                    @elseif(in_array('Supervisor', $role) && $j->validasi==1)
                     <a href="#" class="btn btn-link text-warning btn-just-icon unvalidasi" data-toggle="modal" data-target="#modalValidasi" data-id="{{$j->id}}"><i class="material-icons">lock_open</i></a>
-                    @elseif($role!='Supervisor' && $j->validasi==1)
+                    @elseif(!in_array('Supervisor', $role) && $j->validasi==1)
                     <a href="#" class="btn btn-link text-dark btn-just-icon disabled" data-toggle="modal" data-target="#modalValidasi"><i class="material-icons">lock</i></a>
-                    @elseif($role=='Supervisor')
+                    @elseif(in_array('Supervisor', $role))
                     <div class="form-check">
                       <label class="form-check-label" style="padding-right:5px;">
                         <input class="form-check-input sub_chk" type="checkbox" data-id="{{$j->id}}">

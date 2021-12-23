@@ -17,7 +17,9 @@ class DashboardController extends Controller
 
     public function index(){
         $user = User::select('id', 'username', 'nama', 'nip', 'role')->get();
-
+        foreach($user as $unit){
+            $unit->role = explode(', ', $unit->role);
+        }
         return view('user', ['user'=>$user]);
     }
 
@@ -25,6 +27,8 @@ class DashboardController extends Controller
         $user_baru = new User();
         $user_baru->fill($request->all());
         $user_baru->password = Hash::make($request->username);
+        $user_baru->role = implode(', ', $user_baru->role);
+        
         $user_baru->save();
         
         $this->flashSuccess('Data User Berhasil Ditambahkan');
@@ -36,6 +40,8 @@ class DashboardController extends Controller
             $user = User::findOrFail($id);
             $user->fill($request->all());
             $user->password = Hash::make($request->username);
+            $user->role = implode(', ', $user->role);
+            
             $user->save();
         }catch (QueryException $exception) {
             $this->flashError($exception->getMessage());
