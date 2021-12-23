@@ -123,7 +123,19 @@ $(document).ready(function() {
 
   //   Activate bootstrap-select
   if ($(".selectpicker").length != 0) {
-    $(".selectpicker").selectpicker();
+    $.each($(".selectpicker"),function(){
+      var style2 = $(this).data('style2');
+      if (style2) {
+        $(this).selectpicker({
+          liveSearch:true,
+          style: style2, 
+        });
+      } else {
+        $(this).selectpicker({
+          liveSearch:true,
+        });
+      }
+    })
   }
 
   //  Activate the tooltips
@@ -136,11 +148,19 @@ $(document).ready(function() {
   // we style the badges with our colors
   var tagClass = $('.tagsinput').data('color');
 
+  var tagClass2 = $('.tagsinput').data('size');
+
   if ($(".tagsinput").length != 0) {
-    $('.tagsinput').tagsinput();
+    $('.tagsinput').tagsinput({
+      trimValue: true,
+    });
   }
 
   $('.bootstrap-tagsinput').addClass('' + tagClass + '-badge');
+
+  if(tagClass2){
+    $('.bootstrap-tagsinput').addClass('tags-' + tagClass2 );
+  }
 
   //    Activate bootstrap-select
   $(".select").dropdown({

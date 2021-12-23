@@ -15,7 +15,8 @@ class EnsureUserHasRole
      */
     public function handle($request, Closure $next, ...$roles)
     {
-        $myroles = explode(',', $request->user()->role);
+        $myroles = explode(', ', $request->user()->role);
+        $request->attributes->add(['roles' => $myroles]);
         foreach ($myroles as $role) {
             if ( in_array($role, $roles)) {
                 return $next($request);

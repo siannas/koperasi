@@ -30,6 +30,7 @@ class CreateJurnalsTable extends Migration
             $table->foreign('id-kredit')->references('id')->on('akun');
             $table->timestamps();
             $table->boolean('validasi')->default(0);
+            $table->string('by-role', 50)->nullable();
         });
     }
 

@@ -28957,6 +28957,18 @@ select.selectpicker {
   padding: 0px 2px;
 }
 
+.bootstrap-tagsinput.tags-md .tag {
+  padding: 6.5px 20px;
+}
+
+.bootstrap-tagsinput.tags-md .tag:hover {
+  padding-right: 30px;
+}
+
+.bootstrap-tagsinput.tags-md .tag [data-role="remove"] {
+  top: unset;
+}
+
 .bootstrap-tagsinput.primary-badge .tag {
   background-color: #9c27b0;
   color: #fff;

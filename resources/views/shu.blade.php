@@ -73,7 +73,7 @@ active
                         @endif
                         @csrf
                         <input type="hidden" name="date">
-                        <button type="submit" class="btn btn-primary btn-sm">View Gabungan</button>
+                        <button type="submit" class="btn btn-primary btn-sm">View SHU</button>
                         </form>
                     </div>
                 </div>

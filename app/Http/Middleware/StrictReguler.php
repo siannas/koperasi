@@ -16,7 +16,7 @@ class StrictReguler
     public function handle($request, Closure $next)
     {
         $slug=$request->get('tipe')->slug;
-        $myroles = explode(',', $request->user()->role);
+        $myroles = explode(', ', $request->user()->role);
         foreach ($myroles as $role) {
             if ( substr($role, 0, 7) === "Reguler" and substr($role, 8)!==$slug) {        
                 return back()->with('msg', 'Anda tidak berhak mengakses halaman tersebut!');

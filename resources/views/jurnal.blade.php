@@ -229,6 +229,19 @@ active
                 </div>
             </div>
             </form>
+            <div class="filter-tags" data-select="#selectrole" data-tags="#tagsinput" data-col="10">
+                <div class="form-group d-inline-block" style="width: 105px;">
+                    <select id="selectrole" class="selectpicker" data-style2="btn-default btn-round btn-sm text-white" data-style="select-with-transition" multiple title="Filter" data-size="7">
+                        <option value="Reguler">Reguler</option>
+                        @foreach($byroleFilter as $r)
+                        <option value="{{$r}}">{{$r}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="h-100 d-inline-block">
+                    <input id="tagsinput" hidden type="text" value="" class="form-control tagsinput" data-role="tagsinput" data-size="md" data-color="info" data-role="filter">
+                </div>
+            </div>
             <div class="material-datatables">
             <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
                 <thead>
@@ -243,6 +256,7 @@ active
                     <th data-priority="4" class="disabled-sorting text-right">Actions</th>
                     <th></th>
                     <th></th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tfoot>
@@ -255,6 +269,7 @@ active
                     <th>Akun Kredit</th>
                     <th>Kredit</th>
                     <th class="disabled-sorting text-right">Actions</th>
+                    <th></th>
                     <th></th>
                     <th></th>
                 </tr>
@@ -279,6 +294,9 @@ active
                     $m2 = Carbon\Carbon::createFromDate($j->tanggal);
                     @endphp
                     
+                    @if( $j->{'by-role'} !== $byrole)
+                    <a href="#" class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">block</i></a>
+                    @else
                     @if($j->validasi==1 && $m2->month != $my->month)
                     <a href="#" class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">lock</i></a>
                     @elseif(in_array('Supervisor', $role) && $j->validasi==1)
@@ -298,9 +316,11 @@ active
                     <a href="#" class="btn btn-link btn-warning btn-just-icon edit btn-sm" key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></a>
                     <a href="#" class="btn btn-link btn-danger btn-just-icon remove btn-sm" key="{{$key}}" onclick="onDelete(this)"><i class="material-icons">delete</i></a>
                     @endif
+                    @endif
                     </td>
                     <td hidden>{{$j->akunDebit->{'nama-akun'} }}</td>
                     <td hidden>{{$j->akunKredit->{'nama-akun'} }}</td>
+                    <td hidden>{{$j->{'by-role'} ? $j->{'by-role'} : 'Reguler' }}</td>
                 </tr>
                 @endforeach
                 </tbody>
@@ -365,7 +385,7 @@ $(document).ready(function() {
                 orderable: false,
                 targets: 0
             },
-            { "visible": false, "targets": [8,9] }
+            { "visible": false, "targets": [8,9,10] },
         ]
     });
     function format (d) {
@@ -423,6 +443,14 @@ $(document).ready(function() {
     
     $('#debit').focusout(function(e) {debitSamaDenganKredit(e.target, $('#kredit'));});
     $('#debit-edit').focusout(function(e) {debitSamaDenganKredit(e.target, $('#kredit-edit'));});
+
+    //set filter dulu
+    $('#selectrole').selectpicker('deselectAll');
+    if(@json($byrole)){
+        $('#selectrole').selectpicker('val', @json($byrole));
+    }else{
+        $('#selectrole').selectpicker('val', 'Reguler');
+    }
 } );
 </script>
 <script type="text/javascript">

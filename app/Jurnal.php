@@ -23,6 +23,7 @@ class Jurnal extends Model
         'tanggal',
         'keterangan',
         'validasi',
+        'by-role',
     ];
 
     /**

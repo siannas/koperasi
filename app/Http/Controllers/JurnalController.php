@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\DB;
 
 class JurnalController extends Controller
 {
+    private $ROLES_RANK=[
+        'Pusat',
+        // 'Spesial',
+    ];
+
     /**
      * Display a listing of the resource.
      *
@@ -20,6 +25,9 @@ class JurnalController extends Controller
         $my=Carbon::createFromFormat('m/Y', $this->date['date']->format('m/Y'));
         $month = $my->month;
         $year = $my->year;
+
+        $byrole=array_intersect($this->ROLES_RANK,$request->get('roles'));
+        $byrole=empty($byrole)?NULL:$byrole[0];
 
         $akuns = \App\Akun::where('id-tipe',$tipe->id)
             ->select('id','nama-akun')
@@ -36,6 +44,8 @@ class JurnalController extends Controller
             'currentTipe'=>$tipe,
             'jurnals'=>$jurnals,
             'date'=>$this->date['date']->format('m/Y'),
+            'byrole'=>$byrole,
+            'byroleFilter'=>$this->ROLES_RANK,
         ]);
     }
 
@@ -96,7 +106,14 @@ class JurnalController extends Controller
             "kredit" => "required",
         ]);
         try {
+            $byrole=array_intersect($this->ROLES_RANK,$request->get('roles'));
             $jurnal = new \App\Jurnal($data);
+
+            // set by-role pada jurnal
+            if(empty($byrole)===FALSE){
+                $jurnal->{'by-role'}=$byrole[0];
+            }
+            
             $jurnal->{'id-tipe'} = $tipe->id;
             $jurnal->tanggal = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->format('Y-m-d');
             $bulan = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->month;
