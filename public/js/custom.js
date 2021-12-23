@@ -101,28 +101,3 @@ const my = {
         });
     },
 }
-
-$(document).ready(function() {
-  $(".filter-tags").each(function(){
-    var sel= $($(this).data('select'));
-    var put=$($(this).data('tags'));
-    var col=parseInt($(this).data('col'));
-    put.tagsinput('input').attr('hidden',true);
-    
-    sel.change(function(){
-      put.tagsinput('removeAll');
-      sel.val().forEach(function(s){
-        put.tagsinput('add', s);
-      })
-
-      //search nya pakai regex misal "Pusat|Spesial" artinya boleh Pusat atau Spesial
-      var searchStr=sel.val().join('|');
-      table.column(col).search( searchStr , true, false).draw();
-    });
-
-    put.on('itemRemoved', function(event) {
-      sel.selectpicker('deselectAll');
-      sel.selectpicker('val', put.tagsinput('items'));
-    });
-  });
-});
