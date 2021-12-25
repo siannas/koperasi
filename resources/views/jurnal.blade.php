@@ -42,8 +42,7 @@ active
                 <div class="row" style="margin-top: -8px;">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="selectdebit" class="bmd-label-floating" style="font-size:11px;">Akun Debit</label>
-                            <select id="selectdebit" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Single Select" name="id-debit" required>
+                            <select id="selectdebit" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Akun Debit" name="id-debit" required>
                                 @foreach($akuns as $a)
                                 <option value="{{$a->id}}">{{$a->{'nama-akun'} }}</option>
                                 @endforeach
@@ -57,20 +56,19 @@ active
                     </div>
                     <div class="col-md-6">
                     <div class="form-group">
-                        <label for="selectdebit" class="bmd-label-floating" style="font-size:11px;">Akun Kredit</label>
-                            <select id="selectdebit" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Single Select" name="id-kredit" required>
-                                @foreach($akuns as $a)
-                                <option value="{{$a->id}}">{{$a->{'nama-akun'} }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="kredit" class="bmd-label-floating">Kredit</label>
-                            <input type="text" class="form-control rupiah-input" id="kredit" name="kredit-dummy" required readonly>
-                            <input type="hidden" readonly name="kredit" required>
-                        </div>
+                        <select id="selectdebit" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Akun Kredit" name="id-kredit" required>
+                            @foreach($akuns as $a)
+                            <option value="{{$a->id}}">{{$a->{'nama-akun'} }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="kredit" class="bmd-label-floating">Kredit</label>
+                        <input type="text" class="form-control rupiah-input" id="kredit" name="kredit-dummy" required readonly>
+                        <input type="hidden" readonly name="kredit" required>
                     </div>
                 </div>
+            </div>
         </div>
         <div class="modal-footer">
             <button type="submit" class="btn btn-link text-primary">Simpan</button>
@@ -105,8 +103,7 @@ active
             <div class="row" style="margin-top: -8px;">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="selectdebit-edit" class="bmd-label-floating" style="font-size:11px;">Akun Debit</label>
-                        <select id="selectdebit-edit" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Single Select" name="id-debit" required>
+                        <select id="selectdebit-edit" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Akun Debit" name="id-debit" required>
                             @foreach($akuns as $a)
                             <option value="{{$a->id}}">{{$a->{'nama-akun'} }}</option>
                             @endforeach
@@ -120,8 +117,7 @@ active
                 </div>
                 <div class="col-md-6">
                 <div class="form-group">
-                    <label for="selectdebit-edit" class="bmd-label-floating" style="font-size:11px;">Akun Kredit</label>
-                        <select id="selectdebit-edit" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Single Select" name="id-kredit" required>
+                        <select id="selectdebit-edit" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Akun Kredit" name="id-kredit" required>
                             @foreach($akuns as $a)
                             <option value="{{$a->id}}">{{$a->{'nama-akun'} }}</option>
                             @endforeach
@@ -230,7 +226,7 @@ active
             </div>
             </form>
             <div class="filter-tags" data-select="#selectrole" data-tags="#tagsinput" data-col="10">
-                <div class="form-group d-inline-block" style="width: 105px;">
+                <div class="form-group d-inline-block" style="width: 120px;">
                     <select id="selectrole" class="selectpicker" data-style2="btn-default btn-round btn-sm text-white" data-style="select-with-transition" multiple title="Filter" data-size="7">
                         <option value="Reguler">Reguler</option>
                         @foreach($byroleFilter as $r)
