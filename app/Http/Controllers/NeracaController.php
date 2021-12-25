@@ -118,8 +118,15 @@ class NeracaController extends Controller
         $ac->getColumnDimension('J')->setWidth(18);
         $ac->getColumnDimension('F')->setWidth(2); //pembatas
         $ac->getStyle('B10:J10')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $ac->getStyle('B10:E10')->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-        $ac->getStyle('G10:J10')->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        // $ac->getStyle('B10:E10')->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        // $ac->getStyle('G10:J10')->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        $ac->getStyle("B10:E10")->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('00B0F0');
+        $ac->getStyle("G10:J10")->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('00B0F0');
+        
 
         // Isi Aset
         $from=11;
@@ -157,7 +164,10 @@ class NeracaController extends Controller
                         $ac->getCell('B'.($from+$walk))->setValue( "      ".$akun->{'nama-akun'} );
                         $ac->getCell('C'.($from+$walk))->setValue( number_format($awal,2) );
                         $ac->getCell('D'.($from+$walk))->setValue( number_format($cur,2) );
-                        $ac->getCell('E'.($from+$walk))->setValue( number_format($awal+$cur,2) );   
+                        $ac->getCell('E'.($from+$walk))->setValue( number_format($awal+$cur,2) );
+                        $ac->getStyle("B".($from+$walk).":E".($from+$walk))->getFill()
+                            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                            ->getStartColor()->setRGB('F2F2F2');
 
                         $visited2[ $akun->{'nama-akun'} ]=1;
                     }
@@ -170,7 +180,11 @@ class NeracaController extends Controller
                 $ac->getCell('D'.($row))->setValue( number_format($saldo_berjalan,2) );
                 $ac->getCell('E'.($row))->setValue( number_format($saldo_awal+$saldo_berjalan,2) );
                 $ac->getStyle("B{$row}:E{$row}")->getFont()->setBold(true);
-                $ac->getStyle("B{$row}:E{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                // $ac->getStyle("B{$row}:E{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                $ac->getStyle("B{$row}:E{$row}")->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setRGB('00B0F0');
+
                 $walk++;
 
                 $total_saldo_berjalan+=$saldo_berjalan;
@@ -221,10 +235,14 @@ class NeracaController extends Controller
                         $ac->getCell('H'.($from+$walk))->setValue(number_format($awal, 2));
                         $ac->getCell('I'.($from+$walk))->setValue(number_format($cur, 2));
                         $ac->getCell('J'.($from+$walk))->setValue(number_format($awal+$cur, 2));
-
+                        $ac->getStyle("G".($from+$walk).":J".($from+$walk))->getFill()
+                            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                            ->getStartColor()->setRGB('F2F2F2');
+                        
                         $visited2[ $akun->{'nama-akun'} ]=1;
                     }
                 }
+                
 
                 // display total saldo kategori kewajiban
                 $row = $from+$now;
@@ -233,7 +251,10 @@ class NeracaController extends Controller
                 $ac->getCell('I'.($row))->setValue( number_format($saldo_berjalan,2) );
                 $ac->getCell('J'.($row))->setValue( number_format($saldo_awal+$saldo_berjalan,2) );
                 $ac->getStyle("G{$row}:J{$row}")->getFont()->setBold(true);
-                $ac->getStyle("G{$row}:J{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                // $ac->getStyle("G{$row}:J{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                $ac->getStyle("G{$row}:J{$row}")->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setRGB('00B0F0');
                 $walk++;
 
                 $total_saldo_berjalan+=$saldo_berjalan;
@@ -249,7 +270,10 @@ class NeracaController extends Controller
         $ac->getCell('D'.($row))->setValue( number_format($ASET_total_saldo_berjalan,2) );
         $ac->getCell('E'.($row))->setValue( number_format($ASET_akhir_aset,2) );                      
         $ac->getStyle("B{$row}:E{$row}")->getFont()->setBold(true);
-        $ac->getStyle("B{$row}:E{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        // $ac->getStyle("B{$row}:E{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        $ac->getStyle("B{$row}:E{$row}")->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('00B0F0');
 
         //kewajiban
         $akhir_aset=$total_saldo_awal+$total_saldo_berjalan;  
@@ -258,11 +282,14 @@ class NeracaController extends Controller
         $ac->getCell('I'.($row))->setValue( number_format($total_saldo_berjalan,2) );
         $ac->getCell('J'.($row))->setValue( number_format($akhir_aset,2) );                      
         $ac->getStyle("G{$row}:J{$row}")->getFont()->setBold(true);
-        $ac->getStyle("G{$row}:J{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        // $ac->getStyle("G{$row}:J{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        $ac->getStyle("G{$row}:J{$row}")->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('00B0F0');
 
         //set border luar tabel
-        $ac->getStyle("B{$from}:E{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-        $ac->getStyle("G{$from}:J{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        // $ac->getStyle("B{$from}:E{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        // $ac->getStyle("G{$from}:J{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
         if($akhir_aset!==$ASET_akhir_aset){
             $ac->getCell('B5')->setValue( "SALDO TIDAK SEIMBANG" );

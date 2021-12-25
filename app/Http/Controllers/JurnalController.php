@@ -54,6 +54,9 @@ class JurnalController extends Controller
         $my=Carbon::createFromFormat('m/Y', $request->date);
         $month = $my->month;
         $year = $my->year;
+
+        $byrole=array_intersect($this->ROLES_RANK,$request->get('roles'));
+        $byrole=empty($byrole)?NULL:$byrole[0];
         
         $tipe=$request->get('tipe');
         
@@ -74,6 +77,8 @@ class JurnalController extends Controller
             'currentTipe'=>$tipe,
             'jurnals'=>$jurnals,
             'date'=>$request->date,
+            'byrole'=>$byrole,
+            'byroleFilter'=>$this->ROLES_RANK,
         ]);
     }
 

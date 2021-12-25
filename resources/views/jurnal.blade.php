@@ -294,9 +294,6 @@ active
                     $m2 = Carbon\Carbon::createFromDate($j->tanggal);
                     @endphp
                     
-                    @if( $j->{'by-role'} !== $byrole)
-                    <a href="#" class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">block</i></a>
-                    @else
                     @if($j->validasi==1 && $m2->month != $my->month)
                     <a href="#" class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">lock</i></a>
                     @elseif(in_array('Supervisor', $role) && $j->validasi==1)
@@ -313,10 +310,14 @@ active
                       </label>
                     </div>
                     @else
-                    <a href="#" class="btn btn-link btn-warning btn-just-icon edit btn-sm" key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></a>
-                    <a href="#" class="btn btn-link btn-danger btn-just-icon remove btn-sm" key="{{$key}}" onclick="onDelete(this)"><i class="material-icons">delete</i></a>
+                        @if(!array_intersect($role, ['Supervisor', 'Spesial']) && $j->{'by-role'} !== $byrole)
+                        <a href="#" class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">block</i></a>
+                        @else
+                        <a href="#" class="btn btn-link btn-warning btn-just-icon edit btn-sm" key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></a>
+                        <a href="#" class="btn btn-link btn-danger btn-just-icon remove btn-sm" key="{{$key}}" onclick="onDelete(this)"><i class="material-icons">delete</i></a>
+                        @endif
                     @endif
-                    @endif
+                    
                     </td>
                     <td hidden>{{$j->akunDebit->{'nama-akun'} }}</td>
                     <td hidden>{{$j->akunKredit->{'nama-akun'} }}</td>
