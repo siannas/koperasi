@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/kprz1559/public_html/pembukuan/
+    - /bin/cp -R * $DEPLOYPATH
