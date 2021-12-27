@@ -151,7 +151,7 @@ $role = explode(', ', $role);
                 </li>
                 @endif
                 @endforeach
-                @if(in_array('Spesial', $role))
+                @if(array_intersect(['Spesial','Supervisor'], $role))
                 <li class="nav-item @yield('neraca')">
                     <a class="nav-link" href="{{url('/neraca')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
@@ -188,7 +188,7 @@ $role = explode(', ', $role);
                 </li>
                 @endif
                 @endforeach
-                @if(in_array('Spesial', $role))
+                @if(array_intersect(['Spesial','Supervisor'], $role))
                 <li class="nav-item @yield('shu')">
                     <a class="nav-link" href="{{url('/shu')}}">
                     <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
