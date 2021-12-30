@@ -97,78 +97,82 @@ active
                     $master=[];
                     @endphp
                     @foreach($kategoris as $k => $kd)
-                    @if($kd->getAkun->isEmpty() === false and ($currentTipe===NULL or intval($kd->getAkun[0]->{'id-tipe'})===$currentTipe->id))
-                    @php
-                    $saldo_berjalan=0;
-                    $saldo_awal=0;
-                    $coef = ($kd->{'tipe-pendapatan'} ==='kredit') ? -1 : 1;
-                    @endphp
-                    <tbody>
-                    <tr>
-                        <td><button class="btn btn-success btn-round btn-fab btn-sm mr-1 my-button-toggle"
-                            data-toggle="collapse" data-target="#collapse{{$k}}" aria-expanded="false" aria-controls="collapse{{$k}}" >
-                            <i class="material-icons">add</i>
-                            </button></td>
-                        <td colspan="6"><b>{{$kd->kategori}}</b></td>
-                    </tr>
-                    </tbody>
-                    <tbody class="no-anim collapse" id="collapse{{$k}}">
-                    @php
-                    $visited=[];
-                    $visited2=[];
-                    foreach($kd->getAkun as $akun){
-                        $visited[ $akun->{'nama-akun'} ][]=$akun->id;
-                    }
-                    @endphp
-                    @foreach($kd->getAkun as $akun)
-                    @if(array_key_exists($akun->{'nama-akun'} , $visited2) === FALSE)
-                    @php
-                    $awal=0;
-                    $cur=0;
-                    foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
-                        $debit=$jurnal_debit->has($id_ak) ? $jurnal_debit[$id_ak]->debit : 0;
-                        $kredit=$jurnal_kredit->has($id_ak) ? $jurnal_kredit[$id_ak]->kredit : 0;
-                        $cur+=$coef*($debit-$kredit);
-                        $awal+=$saldos->has($id_ak) ? $saldos[$id_ak]->saldo : 0;
-                        $saldo_awal+=$awal;
-                        $saldo_berjalan+=$cur;
-                    }
-                    @endphp
-                    <tr>
-                        <td></td>
-                        <td>{{ $akun->{'nama-akun'} }}</td>
-                        <td class="text-right">Rp {{ number_format($awal,2) }}</td>
-                        <td class="text-right {{ $cur<0 ? 'text-danger':'text-success' }} ">Rp {{ number_format($cur,2) }}</td>
-                        <td class="text-right">Rp {{ number_format($cur+$awal,2) }}</td>
-                        <td></td>
-                        <td></td>
-                    </tr>     
-                    @php
-                    $visited2[ $akun->{'nama-akun'} ]=1;
-                    @endphp    
-                    @endif
+                        @php
+                        $master[$kd->id]=[
+                            'awal'=>0,
+                            'berjalan'=>0,
+                        ];
+                        @endphp
+                        @if($kd->getAkun->isEmpty() === false )
+                            @php
+                            $saldo_berjalan=0;
+                            $saldo_awal=0;
+                            $coef = ($kd->{'tipe-pendapatan'} ==='kredit') ? -1 : 1;
+                            @endphp
+                            <tbody>
+                            <tr>
+                                <td><button class="btn btn-success btn-round btn-fab btn-sm mr-1 my-button-toggle"
+                                    data-toggle="collapse" data-target="#collapse{{$k}}" aria-expanded="false" aria-controls="collapse{{$k}}" >
+                                    <i class="material-icons">add</i>
+                                    </button></td>
+                                <td colspan="6"><b>{{$kd->kategori}}</b></td>
+                            </tr>
+                            </tbody>
+                            <tbody class="no-anim collapse" id="collapse{{$k}}">
+                            @php
+                            $visited=[];
+                            $visited2=[];
+                            foreach($kd->getAkun as $akun){
+                                $visited[ $akun->{'nama-akun'} ][]=$akun->id;
+                            }
+                            @endphp
+                            @foreach($kd->getAkun as $akun)
+                                @if(array_key_exists($akun->{'nama-akun'} , $visited2) === FALSE)
+                                    @php
+                                    $awal=0;
+                                    $cur=0;
+                                    foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
+                                        $debit=$jurnal_debit->has($id_ak) ? $jurnal_debit[$id_ak]->debit : 0;
+                                        $kredit=$jurnal_kredit->has($id_ak) ? $jurnal_kredit[$id_ak]->kredit : 0;
+                                        $cur+=$coef*($debit-$kredit);
+                                        $awal+=$saldos->has($id_ak) ? $saldos[$id_ak]->saldo : 0;
+                                    }
+                                    $saldo_awal+=$awal;
+                                    $saldo_berjalan+=$cur;
+                                    @endphp
+                                    <tr>
+                                        <td></td>
+                                        <td>{{ $akun->{'nama-akun'} }}</td>
+                                        <td class="text-right">Rp {{ number_format($awal,2) }}</td>
+                                        <td class="text-right {{ $cur<0 ? 'text-danger':'text-success' }} ">Rp {{ number_format($cur,2) }}</td>
+                                        <td class="text-right">Rp {{ number_format($cur+$awal,2) }}</td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>     
+                                    @php
+                                    $visited2[ $akun->{'nama-akun'} ]=1;
+                                    @endphp    
+                                @endif
+                            @endforeach
+                            </tbody>
+                            <tbody>
+                            <tr class="table-info">
+                                <td class="text-right" colspan="2">Jumlah {{$kd->kategori}} </td>
+                                <td class="text-right">Rp {{ number_format($saldo_awal,2) }}</td>
+                                <td class="text-right">Rp {{ number_format($saldo_berjalan,2) }}</td>
+                                <td class="text-right">Rp {{ number_format($saldo_awal+$saldo_berjalan,2) }}</td>
+                                <td></td>
+                                <td></td>
+                            </tr>   
+                            </tbody>
+                            @php
+                            $master[$kd->id]=[
+                                'awal'=>$saldo_awal,
+                                'berjalan'=>$saldo_berjalan,
+                            ];
+                            @endphp
+                        @endif
                     @endforeach
-                    </tbody>
-                    <tbody>
-                    <tr class="table-info">
-                        <td class="text-right" colspan="2">Jumlah {{$kd->kategori}} </td>
-                        <td class="text-right">Rp {{ number_format($saldo_awal,2) }}</td>
-                        <td class="text-right">Rp {{ number_format($saldo_berjalan,2) }}</td>
-                        <td class="text-right">Rp {{ number_format($saldo_awal+$saldo_berjalan,2) }}</td>
-                        <td></td>
-                        <td></td>
-                    </tr>   
-                    </tbody>
-                    @php
-                    $master[$kd->id]=[
-                        'awal'=>$saldo_awal,
-                        'berjalan'=>$saldo_berjalan,
-                    ];
-                    @endphp
-                    @endif
-                    @endforeach
-                    @php
-                    @endphp
                     <tfoot>
                     @foreach($meta as $i=>$m)
                     @php

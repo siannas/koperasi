@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class SHUController extends Controller
 {
@@ -120,7 +121,11 @@ class SHUController extends Controller
         $walk=0;
         $master=[];
         foreach($d['kategoris'] as $k => $kd){
-            if($kd->getAkun->isEmpty() === false and ($d['currentTipe']===NULL or intval($kd->getAkun[0]->{'id-tipe'})===$d['currentTipe']->id)){
+            $master[$kd->id]=[
+                'awal'=>0,
+                'berjalan'=>0,
+            ];
+            if($kd->getAkun->isEmpty() === false ){
                 $saldo_berjalan=0;
                 $saldo_awal=0;
                 $coef= ($kd->{'tipe-pendapatan'} ==='kredit') ? -1 : 1;
@@ -144,9 +149,9 @@ class SHUController extends Controller
                             $kredit=$d['jurnal_kredit']->has($id_ak) ? $d['jurnal_kredit'][$id_ak]->kredit : 0;
                             $cur+=$coef*($debit-$kredit);
                             $awal+=$d['saldos']->has($id_ak) ? $d['saldos'][$id_ak]->saldo : 0;
-                            $saldo_awal+=$awal;
-                            $saldo_berjalan+=$cur;
                         }
+                        $saldo_awal+=$awal;
+                        $saldo_berjalan+=$cur;
 
                         $ac->getCell('B'.($from+$walk))->setValue("      ".$akun->{'nama-akun'});
                         $ac->getCell('C'.($from+$walk))->setValue(number_format($awal, 2));
@@ -223,12 +228,12 @@ class SHUController extends Controller
         //dapetin tanggal shu
         $month = $this->date['m'];
         $year = $this->date['y'];
-        $backDate=Carbon::instance($this->date['date'])->subMonths(1);
+        $backDate=Carbon::instance($this->date['date'])->subMonthsNoOverflow(1);
         if ($request->input('date')) {
             $my=Carbon::createFromFormat('m/Y', $request->input('date'));
             $month = $my->month;
             $year = $my->year;
-            $backDate=$my->subMonths(1);
+            $backDate=$my->subMonthsNoOverflow(1);
         }
         $tipe=$request->get('tipe');
         
@@ -241,26 +246,60 @@ class SHUController extends Controller
         $SHU=\App\Kategori::where('kategori', 'SHU')->select('id')->first();
 
         $kategoris=\App\Kategori::with(['getAkun' => function($q) use($tipe) {
-            $q->select('id','nama-akun','no-akun', 'id-kategori','id-tipe')
-                ->where('id-tipe',$tipe->id);
+            /** NOTE:
+             * ambil akun dengan string nama yang sama
+             * */ 
+            $q->select('B.id','akun.nama-akun','akun.no-akun', 'akun.id-kategori','akun.id-tipe')
+                ->leftJoin('akun AS B','akun.nama-akun','LIKE','B.nama-akun')
+                ->where(function($q2) use($tipe){
+                    $q2->where('akun.id-tipe',$tipe->id)
+                        ->where('akun.id','=',DB::raw('B.id'));
+                })
+                ->orWhere(function($q2) use($tipe){
+                    $q2->where('B.id-tipe','<>',$tipe->id)
+                        ->where('akun.id','<>',DB::raw('B.id'));
+                        // ->whereNotNull('B.nama-akun');
+                });
             }])
             ->where('parent',$SHU->id)
             ->get();
     
-        $jurnal_debit=\App\Jurnal::where('id-tipe',$tipe->id)
+        $jurnal_debit=\App\Jurnal::leftJoin('akun AS A','id-debit','LIKE','A.id')
+            ->leftJoin('akun AS B','A.nama-akun','LIKE','B.nama-akun')
             ->selectRaw('`id-debit`, sum(debit) as debit')
             ->groupBy('id-debit')
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
             ->where('validasi',1)
+            ->where(function($q) use($tipe){
+                $q->where(function($q2) use($tipe){
+                        $q2->where('A.id-tipe',$tipe->id)
+                        ->where('A.id','=',DB::raw('B.id'));
+                    })
+                    ->orWhere(function($q2) use($tipe){
+                        $q2->where('A.id-tipe','<>',$tipe->id)
+                            ->where('A.id','<>',DB::raw('B.id'));
+                    });
+            })
             ->get()->keyBy('id-debit');
 
-        $jurnal_kredit=\App\Jurnal::where('id-tipe',$tipe->id)
+        $jurnal_kredit=\App\Jurnal::leftJoin('akun AS A','id-kredit','LIKE','A.id')
+            ->leftJoin('akun AS B','A.nama-akun','LIKE','B.nama-akun')
             ->selectRaw('`id-kredit`, sum(kredit) as kredit')
             ->groupBy('id-kredit')
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
             ->where('validasi',1)
+            ->where(function($q) use($tipe){
+                $q->where(function($q2) use($tipe){
+                        $q2->where('A.id-tipe',$tipe->id)
+                        ->where('A.id','=',DB::raw('B.id'));
+                    })
+                    ->orWhere(function($q2) use($tipe){
+                        $q2->where('A.id-tipe','<>',$tipe->id)
+                            ->where('A.id','<>',DB::raw('B.id'));
+                    });
+            })
             ->get()->keyBy('id-kredit');
 
         $metaForeKey="shu_".strtolower($tipe->slug).'_';
@@ -287,12 +326,12 @@ class SHUController extends Controller
         //dapetin tanggal shu
         $month = $this->date['m'];
         $year = $this->date['y'];
-        $backDate=Carbon::instance($this->date['date'])->subMonths(1);
+        $backDate=Carbon::instance($this->date['date'])->subMonthsNoOverflow(1);
         if ($request->input('date')) {
             $my=Carbon::createFromFormat('m/Y', $request->input('date'));
             $month = $my->month;
             $year = $my->year;
-            $backDate=$my->subMonths(1);
+            $backDate=$my->subMonthsNoOverflow(1);
         }
         $tipe=$request->get('tipe');
         

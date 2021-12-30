@@ -21,7 +21,7 @@ class BukuBesarController extends Controller
                                 'akun'=>$akun, 
                                 'curAkun'=>new Akun(),
                                 'jurnal'=>$jurnal,
-                                'saldoAwal'=>new Saldo(),
+                                'saldoAwal'=>0,
                                 'bulan'=>0]);
     }
 
@@ -33,22 +33,26 @@ class BukuBesarController extends Controller
         $month = $filter->month;
         $year = $filter->year;
         
-        $saldoAwal=Saldo::where('id-akun', $request->akun)
-            ->whereMonth('tanggal', $month-1)
-            ->whereYear('tanggal', $year)->first();
-        if(!$saldoAwal) $saldoAwal=new Saldo();
-
         $tipePen = Akun::with(['getKategori' => function($query) { 
                 $query->select('id','tipe-pendapatan');
                 }])->where('akun.id', $request->akun)->first();
+        
+        /** NOTE:
+         * ambil akun dengan string nama yang sama
+         * */ 
+        $related=Akun::where('nama-akun','like',$tipePen->{'nama-akun'} )->select('id')->pluck('id')->toArray();
+        
+        $saldoAwal=Saldo::whereIn('id-akun', $related)
+            ->whereMonth('tanggal', $month-1)
+            ->whereYear('tanggal', $year)->pluck('saldo')->sum();
+        if(!$saldoAwal) $saldoAwal=0;
 
-        $jurnal = Jurnal::where('id-tipe', $tipe->id)
-            ->where('validasi', 1)
+        $jurnal = Jurnal::where('validasi', 1)
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
-            ->where(function($q) use($request){
-                $q->where('id-debit', $request->akun)
-                  ->orWhere('id-kredit', $request->akun);
+            ->where(function($q) use($request,$related){
+                $q->whereIn('id-debit', $related)
+                  ->orWhereIn('id-kredit', $related);
             })
             ->get()->sortBy('tanggal');
 
@@ -57,7 +61,8 @@ class BukuBesarController extends Controller
                                 'curAkun'=>$tipePen, 
                                 'jurnal'=>$jurnal, 
                                 'saldoAwal'=>$saldoAwal,
-                                'bulan'=>$request->bulan]);
+                                'bulan'=>$request->bulan,
+                                'related'=>$related]);
     }
 
     public function excel(Request $request){
@@ -69,23 +74,26 @@ class BukuBesarController extends Controller
         $month = $filter->month;
         $year = $filter->year;
         
-        $saldoAwal=Saldo::where('id-akun', $request->akun)
-            ->whereMonth('tanggal', $month-1)
-            ->whereYear('tanggal', $year)->first();
-        
-        if(!$saldoAwal) $saldoAwal=new Saldo();
-
         $tipePen = Akun::with(['getKategori' => function($query) { 
-                $query->select('id','tipe-pendapatan');
-                }])->where('akun.id', $request->akun)->first();
+            $query->select('id','tipe-pendapatan');
+            }])->where('akun.id', $request->akun)->first();
+    
+        /** NOTE:
+         * ambil akun dengan string nama yang sama
+         * */ 
+        $related=Akun::where('nama-akun','like',$tipePen->{'nama-akun'} )->select('id')->pluck('id')->toArray();
+        
+        $saldoAwal=Saldo::whereIn('id-akun', $related)
+            ->whereMonth('tanggal', $month-1)
+            ->whereYear('tanggal', $year)->pluck('saldo')->sum();
+        if(!$saldoAwal) $saldoAwal=0;
 
-        $jurnal = Jurnal::where('id-tipe', $tipe->id)
-            ->where('validasi', 1)
+        $jurnal = Jurnal::where('validasi', 1)
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
-            ->where(function($q) use($request){
-                $q->where('id-debit', $request->akun)
-                  ->orWhere('id-kredit', $request->akun);
+            ->where(function($q) use($request,$related){
+                $q->whereIn('id-debit', $related)
+                  ->orWhereIn('id-kredit', $related);
             })
             ->get()->sortBy('tanggal');
         
@@ -121,7 +129,7 @@ class BukuBesarController extends Controller
         $ac->getCell('E8')->setValue("SALDO AWAL");
         $ac->getCell('E9')->setValue("SALDO AKHIR");
 
-        $ac->getCell('F8')->setValue(": Rp ".number_format($saldoAwal->saldo, 2));
+        $ac->getCell('F8')->setValue(": Rp ".number_format($saldoAwal, 2));
 
         $ac->mergeCells('A11:A12');
         $ac->getCell('A11')->setValue("TANGGAL");
@@ -137,14 +145,14 @@ class BukuBesarController extends Controller
         $ac->getCell('F11')->setValue("SALDO");
         
         $ac->getCell('C13')->setValue('SALDO AWAL');
-        $ac->getCell('F13')->setValue(number_format($saldoAwal->saldo, 2));
+        $ac->getCell('F13')->setValue(number_format($saldoAwal, 2));
 
-        $jumlah = $saldoAwal->saldo;
+        $jumlah = $saldoAwal;
         for($x=0;$x<count($jurnal);$x++){
             $ac->getCell('A'.($x+14))->setValue($jurnal[$x]->tanggal);
             $ac->getCell('B'.($x+14))->setValue($jurnal[$x]->{'no-ref'});
             $ac->getCell('C'.($x+14))->setValue($jurnal[$x]->keterangan);
-            if($jurnal[$x]->{'id-debit'}==$tipePen->id){
+            if(in_array($jurnal[$x]->{'id-debit'},$related)){
                 $ac->getCell('D'.($x+14))->setValue(number_format($jurnal[$x]->debit,2));
                 if($tipePen->getKategori->{'tipe-pendapatan'} == 'debit'){
                     $jumlah += intval($jurnal[$x]->debit);
@@ -156,7 +164,7 @@ class BukuBesarController extends Controller
             else{
                 $ac->getCell('D'.($x+14))->setValue('-');
             }
-            if($jurnal[$x]->{'id-kredit'}==$tipePen->id){
+            if(in_array($jurnal[$x]->{'id-kredit'},$related)){
                 $ac->getCell('E'.($x+14))->setValue(number_format($jurnal[$x]->kredit,2));
                 if($tipePen->getKategori->{'tipe-pendapatan'} == 'debit'){
                     $jumlah -= intval($jurnal[$x]->kredit);

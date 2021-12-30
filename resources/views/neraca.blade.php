@@ -118,7 +118,7 @@ active
                         $total_saldo_awal=0;
                         @endphp
                         @foreach($kategoris_debit as $k => $kd)
-                        @if($kd->getAkun->isEmpty() === false and ($currentTipe===NULL or intval($kd->getAkun[0]->{'id-tipe'})===$currentTipe->id))
+                        @if($kd->getAkun->isEmpty() === false)
                         @php
                         $saldo_berjalan=0;
                         $saldo_awal=0;
@@ -153,9 +153,9 @@ active
                             $kredit=$jurnal_kredit->has($id_ak) ? $jurnal_kredit[$id_ak]->kredit : 0;
                             $cur+=$debit-$kredit;
                             $awal+=$saldos->has($id_ak) ? $saldos[$id_ak]->saldo : 0;
-                            $saldo_awal+=$awal;
-                            $saldo_berjalan+=$cur;
                         }
+                        $saldo_awal+=$awal;
+                        $saldo_berjalan+=$cur;
                         @endphp
                         <tr>
                             <td></td>
@@ -215,7 +215,7 @@ active
                         $total_saldo_awal=0;
                         @endphp
                         @foreach($kategoris_kredit as $k => $kd)
-                        @if($kd->getAkun->isEmpty() === false and ($currentTipe===NULL or intval($kd->getAkun[0]->{'id-tipe'})===$currentTipe->id))
+                        @if($kd->getAkun->isEmpty() === false)
                         @php
                         $saldo_berjalan=0;
                         $saldo_awal=0;
@@ -250,9 +250,9 @@ active
                             $kredit=$jurnal_kredit->has($id_ak) ? $jurnal_kredit[$id_ak]->kredit : 0;
                             $cur+=$kredit-$debit;
                             $awal+=$saldos->has($id_ak) ? $saldos[$id_ak]->saldo : 0;
-                            $saldo_awal+=$awal;
-                            $saldo_berjalan+=$cur;
                         }
+                        $saldo_awal+=$awal;
+                        $saldo_berjalan+=$cur;
                         @endphp
                         <tr>
                             <td></td>

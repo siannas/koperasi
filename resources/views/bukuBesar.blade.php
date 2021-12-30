@@ -73,7 +73,7 @@ active
                 <tbody>
                 @php 
                 
-                $jumlah = $saldoAwal->saldo;
+                $jumlah = $saldoAwal;
                 @endphp
                 <tr class="bg-dark text-white">
                     <th></th>
@@ -81,7 +81,7 @@ active
                     <th></th>
                     <th></th>
                     <th></th>
-                    <th class="text-right">Rp {{number_format($saldoAwal->saldo,2)}} </th>
+                    <th class="text-right">Rp {{number_format($saldoAwal,2)}} </th>
                 </tr>
                 @foreach($jurnal as $unit)
                 <tr>
@@ -89,7 +89,7 @@ active
                     <td>{{date_format(date_create($unit->tanggal), "d-m-Y")}}</td>
                     <td>{{$unit->keterangan}}</td>
                     <td class="text-right">
-                        @if($unit->{'id-debit'}==$curAkun->id) 
+                        @if(in_array($unit->{'id-debit'},$related)) 
                         {{number_format($unit->debit,2)}}
                         @php
                         if($curAkun->getKategori->{'tipe-pendapatan'} == 'debit'){
@@ -102,7 +102,7 @@ active
                         @else - 
                         @endif</td>
                     <td class="text-right">
-                        @if($unit->{'id-kredit'}==$curAkun->id)
+                        @if(in_array($unit->{'id-kredit'},$related))
                         {{number_format($unit->kredit,2)}}
                         @php
                         if($curAkun->getKategori->{'tipe-pendapatan'} == 'debit'){
