@@ -237,9 +237,11 @@ class SHUController extends Controller
         }
         $tipe=$request->get('tipe');
         
-        $saldos=\App\Saldo::whereMonth('tanggal', $backDate->month)
-            ->whereYear('tanggal', $backDate->year)
-            ->select('id', 'id-kategori', 'id-akun', 'saldo')
+        $saldosIds=\App\Saldo::select(DB::raw('COUNT(`id-akun`) cnt'),DB::raw('MAX(`id`) id'))
+            ->whereDate('tanggal','<',$backDate->format('Y-m-d'))
+            ->groupBy('id-akun')->pluck('id');
+        $saldos=\App\Saldo::select('id','id-kategori','id-akun','saldo')
+            ->whereIn('id',$saldosIds)
             ->get()->keyBy('id-akun');
 
         // Ambil kategori parent yang SHU
@@ -335,9 +337,11 @@ class SHUController extends Controller
         }
         $tipe=$request->get('tipe');
         
-        $saldos=\App\Saldo::whereMonth('tanggal', $backDate->month)
-            ->whereYear('tanggal', $backDate->year)
-            ->select('id', 'id-kategori', 'id-akun', 'saldo')
+        $saldosIds=\App\Saldo::select(DB::raw('COUNT(`id-akun`) cnt'),DB::raw('MAX(`id`) id'))
+            ->whereDate('tanggal','<',$backDate->format('Y-m-d'))
+            ->groupBy('id-akun')->pluck('id');
+        $saldos=\App\Saldo::select('id','id-kategori','id-akun','saldo')
+            ->whereIn('id',$saldosIds)
             ->get()->keyBy('id-akun');
 
         // Ambil kategori parent yang SHU
