@@ -32,6 +32,7 @@ class BukuBesarController extends Controller
         $filter = Carbon::createFromFormat('m/Y', $request->bulan);
         $month = $filter->month;
         $year = $filter->year;
+        $filter->day = 1;
         
         $tipePen = Akun::with(['getKategori' => function($query) { 
                 $query->select('id','tipe-pendapatan');
@@ -43,8 +44,8 @@ class BukuBesarController extends Controller
         $related=Akun::where('nama-akun','like',$tipePen->{'nama-akun'} )->select('id')->pluck('id')->toArray();
         
         $saldoAwal=Saldo::whereIn('id-akun', $related)
-            ->whereMonth('tanggal', $month-1)
-            ->whereYear('tanggal', $year)->pluck('saldo')->sum();
+            ->whereDate('tanggal','<',$filter->format('Y-m-d'))
+            ->pluck('saldo')->sum();
         if(!$saldoAwal) $saldoAwal=0;
 
         $jurnal = Jurnal::where('validasi', 1)
@@ -73,6 +74,7 @@ class BukuBesarController extends Controller
         $filter = Carbon::createFromFormat('m/Y', $request->bulan);
         $month = $filter->month;
         $year = $filter->year;
+        $filter->day = 1;
         
         $tipePen = Akun::with(['getKategori' => function($query) { 
             $query->select('id','tipe-pendapatan');
@@ -84,8 +86,8 @@ class BukuBesarController extends Controller
         $related=Akun::where('nama-akun','like',$tipePen->{'nama-akun'} )->select('id')->pluck('id')->toArray();
         
         $saldoAwal=Saldo::whereIn('id-akun', $related)
-            ->whereMonth('tanggal', $month-1)
-            ->whereYear('tanggal', $year)->pluck('saldo')->sum();
+            ->whereDate('tanggal','<',$filter->format('Y-m-d'))
+            ->pluck('saldo')->sum();
         if(!$saldoAwal) $saldoAwal=0;
 
         $jurnal = Jurnal::where('validasi', 1)

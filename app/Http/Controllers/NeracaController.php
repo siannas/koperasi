@@ -336,16 +336,17 @@ class NeracaController extends Controller
         //dapetin tanggal neraca yg ingin di download
         $month = $this->date['m'];
         $year = $this->date['y'];
-        $backDate=Carbon::instance($this->date['date'])->subMonthsNoOverflow(1);
+        $filter = Carbon::instance($this->date['date']);
+        $filter->day = 1;
         if($request->input('date')){
             $my=Carbon::createFromFormat('m/Y', $request->input('date'));
             $month = $my->month;
             $year = $my->year;
-            $backDate=$my->subMonthsNoOverflow(1);
+            $filter=$my;
         }
         
         $saldosIds=\App\Saldo::select(DB::raw('COUNT(`id-akun`) cnt'),DB::raw('MAX(`id`) id'))
-            ->whereDate('tanggal','<',$backDate->format('Y-m-d'))
+            ->whereDate('tanggal','<',$filter->format('Y-m-d'))
             ->groupBy('id-akun')->pluck('id');
         $saldos=\App\Saldo::select('id','id-kategori','id-akun','saldo')
             ->whereIn('id',$saldosIds)
@@ -452,16 +453,17 @@ class NeracaController extends Controller
         //dapetin tanggal neraca yg ingin di download
         $month = $this->date['m'];
         $year = $this->date['y'];
-        $backDate=Carbon::instance($this->date['date'])->subMonthsNoOverflow(1);
+        $filter = Carbon::instance($this->date['date']);
+        $filter->day = 1;
         if($request->input('date')){
             $my=Carbon::createFromFormat('m/Y', $request->input('date'));
             $month = $my->month;
             $year = $my->year;
-            $backDate=$my->subMonthsNoOverflow(1);
+            $filter=$my;
         }
         
         $saldosIds=\App\Saldo::select(DB::raw('COUNT(`id-akun`) cnt'),DB::raw('MAX(`id`) id'))
-            ->whereDate('tanggal','<',$backDate->format('Y-m-d'))
+            ->whereDate('tanggal','<',$filter->format('Y-m-d'))
             ->groupBy('id-akun')->pluck('id');
         $saldos=\App\Saldo::select('id','id-kategori','id-akun','saldo')
             ->whereIn('id',$saldosIds)
