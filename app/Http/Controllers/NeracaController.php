@@ -153,6 +153,7 @@ class NeracaController extends Controller
 
                         $awal=0;
                         $cur=0;
+                        //gabungin saldo semua akun yang memiliki nama yang kembar.
                         foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
                             $debit=$d['jurnal_debit']->has($id_ak) ? $d['jurnal_debit'][$id_ak]->debit : 0;
                             $kredit=$d['jurnal_kredit']->has($id_ak) ? $d['jurnal_kredit'][$id_ak]->kredit : 0;
