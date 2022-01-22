@@ -77,10 +77,11 @@ class JurnalObserver
                 $d['keterangan'] = "<b>{$this->userNama}</b> mengubah status jurnal <b>{$jurnal->keterangan}</b> menjadi <font color=\"red\"><b>belum tervalidasi</b></font>";
             }
 
+            $isvalidating = $jurnal->validasi===1 ? TRUE : FALSE;
             DB::beginTransaction();
             try {
-                $this->updateSaldoDebit($jurnal->{'id-debit'} , $jurnal->debit , $jurnal->tanggal, $old->{'id-debit'}, $old->debit, $old->tanggal);
-                $this->updateSaldoKredit($jurnal->{'id-kredit'} , $jurnal->kredit , $jurnal->tanggal, $old->{'id-kredit'}, $old->kredit, $old->tanggal);
+                $this->updateSaldoDebit($jurnal->{'id-debit'} , $jurnal->debit , $jurnal->tanggal, $old->{'id-debit'}, $old->debit, $old->tanggal, $isvalidating);
+                $this->updateSaldoKredit($jurnal->{'id-kredit'} , $jurnal->kredit , $jurnal->tanggal, $old->{'id-kredit'}, $old->kredit, $old->tanggal, $isvalidating);
                 $logjurnal = new LogJurnal($d);
                 $logjurnal->save();
             }catch (\Exception $exception) {
@@ -137,10 +138,10 @@ class JurnalObserver
      * @param  Float  $saldo_old
      * @return void
      */
-    private function updateSaldoDebit($id_debit, $saldo, $tanggal, $id_debit_old, $saldo_old, $tanggal_old){
+    private function updateSaldoDebit($id_debit, $saldo, $tanggal, $id_debit_old, $saldo_old, $tanggal_old, $validate=NULL){
         $tanggal = substr($tanggal,0,8)."01";
         $tanggal_old = substr($tanggal_old,0,8)."01";
-        if(isset($id_debit)){
+        if( (isset($id_debit) AND isset($validate)===FALSE) OR  (isset($validate) AND $validate===TRUE) ){
             //dapatkan akun yg sesuai
             $akun=\App\Akun::where('id',$id_debit)->with('getKategori:id,tipe-pendapatan')->get(['id','id-tipe','saldo','id-kategori'])[0];
             $s=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal',$tanggal)->first();
@@ -162,7 +163,7 @@ class JurnalObserver
             $akun->save();
             $s->save();
         }
-        if(isset($id_debit_old)){
+        if( (isset($id_debit_old) AND isset($validate)===FALSE) OR  (isset($validate) AND $validate===FALSE) ){
             //dapatkan akun yg sesuai
             $akun=\App\Akun::where('id',$id_debit_old)->with('getKategori:id,tipe-pendapatan')->get(['id','id-tipe','saldo','id-kategori'])[0];
             $s=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal',$tanggal_old)->first();
