@@ -348,7 +348,8 @@ class SHUController extends Controller
         $SHU=\App\Kategori::where('kategori', 'SHU')->select('id')->first();
 
         $kategoris=\App\Kategori::with(['getAkun' => function($q) use($tipe) {
-            $q->select('id','nama-akun','no-akun', 'id-kategori','id-tipe');
+            $q->select('a2.id','a2.nama-akun','a2.no-akun', 'akun.id-kategori','a2.id-tipe')
+                    ->rightJoin(DB::raw('akun a2'), 'akun.nama-akun','=','a2.nama-akun');
             }])
             ->where('parent',$SHU->id)
             ->get();

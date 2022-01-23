@@ -473,14 +473,16 @@ class NeracaController extends Controller
         $nonSHU=\App\Kategori::where('kategori','NON-SHU')->select('id')->first();
         
         $kategoris_debit=\App\Kategori::with(['getAkun' => function($q){
-                $q->select('id','nama-akun','no-akun', 'id-kategori','id-tipe');
+                $q->select('a2.id','a2.nama-akun','a2.no-akun', 'akun.id-kategori','a2.id-tipe')
+                    ->rightJoin(DB::raw('akun a2'), 'akun.nama-akun','=','a2.nama-akun');
             }])
             ->where('tipe-pendapatan', 'debit')
             ->where('parent',$nonSHU->id)
             ->get();
 
         $kategoris_kredit=\App\Kategori::with(['getAkun' => function($q){
-                $q->select('id','nama-akun','no-akun', 'id-kategori','id-tipe');
+                $q->select('a2.id','a2.nama-akun','a2.no-akun', 'akun.id-kategori','a2.id-tipe')
+                    ->rightJoin(DB::raw('akun a2'), 'akun.nama-akun','=','a2.nama-akun');
             }])
             ->where('tipe-pendapatan', 'kredit')
             ->where('parent',$nonSHU->id)
