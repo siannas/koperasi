@@ -373,6 +373,7 @@ class NeracaController extends Controller
             }])
             ->where('tipe-pendapatan', 'debit')
             ->where('parent',$nonSHU->id)
+            ->orderBy('priority','ASC')
             ->get();
 
         $kategoris_kredit=\App\Kategori::with(['getAkun' => function($q) use($tipe) {
@@ -393,6 +394,7 @@ class NeracaController extends Controller
             }])
             ->where('tipe-pendapatan', 'kredit')
             ->where('parent',$nonSHU->id)
+            ->orderBy('priority','ASC')
             ->get();
 
         $jurnal_debit=\App\Jurnal::leftJoin('akun AS A','id-debit','LIKE','A.id')
@@ -478,6 +480,7 @@ class NeracaController extends Controller
             }])
             ->where('tipe-pendapatan', 'debit')
             ->where('parent',$nonSHU->id)
+            ->orderBy('priority','ASC')
             ->get();
 
         $kategoris_kredit=\App\Kategori::with(['getAkun' => function($q){
@@ -486,6 +489,7 @@ class NeracaController extends Controller
             }])
             ->where('tipe-pendapatan', 'kredit')
             ->where('parent',$nonSHU->id)
+            ->orderBy('priority','ASC')
             ->get();
 
         $jurnal_debit=\App\Jurnal::selectRaw('`id-debit`, sum(debit) as debit')
