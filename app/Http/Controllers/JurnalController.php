@@ -20,11 +20,20 @@ class JurnalController extends Controller
      */
     public function index(Request $request)
     {
-        $dateAwal=$this->date['date']->format('Y-m').'-01';
+        $old = session()->getOldInput();
+        if(count($old)===0){
+            $dateAwal=$this->date['date']->format('Y-m').'-01';
+            $dateAkhir=$this->date['date']->format('Y-m-d');
+            $dateawal_raw='01/'.$this->date['date']->format('m/Y');
+            $date_raw=$this->date['date']->format('d/m/Y');
+        }else{
+            $dateAwal=$old['dateAwal'];
+            $dateAkhir=$old['dateAkhir'];
+            $dateawal_raw=$old['dateawal_raw'];
+            $date_raw=$old['date_raw'];
+        }
+        
         $tipe=$request->get('tipe');
-        $my=Carbon::createFromFormat('m/Y', $this->date['date']->format('m/Y'));
-        $month = $my->month;
-        $year = $my->year;
 
         $byrole=array_intersect($this->ROLES_RANK,$request->get('roles'));
         $byrole=empty($byrole)?NULL:$byrole[0];
@@ -35,50 +44,33 @@ class JurnalController extends Controller
         $jurnals = \App\Jurnal::where('id-tipe',$tipe->id)
             ->with('akunDebit')
             ->with('akunKredit')
-            ->orderBy('tanggal','DESC')
-            ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
+            ->orderBy('tanggal','ASC')
+            ->whereDate('tanggal','>=',$dateAwal)
+            ->whereDate('tanggal','<=',$dateAkhir)
             ->get();
         return view('jurnal', [
             'akuns'=>$akuns,
             'currentTipe'=>$tipe,
             'jurnals'=>$jurnals,
-            'date'=>$this->date['date']->format('m/Y'),
+            'dateawal'=>$dateawal_raw,
+            'date'=>$date_raw,
             'byrole'=>$byrole,
             'byroleFilter'=>$this->ROLES_RANK,
         ]);
     }
 
     public function filter(Request $request){
-        
-        $my=Carbon::createFromFormat('m/Y', $request->date);
-        $month = $my->month;
-        $year = $my->year;
-
-        $byrole=array_intersect($this->ROLES_RANK,$request->get('roles'));
-        $byrole=empty($byrole)?NULL:$byrole[0];
-        
         $tipe=$request->get('tipe');
+        $dateAwal=Carbon::createFromFormat('d/m/Y', $request->dateawal);
+        $dateAkhir=Carbon::createFromFormat('d/m/Y', $request->date);
+        $dateAwal=$dateAwal->format('Y-m-d');
+        $dateAkhir=$dateAkhir->format('Y-m-d');
         
-        $akuns = \App\Akun::where('id-tipe',$tipe->id)
-            ->select('id','nama-akun')
-            ->get();
-        $jurnals = \App\Jurnal::where('id-tipe',$tipe->id)
-            
-            ->with('akunDebit')
-            ->with('akunKredit')
-            ->orderBy('tanggal','DESC')
-            ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
-            ->get();
-
-        return view('jurnal', [
-            'akuns'=>$akuns,
-            'currentTipe'=>$tipe,
-            'jurnals'=>$jurnals,
-            'date'=>$request->date,
-            'byrole'=>$byrole,
-            'byroleFilter'=>$this->ROLES_RANK,
+        return redirect()->action( 'JurnalController@index',['tipe'=>$tipe->tipe])->withInput([
+            'dateawal_raw' => $request->dateawal,
+            'date_raw' => $request->date,
+            'dateAwal' => $dateAwal,
+            'dateAkhir' => $dateAkhir,
         ]);
     }
 

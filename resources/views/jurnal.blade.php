@@ -205,9 +205,18 @@ active
             @csrf
             <div class="toolbar row">
                 <div class="col">
-                    <div class="row">
-                        <div class="form-group col-md-3" style="padding-right:0;">    
-                            <input name="date" id="date" type="text" class="form-control monthyearpicker" placeholder="PILIH BULAN" value="{{$date}}">
+                    <div class="row mt-2">
+                        <div class="col-md-3" >    
+                            <div class="form-group" >    
+                                <label for="dateawal" style="top:-16px!important;">Awal</label>
+                                <input name="dateawal" id="dateawal" type="text" class="form-control datepicker" placeholder="PILIH TANGGAL" value="{{$dateawal}}" >
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group" >    
+                                <label for="dateakhir" style="top:-16px!important;">Akhir</label>
+                                <input name="date" id="dateakhir" type="text" class="form-control datepicker" placeholder="PILIH TANGGAL" value="{{$date}}" >
+                            </div>
                         </div>
                         <div class="col" style="padding-left:0;">
                             <button type="submit" class="btn btn-primary btn-round" formaction="{{route('jurnal.filter', ['tipe'=>$currentTipe->tipe])}}"><i class="material-icons">filter_alt</i> Proses</button>    
@@ -273,22 +282,22 @@ active
                 <tbody>
                 @foreach($jurnals as $key=>$j)
                 <tr>
+                    @php
+                    $my=Carbon\Carbon::now();
+                    $m2 = Carbon\Carbon::createFromDate($j->tanggal);
+                    @endphp
                     <td class="dt-control">
                         <button class="btn btn-success btn-round btn-fab btn-sm mr-1">
                         <i class="material-icons">add</i>
                         </button>
                     </td>
-                    <td>{{$j->tanggal}}</td>
+                    <td>{{$m2->format('d/m/Y')}}</td>
                     <td>{{$j->keterangan}}</td>
                     <td>{{$j->akunDebit->{'no-akun'} }}</td>
                     <td>Rp {{ number_format($j->debit, 2) }}</td>
                     <td>{{$j->akunKredit->{'no-akun'} }}</td>
                     <td>Rp {{ number_format($j->kredit, 2) }}</td>
                     <td class="text-right">
-                    @php
-                    $my=Carbon\Carbon::now();
-                    $m2 = Carbon\Carbon::createFromDate($j->tanggal);
-                    @endphp
                     
                     @if($j->validasi==1 && $m2->month != $my->month)
                     <a href="#" class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">lock</i></a>
