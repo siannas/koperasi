@@ -88,4 +88,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('shu/excel/{cmd?}', 'SHUController@excel')->name('shu.excel.gabungan');
     });
     
+    Route::middleware(['role:Supervisor'])->group(function(){
+        Route::get('pengaturan', 'PengaturanController@index')->name('pengaturan.index');
+        Route::put('pengaturan/datelock', 'PengaturanController@updateDateLock')->name('pengaturan.update.datelock');
+    });
 });

@@ -200,6 +200,14 @@ $role = explode(', ', $role);
             </div>
         </li>
         @endif
+        @if(array_intersect(['Supervisor'], $role))
+        <li class="nav-item @yield('pengaturanStatus')">
+            <a class="nav-link" href="{{url('/pengaturan')}}">
+                <i class="material-icons">settings</i>
+                <p> Pengaturan </p>
+            </a>
+        </li>
+        @endif
     </ul>
         </div>
             <div class="sidebar-background"></div>
