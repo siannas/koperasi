@@ -144,45 +144,76 @@ class JurnalObserver
         if( (isset($id_debit) AND isset($validate)===FALSE) OR  (isset($validate) AND $validate===TRUE) ){
             //dapatkan akun yg sesuai
             $akun=\App\Akun::where('id',$id_debit)->with('getKategori:id,tipe-pendapatan')->get(['id','id-tipe','saldo','id-kategori'])[0];
+            $s_back=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal','<',$tanggal_old)->orderBy('tanggal','DESC')->first();
             $s=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal',$tanggal)->first();
-            
+            $s_lainnya=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal','>',$tanggal)->get();
+
+            //pastikan tipe-pendapatan sesuai untuk menjumlah saldo debit
+            ($akun->getKategori->{'tipe-pendapatan'}==='debit') ? $coef=1 : $coef=-1;
+            $newAdditionalSaldo=$coef*$saldo;
+
             if($s === NULL){
                 $s = new \App\Saldo([
-                    'saldo'=>$akun->saldo,
+                    'saldo'=> isset($s_back) ? $s_back->saldo : $akun->saldo,
                     'id-akun'=>$akun->id,
                     'id-tipe'=>$akun->{'id-tipe'},
                     'id-kategori'=>$akun->{'id-kategori'},
                     'tanggal'=>$tanggal
                 ]);
+                $s->saldo+=$newAdditionalSaldo;
+                $s->save();
+            }else{
+                $s->saldo+=$newAdditionalSaldo;
+                $s->save();
+            }
+            
+            if($s_lainnya->isEmpty() === FALSE){
+                // guna mengganti saldo di bulan sebelum seblumnya dan harus loop sampai saldo saat ini
+                foreach ($s_lainnya as $i => $ss) {
+                    $ss->saldo+=$newAdditionalSaldo;
+                    $ss->save();
+                }
             }
 
-            //pastikan tipe-pendapatan sesuai untuk menjumlah saldo debit
-            ($akun->getKategori->{'tipe-pendapatan'}==='debit') ? $coef=1 : $coef=-1;
-            $akun->saldo+=($coef*$saldo);
-            $s->saldo+=($coef*$saldo);
+            $akun->saldo+=($newAdditionalSaldo);
             $akun->save();
-            $s->save();
         }
         if( (isset($id_debit_old) AND isset($validate)===FALSE) OR  (isset($validate) AND $validate===FALSE) ){
             //dapatkan akun yg sesuai
             $akun=\App\Akun::where('id',$id_debit_old)->with('getKategori:id,tipe-pendapatan')->get(['id','id-tipe','saldo','id-kategori'])[0];
+            $s_back=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal','<',$tanggal_old)->orderBy('tanggal','DESC')->first();
             $s=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal',$tanggal_old)->first();
+            $s_lainnya=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal','>',$tanggal_old)->get();
+
+            //pastikan tipe-pendapatan sesuai untuk menjumlah saldo debit
+            ($akun->getKategori->{'tipe-pendapatan'}==='debit') ? $coef=1 : $coef=-1;
+            $newSubstractionSaldo=$coef*$saldo_old;
+
             if($s === NULL){
                 $s = new \App\Saldo([
-                    'saldo'=>$akun->saldo,
+                    'saldo'=> isset($s_back) ? $s_back->saldo : $akun->saldo,
                     'id-akun'=>$akun->id,
                     'id-tipe'=>$akun->{'id-tipe'},
                     'id-kategori'=>$akun->{'id-kategori'},
                     'tanggal'=>$tanggal_old
                 ]);
+                $s->saldo-=$newSubstractionSaldo;            
+                $s->save();
+            }else{
+                $s->saldo-=$newSubstractionSaldo;            
+                $s->save();
+            }
+            
+            if($s_lainnya->isEmpty() === FALSE){
+                // guna mengganti saldo di bulan sebelum seblumnya dan harus loop sampai saldo saat ini
+                foreach ($s_lainnya as $i => $ss) {
+                    $ss->saldo-=$newSubstractionSaldo;
+                    $ss->save();
+                }
             }
 
-            //pastikan tipe-pendapatan sesuai untuk menjumlah saldo debit
-            ($akun->getKategori->{'tipe-pendapatan'}==='debit') ? $coef=1 : $coef=-1;
-            $akun->saldo-=($coef*$saldo_old);
-            $s->saldo-=($coef*$saldo_old);
+            $akun->saldo-=$newSubstractionSaldo;
             $akun->save();
-            $s->save();
         }
     }
 
@@ -195,50 +226,84 @@ class JurnalObserver
      * @param  Float  $saldo_old
      * @return void
      */
-    private function updateSaldoKredit($id_kredit, $saldo, $tanggal, $id_kredit_old, $saldo_old, $tanggal_old){
+    private function updateSaldoKredit($id_kredit, $saldo, $tanggal, $id_kredit_old, $saldo_old, $tanggal_old, $validate=NULL){
         $tanggal = substr($tanggal,0,8)."01";
         $tanggal_old = substr($tanggal_old,0,8)."01";
-        if(isset($id_kredit)){
+        if((isset($id_kredit) AND isset($validate)===FALSE) OR  (isset($validate) AND $validate===TRUE)){
             //dapatkan akun yg sesuai
             $akun=\App\Akun::where('id',$id_kredit)->with('getKategori:id,tipe-pendapatan')->get(['id','id-tipe','saldo','id-kategori'])[0];
+            $s_back=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal','<',$tanggal)->orderBy('tanggal','DESC')->first();
             $s=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal',$tanggal)->first();
+            $s_lainnya=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal','>',$tanggal)->get();
+
+            //pastikan tipe-pendapatan sesuai untuk menjumlah saldo debit
+            ($akun->getKategori->{'tipe-pendapatan'}==='kredit') ? $coef=1 : $coef=-1;
+            $newAdditionalSaldo=$coef*$saldo;
+
             if($s === NULL){
                 $s = new \App\Saldo([
-                    'saldo'=>$akun->saldo,
+                    'saldo'=> isset($s_back) ? $s_back->saldo : $akun->saldo,
                     'id-akun'=>$akun->id,
                     'id-tipe'=>$akun->{'id-tipe'},
                     'id-kategori'=>$akun->{'id-kategori'},
                     'tanggal'=>$tanggal
                 ]);
+                $s->saldo+=$newAdditionalSaldo;
+                $s->save();
+            }else{
+                $s->saldo+=$newAdditionalSaldo;
+                $s->save();
             }
+            
+            if($s_lainnya->isEmpty() === FALSE){
+                // guna mengganti saldo di bulan sebelum seblumnya dan harus loop sampai saldo saat ini
+                foreach ($s_lainnya as $i => $ss) {
+                    $ss->saldo+=$newAdditionalSaldo;
+                    $ss->save();
+                }
+            }
+
+            $akun->saldo+=$newAdditionalSaldo;
+            $akun->save();
+        }
+        if((isset($id_kredit_old) AND isset($validate)===FALSE) OR  (isset($validate) AND $validate===FALSE) ){
+            Log::debug('kredit old '.$id_kredit_old);
+            Log::debug($validate);
+            //dapatkan akun yg sesuai
+            $akun=\App\Akun::where('id',$id_kredit_old)->with('getKategori:id,tipe-pendapatan')->get(['id','id-tipe','saldo','id-kategori'])[0];
+            $s_back=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal','<',$tanggal_old)->orderBy('tanggal','DESC')->first();
+            $s=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal',$tanggal_old)->first();
+            $s_lainnya=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal','>',$tanggal_old)->get();
 
             //pastikan tipe-pendapatan sesuai untuk menjumlah saldo debit
             ($akun->getKategori->{'tipe-pendapatan'}==='kredit') ? $coef=1 : $coef=-1;
-            $akun->saldo+=($coef*$saldo);
-            $s->saldo+=($coef*$saldo);
-            $akun->save();
-            $s->save();
-        }
-        if(isset($id_kredit_old)){
-            //dapatkan akun yg sesuai
-            $akun=\App\Akun::where('id',$id_kredit_old)->with('getKategori:id,tipe-pendapatan')->get(['id','id-tipe','saldo','id-kategori'])[0];
-            $s=\App\Saldo::where('id-akun',$akun->id)->whereDate('tanggal',$tanggal_old)->first();
+            $newSubstractionSaldo=$coef*$saldo_old;
+
             if($s === NULL){
                 $s = new \App\Saldo([
-                    'saldo'=>$akun->saldo,
+                    'saldo'=> isset($s_back) ? $s_back->saldo : $akun->saldo,
                     'id-akun'=>$akun->id,
                     'id-tipe'=>$akun->{'id-tipe'},
                     'id-kategori'=>$akun->{'id-kategori'},
                     'tanggal'=>$tanggal_old
                 ]);
+                $s->saldo-=$newSubstractionSaldo;
+                $s->save();
+            }else{
+                $s->saldo-=$newSubstractionSaldo;
+                $s->save();
+            }
+            
+            if($s_lainnya->isEmpty() === FALSE){
+                // guna mengganti saldo di bulan sebelum seblumnya dan harus loop sampai saldo saat ini
+                foreach ($s_lainnya as $i => $ss) {
+                    $ss->saldo-=$newSubstractionSaldo;
+                    $ss->save();
+                }
             }
 
-            //pastikan tipe-pendapatan sesuai untuk menjumlah saldo debit
-            ($akun->getKategori->{'tipe-pendapatan'}==='kredit') ? $coef=1 : $coef=-1;
-            $akun->saldo-=($coef*$saldo_old);
-            $s->saldo-=($coef*$saldo_old);
+            $akun->saldo-=$newSubstractionSaldo;
             $akun->save();
-            $s->save();
         }
     }
 }

@@ -283,7 +283,6 @@ active
                 @foreach($jurnals as $key=>$j)
                 <tr>
                     @php
-                    $my=Carbon\Carbon::now();
                     $m2 = Carbon\Carbon::createFromDate($j->tanggal);
                     @endphp
                     <td class="dt-control">
@@ -299,7 +298,7 @@ active
                     <td>Rp {{ number_format($j->kredit, 2) }}</td>
                     <td class="text-right">
                     
-                    @if($j->validasi==1 && $m2->month != $my->month)
+                    @if($j->validasi==1 && $m2->lessThan($datelock))
                     <a href="#" class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">lock</i></a>
                     @elseif(in_array('Supervisor', $role) && $j->validasi==1)
                     <a href="#" class="btn btn-link text-warning btn-just-icon unvalidasi" data-toggle="modal" data-target="#modalValidasi" data-id="{{$j->id}}"><i class="material-icons">lock_open</i></a>

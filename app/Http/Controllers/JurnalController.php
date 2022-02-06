@@ -32,6 +32,9 @@ class JurnalController extends Controller
             $dateawal_raw=$old['dateawal_raw'];
             $date_raw=$old['date_raw'];
         }
+
+        $datelock = \App\Meta::where('key','setting_datelock')->pluck('value')->first();
+        $datelock = Carbon::parse($datelock)->addMonth();
         
         $tipe=$request->get('tipe');
 
@@ -56,6 +59,7 @@ class JurnalController extends Controller
             'date'=>$date_raw,
             'byrole'=>$byrole,
             'byroleFilter'=>$this->ROLES_RANK,
+            'datelock'=>$datelock,
         ]);
     }
 
@@ -113,15 +117,18 @@ class JurnalController extends Controller
             
             $jurnal->{'id-tipe'} = $tipe->id;
             $jurnal->tanggal = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->format('Y-m-d');
-            $bulan = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->month;
+            $date = Carbon::createFromFormat('d/m/Y', $data['tanggal']);
+            $datelock = \App\Meta::where('key','setting_datelock')->pluck('value')->first();
+            $datelock = Carbon::parse($datelock)->addMonth();
             
             // Jika pengisian lebih dari today
             if($jurnal->tanggal > $today){
                 $this->flashError('Tanggal Melebihi Hari Ini: '.$today->isoFormat('D MMMM Y'));
                 return redirect(url('/'.$tipe->tipe.'/jurnal'));
             }
-            // Jika selisih pengisian & today lebih dari 14 hari
-            elseif($bulan != Carbon::today()->month){
+            // Jika selisih pengisian & today lebih dari DATE LOCK
+            elseif($date->lessThan($datelock)){
+                
                 $this->flashError('Tanggal Sudah Melewati Batas Waktu Pengisian');
                 return redirect(url('/'.$tipe->tipe.'/jurnal'));
             }
