@@ -237,7 +237,7 @@ class JurnalController extends Controller
 
     public function excel(Request $request){
         
-        $my=Carbon::createFromFormat('m/Y', $request->date);
+        $my=Carbon::createFromFormat('d/m/Y', $request->date);
         $month = $my->month;
         $year = $my->year;
         
