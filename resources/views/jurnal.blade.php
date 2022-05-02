@@ -29,7 +29,7 @@ active
             <i class="material-icons">clear</i>
             </button>
         </div>
-        <form class="form-horizontal input-margin-additional" method="POST" action="{{route('jurnal.store', ['tipe'=>$currentTipe->tipe])}}">
+        <form class="form-horizontal input-margin-additional" method="POST" action="{{route('jurnal.store', ['tipe'=>$currentTipe->tipe]).'?dateawal='.$dateawal.'&date='.$date}}">
             @csrf
         <div class="modal-body">
                 <div class="form-group">
@@ -174,7 +174,7 @@ active
         <div class="modal-body text-center">
             <p id="peringatanValidasi"></p>
         </div>
-        <form id="formValidasi" method="POST" action="{{ route('jurnal.validasi', ['tipe'=>$currentTipe->tipe]) }}">
+        <form id="formValidasi" method="POST" action="{{ route('jurnal.validasi', ['tipe'=>$currentTipe->tipe]).'?dateawal='.$dateawal.'&date='.$date }}">
         @csrf
             <div class="modal-footer justify-content-center" id="btnValidasi">
                 <button type="button" class="btn btn-link" data-dismiss="modal">Tidak</button>
@@ -201,7 +201,7 @@ active
             <h4 class="card-title">Jurnal {{ucwords($currentTipe->tipe)}}</h4>
         </div>
         <div class="card-body">
-            <form action="{{route('jurnal.filter', ['tipe'=>$currentTipe->tipe])}}" method="POST">
+            <form action="{{route('jurnal.filter', ['tipe'=>$currentTipe->tipe]).'?dateawal='.$dateawal.'&date='.$date}}" method="POST">
             @csrf
             <div class="toolbar row">
                 <div class="col">
@@ -219,14 +219,14 @@ active
                             </div>
                         </div>
                         <div class="col" style="padding-left:0;">
-                            <button type="submit" class="btn btn-primary btn-round" formaction="{{route('jurnal.filter', ['tipe'=>$currentTipe->tipe])}}"><i class="material-icons">filter_alt</i> Proses</button>    
+                            <button type="submit" class="btn btn-primary btn-round" formaction="{{route('jurnal.filter', ['tipe'=>$currentTipe->tipe]).'?dateawal='.$dateawal.'&date='.$date }}"><i class="material-icons">filter_alt</i> Proses</button>    
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4 text-right">
                     <button type="submit" class="btn btn-success btn-sm" formaction="{{url($currentTipe->tipe.'/jurnal/excel')}}">Download</button>
                     @if(!array_intersect($role, ['Supervisor', 'Admin']))
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalTambah">Tambah</button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="onTambah(this)">Tambah</button>
                     @endif
                     @if(in_array('Supervisor', $role))
                     <button type="button" class="btn btn-warning btn-sm validasi" data-toggle="modal" data-target="#modalValidasi" >Validasi</button>
@@ -315,10 +315,11 @@ active
                     </div>
                     @else
                         @if(!array_intersect($role, ['Supervisor', 'Spesial']) && $j->{'by-role'} !== $byrole)
-                        <a href="#" class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">block</i></a>
+                        <button class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">block</i></button>
                         @else
-                        <a href="#" class="btn btn-link btn-warning btn-just-icon edit btn-sm" key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></a>
-                        <a href="#" class="btn btn-link btn-danger btn-just-icon remove btn-sm" key="{{$key}}" onclick="onDelete(this)"><i class="material-icons">delete</i></a>
+                        <button data-toggle="tooltip" data-placement="left" title="Edit" class="btn btn-link btn-warning btn-just-icon edit btn-sm" key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></button>
+                        <button data-toggle="tooltip" data-placement="left" title="Delete" class="btn btn-link btn-danger btn-just-icon remove btn-sm" key="{{$key}}" onclick="onDelete(this)"><i class="material-icons">delete</i></button>
+                        <button data-toggle="tooltip" data-placement="left" title="Duplicate" class="btn btn-link btn-danger btn-just-icon duplicate btn-sm" key="{{$key}}" onclick="onDuplicate(this)"><i class="material-icons">content_copy</i></button>
                         @endif
                     @endif
                     
@@ -360,7 +361,7 @@ function onEdit(self) {
     $modal.find('[name=debit-dummy]').val(j['debit']).change().blur();
     $modal.find('[name=id-kredit]').val(j['id-kredit']).change();
     $modal.find('[name=kredit-dummy]').val(j['kredit']).change().blur();
-    $modal.find('form').attr('action', "{{route('jurnal.update', ['tipe'=>$currentTipe->tipe , 'jurnal'=>''])}}/"+j['id']);
+    $modal.find('form').attr('action', "{{route('jurnal.update', ['tipe'=>$currentTipe->tipe , 'jurnal'=>''])}}/"+j['id']+"?"+"dateawal="+dateawal+"&"+"date="+date);
     $modal.modal('show');
 } 
 
@@ -370,11 +371,78 @@ function onDelete(self) {
     var j = myJurnals[key];
     $modal=$('#modalDelete');
 
-    $modal.find('form').attr('action', "{{route('jurnal.destroy', ['tipe'=>$currentTipe->tipe , 'jurnal'=>''])}}/"+j['id']);
+    $modal.find('form').attr('action', "{{route('jurnal.destroy', ['tipe'=>$currentTipe->tipe , 'jurnal'=>''])}}/"+j['id']+"?"+"dateawal="+dateawal+"&"+"date="+date);
+    $modal.modal('show');
+} 
+
+//ketika klik duplicate
+function onDuplicate(self) {
+    var key = $(self).attr('key');
+    var j = myJurnals[key];
+    var $modal=$('#modalTambah');
+    
+    $modal.find('[name=tanggal]').val(moment(j['tanggal']).format('L')).change();
+    $modal.find('[name=keterangan]').val(j['keterangan']).change();
+    $modal.find('[name=id-debit]').val(j['id-debit']).change();
+    $modal.find('[name=debit-dummy]').val(j['debit']).change().blur();
+    $modal.find('[name=id-kredit]').val(j['id-kredit']).change();
+    $modal.find('[name=kredit-dummy]').val(j['kredit']).change().blur();
+    $modal.find('.modal-title').text('Duplikasi Jurnal');
+    $modal.modal('show');
+} 
+
+//ketika klik tambah
+function onTambah(self) {
+    var $modal=$('#modalTambah');
+    
+    $modal.find('[name=tanggal]').val('').change();
+    $modal.find('[name=keterangan]').val('').change();
+    $modal.find('[name=id-debit]').val('').change();
+    $modal.find('[name=id-kredit]').val('').change();
+
+    $modal.find('[name=debit-dummy]')[0].oldValue = null;
+    $modal.find('[name=kredit-dummy]')[0].oldValue = null;
+
+    $modal.find('[name=kredit-dummy]').val('').change();   
+    $modal.find('[name=debit-dummy]').val('').change().blur();
+
+    $modal.find('.modal-title').text('Tambah Jurnal');
     $modal.modal('show');
 } 
 
 $(document).ready(function() {
+    $('[data-toggle="tooltip"]').tooltip()
+
+    // KONTROL STATE DATE FILTER
+    let dateawal, date;
+    if(localStorage.date){
+        dateawal =localStorage.dateawal;
+        date = localStorage.date;
+
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        let dateParam = urlParams.get('date');
+        let dateawalParam = urlParams.get('dateawal');
+
+        if( !dateParam || !dateawalParam){
+            console.log(dateParam, dateawalParam, date, dateawal);
+            window.location.replace(location.pathname.split( '?' )[0]+"?"+"dateawal="+dateawal+"&"+"date="+date);
+        }else if(date != dateParam || dateawal != dateawalParam){
+            localStorage.setItem('dateawal', dateawalParam);
+            localStorage.setItem('date', dateParam);
+            dateawal =dateawalParam;
+            date = dateParam;
+        }
+
+    }else{
+        dateawal = @json($dateawal);
+        date = @json($date);
+        localStorage.setItem('dateawal', dateawal);
+        localStorage.setItem('date', date);
+    }
+    window.history.replaceState('', '', location.pathname.split( '?' )[0]+"?"+"dateawal="+dateawal+"&"+"date="+date);
+    // END of KONTROL STATE DATE FILTER
+
     my.initFormExtendedDatetimepickers();
     if ($('.slider').length != 0) {
         md.initSliders();
@@ -435,19 +503,28 @@ $(document).ready(function() {
     // });
 
     const debitSamaDenganKredit = function(self, $target){
+        var raw;
         var curval= self.value.replace(/Rp|,/g, "");
-        if (curval.trim()==='' && self.hasOwnProperty("oldValue")) {   //is it valid float number?
-            curval= self.oldValue.replace(/Rp|,/g, "");
+
+        try {
+            if (curval.trim()==='' && self.hasOwnProperty("oldValue")) {   //is it valid float number?
+                curval= self.oldValue.replace(/Rp|,/g, "");
+            }
+
+            raw=parseFloat(curval).toFixed(2);
+        } catch (error) {
+            raw='';
         }
-        var raw=parseFloat(curval).toFixed(2);
         self.nextSibling.nextSibling.value=raw;
 
         $target.val(self.value).change().blur();
         $target[0].nextSibling.nextSibling.value=raw;
     }
     
-    $('#debit').focusout(function(e) {debitSamaDenganKredit(e.target, $('#kredit'));});
-    $('#debit-edit').focusout(function(e) {debitSamaDenganKredit(e.target, $('#kredit-edit'));});
+    //PADA MODAL TAMBAH
+    $('#debit').focusout(function(e) { debitSamaDenganKredit(e.target, $('#kredit')) } );
+    //PADA MODAL EDIT
+    $('#debit-edit').focusout(function(e) { debitSamaDenganKredit(e.target, $('#kredit-edit')) } );
 
     //event pada tags filter
     $(".filter-tags").each(function(){
@@ -493,7 +570,7 @@ $(document).ready(function() {
             allVals.push($(this).attr('data-id'));
         });
         var sum_jurnal = allVals.length;
-        console.log(allVals);
+        
         var mainContainer = document.getElementById("peringatanValidasi");
         var submit = document.getElementById("btnValidasi");
 
