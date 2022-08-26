@@ -337,14 +337,14 @@ class NeracaController extends Controller
         $month = $this->date['m'];
         $year = $this->date['y'];
         $filter = Carbon::instance($this->date['date']);
-        $filter->day = 1;
+        // $filter->day = 1;
         if($request->input('date')){
             $my=Carbon::createFromFormat('m/Y', $request->input('date'));
             $month = $my->month;
             $year = $my->year;
             $filter=$my;
         }
-        
+        $filter->day = 1;
         $saldosIds=\App\Saldo::select(DB::raw('COUNT(`id-akun`) cnt'),DB::raw('MAX(`id`) id'))
             ->whereDate('tanggal','<',$filter->format('Y-m-d'))
             ->groupBy('id-akun')->pluck('id');
