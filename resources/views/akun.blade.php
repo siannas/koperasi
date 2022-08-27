@@ -75,11 +75,13 @@ active
         <form action="{{route('akun.update', [$unit->id])}}" class="form-horizontal" method="post">
         @csrf
         @method('PUT')
+        <input type="hidden" name="id-tipe">
+        <input type="hidden" name="id-kategori">
         <div class="modal-body">
             <div class="row">
                 <div class="col">
                     <div class="form-group is-filled">
-                        <select name="id-tipe" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe" required disabled>
+                        <select name="id-tipe-selector" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe" required disabled>
                             @foreach($tipe as $unitTipe) 
                             <option value="{{$unitTipe->id}}">{{ucwords($unitTipe->tipe)}}</option> 
                             @endforeach
@@ -88,7 +90,7 @@ active
                 </div>
                 <div class="col">
                     <div class="form-group is-filled">
-                        <select name="id-kategori" class="selectpicker" data-style="btn btn-primary btn-round" title="Kategori" required disabled>
+                        <select name="id-kategori-selector" class="selectpicker" data-style="btn btn-primary btn-round" title="Kategori" required disabled>
                             @foreach($kategori as $unitKategori) 
                             <option value="{{$unitKategori->id}}">{{ucwords($unitKategori->kategori)}}</option> 
                             @endforeach
@@ -105,8 +107,8 @@ active
                 <input id="nama_akun" name="nama-akun" type="text" class="form-control" required>
             </div>
             <div class="form-group">
-                <label for="saldo" class="bmd-label-floating">Saldo</label>
-                <input id="_saldo" name="saldo" type="text" class="form-control rupiah-input" readonly required>
+                <label for="saldo" class="bmd-label-floating">Saldo AWAL</label>
+                <input id="_saldo" name="saldo" type="text" class="form-control rupiah-input" required>
                 <input type="hidden" readonly name="saldo" required>
             </div>
         </div>
@@ -168,6 +170,7 @@ active
                     <th data-priority="3">Kategori</th>
                     <th data-priority="2">No Akun</th>
                     <th data-priority="1">Nama Akun</th>
+                    <th data-priority="4">Saldo Awal</th>
                     <th data-priority="4">Saldo</th>
                     <th data-priority="1" class="disabled-sorting text-right">Aksi</th>
                 </tr>
@@ -178,6 +181,7 @@ active
                     <th>Kategori</th>
                     <th>No Akun</th>
                     <th>Nama Akun</th>
+                    <th>Saldo Awal</th>
                     <th>Saldo</th>
                     <th class="text-right">Aksi</th>
                 </tr>
@@ -189,6 +193,7 @@ active
                     <td>{{ucwords($unit->getKategori->kategori)}}</td>
                     <td>{{$unit->{'no-akun'} }}</td>
                     <td>{{$unit->{'nama-akun'} }}</td>
+                    <td>Rp {{ number_format($unit->saldoawal,2) }}</td>
                     <td>Rp {{ number_format($unit->saldo,2) }}</td>
                     <td class="text-right">
                         <button type="button" class="btn btn-sm btn-link btn-warning btn-just-icon edit" 
@@ -222,14 +227,16 @@ var myAkuns = @json($akun);
 function onEdit(self) {
     var key = $(self).attr('key');
     var j = myAkuns[key];
+    console.log(j);
     $modal=$('#editAkun');
-    console.log(self);
 
-    $modal.find('[name=id-tipe]').val(j['id-tipe']).change();
-    $modal.find('[name=id-kategori]').val(j['id-kategori']).change();
+    $modal.find('[name=id-tipe]').val(j['id-tipe']);
+    $modal.find('[name=id-kategori]').val(j['id-kategori']);
+    $modal.find('[name=id-tipe-selector]').val(j['id-tipe']).change();
+    $modal.find('[name=id-kategori-selector]').val(j['id-kategori']).change();
     $modal.find('[name=no-akun]').val(j['no-akun']).change();
     $modal.find('[name=nama-akun]').val(j['nama-akun']).change();
-    $modal.find('[name=saldo]').val(j['saldo']).change().blur();
+    $modal.find('[name=saldo]').val(j['saldoawal']).change().blur();
     $modal.find('form').attr('action', "{{route('akun.update', ['akun'=>''])}}/"+j['id']);
     $modal.modal('show');
 }
