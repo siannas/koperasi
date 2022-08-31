@@ -135,18 +135,18 @@ class NeracaController extends Controller
         $total_saldo_berjalan=0;
         $total_saldo_awal=0;
         foreach($d['kategoris_debit'] as $k => $kd){
-            if($kd->getAkun->isEmpty() === false){
+            if($kd->getAkun()->get()->isEmpty() === false){
                 $saldo_berjalan=0;
                 $saldo_awal=0;
 
                 $visited=[];
                 $visited2=[];
-                foreach($kd->getAkun as $akun){
+                foreach($kd->getAkun()->get() as $akun){
                     $visited[ $akun->{'nama-akun'} ][]=$akun->id;
                 }
                 // display per kategori
                 $now=$walk;
-                foreach($kd->getAkun as $akun){
+                foreach($kd->getAkun()->get() as $akun){
                     // pastikan nama akun belum di-visit (guna view gabungan untuk nama akun yg sama)
                     if(array_key_exists($akun->{'nama-akun'} , $visited2) === FALSE){
                         $walk++;
@@ -207,18 +207,18 @@ class NeracaController extends Controller
         $total_saldo_berjalan=0;
         $total_saldo_awal=0;
         foreach($d['kategoris_kredit'] as $k => $kd){
-            if($kd->getAkun->isEmpty() === false){
+            if($kd->getAkun()->get()->isEmpty() === false){
                 $saldo_berjalan=0;
                 $saldo_awal=0;
 
                 $visited=[];
                 $visited2=[];
-                foreach($kd->getAkun as $akun){
+                foreach($kd->getAkun()->get() as $akun){
                     $visited[ $akun->{'nama-akun'} ][]=$akun->id;
                 }
                 // display per kategori kewajiban
                 $now=$walk;
-                foreach($kd->getAkun as $akun){
+                foreach($kd->getAkun()->get() as $akun){
                     if (array_key_exists($akun->{'nama-akun'}, $visited2) === false) {
                         $walk++;
 
