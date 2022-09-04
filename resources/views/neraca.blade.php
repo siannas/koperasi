@@ -118,7 +118,7 @@ active
                         $total_saldo_awal=0;
                         @endphp
                         @foreach($kategoris_debit as $k => $kd)
-                        @if($kd->getAkun->isEmpty() === false)
+                        @if($kd->getAkun()->get()->isEmpty() === false)
                         @php
                         $saldo_berjalan=0;
                         $saldo_awal=0;
@@ -139,11 +139,11 @@ active
                         @php
                         $visited=[];
                         $visited2=[];
-                        foreach($kd->getAkun as $akun){
+                        foreach($kd->getAkun()->get() as $akun){
                             $visited[ $akun->{'nama-akun'} ][]=$akun->id;
                         }
                         @endphp
-                        @foreach($kd->getAkun as $akun)
+                        @foreach($kd->getAkun()->get() as $akun)
                         @if(array_key_exists($akun->{'nama-akun'} , $visited2) === FALSE)
                         @php
                         $awal=0;
@@ -215,7 +215,7 @@ active
                         $total_saldo_awal=0;
                         @endphp
                         @foreach($kategoris_kredit as $k => $kd)
-                        @if($kd->getAkun->isEmpty() === false)
+                        @if($kd->getAkun()->get()->isEmpty() === false)
                         @php
                         $saldo_berjalan=0;
                         $saldo_awal=0;
@@ -236,11 +236,11 @@ active
                         @php
                         $visited=[];
                         $visited2=[];
-                        foreach($kd->getAkun as $akun){
+                        foreach($kd->getAkun()->get() as $akun){
                             $visited[ $akun->{'nama-akun'} ][]=$akun->id;
                         }
                         @endphp
-                        @foreach($kd->getAkun as $akun)
+                        @foreach($kd->getAkun()->get() as $akun)
                         @if(array_key_exists($akun->{'nama-akun'} , $visited2) === FALSE)
                         @php
                         $awal=0;
