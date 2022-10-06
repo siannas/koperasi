@@ -93,6 +93,8 @@ active
             @method('PUT')
             @csrf
         <div class="modal-body">
+        <input type="hidden" class="form-control datepicker" id="date" name="dateawal" value="{{$dateawal}}">
+        <input type="hidden" class="form-control datepicker" id="date" name="date" value="{{$date}}">
             <div class="form-group">
                 <input type="text" class="form-control datepicker" id="date" name="tanggal" required>
             </div>
