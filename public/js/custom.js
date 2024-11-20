@@ -99,5 +99,15 @@ const my = {
     
           }
         });
+
+        $(".yearpicker").datetimepicker( {
+          viewMode: 'years',
+          format: 'YYYY'
+        });
+
+        $(".monthpicker").datetimepicker( {
+          viewMode: 'months',
+          format: 'MMMM',
+        });
     },
 }

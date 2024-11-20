@@ -49,8 +49,14 @@ active
                         @endif
                         @csrf
                         <div class="form-group d-inline-block">
-                            <input name="date" type="text" class="form-control monthyearpicker" value="{{$date}}" id="date-filter">
+                            <input required name="date_month" autocomplete="off" type="text" class="form-control monthpicker" value="{{$month}}">
                         </div>
+                        <div class="form-group d-inline-block">
+                            <input required name="date_year" autocomplete="off" type="text" class="form-control yearpicker" value="{{$year}}">
+                        </div>
+                        <!-- <div class="form-group d-inline-block">
+                            <input name="date" type="text" class="form-control monthyearpicker" value="{{$date}}" id="date-filter">
+                        </div> -->
                         <button type="submit" class="btn btn-primary btn-round"><i class="material-icons">filter_alt</i> Proses</button>
                         </form>
                     </div>

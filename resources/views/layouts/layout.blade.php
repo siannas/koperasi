@@ -129,6 +129,7 @@ $role = explode(', ', $role);
   <script src="{{asset('public/js/plugins/perfect-scrollbar.min.js')}}"></script>
   <!-- Plugin for the momentJs  -->
   <script src="{{asset('public/js/plugins/moment.min.js')}}"></script>
+  <script src="{{asset('public/js/plugins/id.min.js')}}"></script>
   <!-- Forms Validations Plugin -->
   <script src="{{asset('public/js/plugins/jquery.validate.min.js')}}"></script>
   <!-- Plugin for the Wizard, full documentation here: https://github.com/VinceG/twitter-bootstrap-wizard -->
@@ -136,7 +137,7 @@ $role = explode(', ', $role);
   <!--	Plugin for Select, full documentation here: http://silviomoreto.github.io/bootstrap-select -->
   <script src="{{asset('public/js/plugins/bootstrap-selectpicker.js')}}"></script>
   <!--  Plugin for the DateTimePicker, full documentation here: https://eonasdan.github.io/bootstrap-datetimepicker/ -->
-  <script src="{{asset('public/js/plugins/bootstrap-datetimepicker.min.js')}}"></script>
+  <script src="{{asset('public/js/plugins/bootstrap-datetimepicker.js')}}"></script>
   <!--  DataTables.net Plugin, full documentation here: https://datatables.net/  -->
   <script src="{{asset('public/js/plugins/jquery.dataTables.min.js')}}"></script>
   <!--	Plugin for Tags, full documentation here: https://github.com/bootstrap-tagsinput/bootstrap-tagsinputs  -->
@@ -162,8 +163,8 @@ $role = explode(', ', $role);
   <!-- custom script -->
   <script src="{{asset('public/js/custom.js')}}" type="text/javascript"></script>
   <!-- Moment JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/id.min.js" integrity="sha512-he8U4ic6kf3kustvJfiERUpojM8barHoz0WYpAUDWQVn61efpm3aVAD8RWL8OloaDDzMZ1gZiubF9OSdYBqHfQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/id.min.js" integrity="sha512-he8U4ic6kf3kustvJfiERUpojM8barHoz0WYpAUDWQVn61efpm3aVAD8RWL8OloaDDzMZ1gZiubF9OSdYBqHfQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
 
   
   <script>
@@ -175,6 +176,9 @@ $role = explode(', ', $role);
 
       //input rupiah
       $('.rupiah-input').blur(my.inputToRupiah);
+
+      //moment global locale id
+      moment.locale('id');
     });
   </script>
 

@@ -338,8 +338,14 @@ class NeracaController extends Controller
         $year = $this->date['y'];
         $filter = Carbon::instance($this->date['date']);
         // $filter->day = 1;
-        if($request->input('date')){
-            $my=Carbon::createFromFormat('m/Y', $request->input('date'));
+        // if($request->input('date')){
+        //     $my=Carbon::createFromFormat('m/Y', $request->input('date'));
+        //     $month = $my->month;
+        //     $year = $my->year;
+        //     $filter=$my;
+        // }
+        if($request->post('date_month')){
+            $my=Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->post('date_month') . "/" . $request->post('date_year'));
             $month = $my->month;
             $year = $my->year;
             $filter=$my;
@@ -438,6 +444,8 @@ class NeracaController extends Controller
         return [
             'currentTipe'=>$tipe,
             'date'=> $month.'/'.$year,
+            'month'=> $filter->localeMonth,
+            'year' => $year,
             'kategoris_debit' => $kategoris_debit,
             'kategoris_kredit' => $kategoris_kredit,
             'jurnal_debit' => $jurnal_debit,
@@ -457,8 +465,8 @@ class NeracaController extends Controller
         $year = $this->date['y'];
         $filter = Carbon::instance($this->date['date']);
         // $filter->day = 1;
-        if($request->input('date')){
-            $my=Carbon::createFromFormat('m/Y', $request->input('date'));
+        if($request->post('date_month')){
+            $my=Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->post('date_month') . "/" . $request->post('date_year'));
             $month = $my->month;
             $year = $my->year;
             $filter=$my;
@@ -510,6 +518,8 @@ class NeracaController extends Controller
         return [
             'currentTipe'=>NULL,
             'date'=> $month.'/'.$year,
+            'month'=> $filter->localeMonth,
+            'year' => $year,
             'kategoris_debit' => $kategoris_debit,
             'kategoris_kredit' => $kategoris_kredit,
             'jurnal_debit' => $jurnal_debit,

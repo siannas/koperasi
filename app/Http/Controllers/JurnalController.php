@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -381,5 +382,15 @@ class JurnalController extends Controller
         $writer->save('php://output');
         exit;
         
+    }
+
+    public function jurnalImport(Request $request)
+    {
+        try {
+            $service = new \App\Http\Controllers\Jurnal\JurnalImport($request);
+            $service->execute();
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
     }
 }
