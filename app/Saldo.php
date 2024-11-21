@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Saldo extends Model
 {
+    use \Staudenmeir\LaravelUpsert\Eloquent\HasUpsertQueries;
+    
     protected $table = 'saldo';
     
     public $timestamps = false;
@@ -19,6 +21,7 @@ class Saldo extends Model
         'id-tipe',
         'id-akun',
         'id-kategori',
+        'saldo_awal',
         'saldo',
         'tanggal',
     ];

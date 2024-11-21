@@ -96,7 +96,7 @@ active
 
 @section('script')
 <!--	Plugin for Tags, full documentation here: https://github.com/bootstrap-tagsinput/bootstrap-tagsinputs  -->
-<script src="{{asset('public/js/plugins/bootstrap-tagsinput.js')}}"></script>
+<script src="{{asset('js/plugins/bootstrap-tagsinput.js')}}"></script>
 <script>
 var table;
 

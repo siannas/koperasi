@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Carbon\Carbon;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\DB;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
         \App\Jurnal::observe(\App\Observers\JurnalObserver::class);
 
         Carbon::setLocale(config('app.locale'));
+
+        DB::statement("SET SQL_MODE= ''");
 
         view()->composer('*', function ($view) {
             $view->with('tipe', \App\Tipe::all());

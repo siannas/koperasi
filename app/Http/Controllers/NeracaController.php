@@ -47,7 +47,7 @@ class NeracaController extends Controller
 
         // KOP
         $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-        $drawing->setPath( $cmd==='view-gabungan' ? asset('public/img/logo.png') : 'public/img/logo.png');
+        $drawing->setPath( $cmd==='view-gabungan' ? asset('img/logo.png') : 'public/img/logo.png');
         $drawing->setCoordinates('C1');
         $drawing->setOffsetX(70);
         $drawing->setOffsetY(5);
@@ -344,7 +344,7 @@ class NeracaController extends Controller
         //     $year = $my->year;
         //     $filter=$my;
         // }
-        if($request->post('date_month')){
+        if($request->input('date_month')){
             $my=Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->post('date_month') . "/" . $request->post('date_year'));
             $month = $my->month;
             $year = $my->year;

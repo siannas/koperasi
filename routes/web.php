@@ -13,7 +13,7 @@
 
 Auth::routes();
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth'])->prefix('{tahun}')->group(function () {
     Route::get('/', 'DashboardController@dashboard');
 
     Route::prefix('{tipe}')->middleware(['customize.parameter'])->group(function(){
@@ -49,7 +49,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('jurnal/validasi', 'JurnalController@validasi')->name('jurnal.validasi');
 
             Route::get('neraca', 'NeracaController@index')->name('neraca.index');
-            Route::post('neraca', 'NeracaController@index')->name('neraca.filter');
+            Route::get('neraca', 'NeracaController@index')->name('neraca.filter');
             Route::post('neraca/excel/{cmd?}', 'NeracaController@excel')->name('neraca.excel');
 
             Route::get('buku-besar', 'BukuBesarController@index');
@@ -80,7 +80,7 @@ Route::middleware(['auth'])->group(function () {
     */
     Route::middleware(['role:Spesial,Supervisor'])->group(function(){
         Route::get('neraca', 'NeracaController@index')->name('neraca.index.gabungan');
-        Route::post('neraca', 'NeracaController@index')->name('neraca.filter.gabungan');
+        Route::get('neraca', 'NeracaController@index')->name('neraca.filter.gabungan');
         Route::post('neraca/excel/{cmd?}', 'NeracaController@excel')->name('neraca.excel.gabungan');
 
         Route::get('shu', 'SHUController@index')->name('shu.index.gabungan');

@@ -6,12 +6,15 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\View;
 
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     protected $date;
+    protected $year;
+
     /**
      * Instantiate a new Controller instance.
      */
@@ -26,6 +29,11 @@ class Controller extends BaseController
          'm'=>intval($m),
          'y'=>intval($Y),
       ];
+      $this->year = date('Y');
+      if (request()->cookie('tahun')) {
+         $this->year = request()->cookie('tahun');
+      }
+      View::share('year', $this->year);
    }
 
     public function flashSuccess($message) {

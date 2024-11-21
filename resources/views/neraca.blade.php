@@ -43,11 +43,10 @@ active
                 <div class="row ">
                     <div class="col-6">
                         @if($currentTipe)
-                        <form action="{{route('neraca.filter', ['tipe' => $currentTipe->tipe])}}" method="POST">
+                        <form action="{{route('neraca.filter', ['tipe' => $currentTipe->tipe])}}" method="GET">
                         @else
-                        <form action="{{route('neraca.filter.gabungan')}}" method="POST">
+                        <form action="{{route('neraca.filter.gabungan')}}" method="GET">
                         @endif
-                        @csrf
                         <div class="form-group d-inline-block">
                             <input required name="date_month" autocomplete="off" type="text" class="form-control monthpicker" value="{{$month}}">
                         </div>

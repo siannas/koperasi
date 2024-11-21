@@ -46,7 +46,7 @@ class SHUController extends Controller
 
         // KOP
         $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-        $drawing->setPath( $cmd==='view-gabungan' ? asset('public/img/logo.png') : 'public/img/logo.png');
+        $drawing->setPath( $cmd==='view-gabungan' ? asset('img/logo.png') : 'public/img/logo.png');
         $drawing->setCoordinates('B1');
         $drawing->setOffsetX(100);
         $drawing->setOffsetY(5);

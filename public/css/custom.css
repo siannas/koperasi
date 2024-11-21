@@ -29,3 +29,7 @@
 .no-anim.collapsing {
     transition: height 0.001s;
 }
+
+.btn.btn-text-14 {
+    font-size: 14px;
+}
