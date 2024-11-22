@@ -19,6 +19,7 @@ class Akun extends Model
         'id-tipe', 
         'nama-akun',
         'saldo',
+        'status',
     ];
 
     /**

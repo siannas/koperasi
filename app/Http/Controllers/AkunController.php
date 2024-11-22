@@ -24,15 +24,47 @@ class AkunController extends Controller
                 $join->on('akun.id', '=', 'saldo.id-akun');
                 $join->where('saldo.tanggal', '=', DB::raw("'{$this->year}-01-01'"));
             })
+            ->where('status', '=', DB::raw(1))
             ->groupBy('akun.id');
         $akun = $akun->get();
         return view('akun', ['kategori'=>$kategori, 'akun'=>$akun]);
     }
 
     public function store(Request $request){
+        $validator = Validator::make($request->all(), [
+            "no-akun" => "required|string",
+            "nama-akun" => "required|string",
+            "saldo" => "required|numeric",
+        ]);
+        if ($validator->fails()) return back()->with('error', 'Request Error');
+        $input = $validator->valid();
+        $input['saldo_awal'] = $input["saldo"];
+        $input['status'] = 1;
         try{
-            $akun_baru = new Akun($request->all());
-            $akun_baru->save();
+            $existing = Akun::where('no-akun', '=', DB::raw($input['no-akun']))->first();
+            if ($existing) {
+                if ($existing->{'status'} == 1) {
+                    $this->flashError("Nomor Akun Telah Digunakan");
+                    return back();
+                }
+                $existing->fill($input);
+                $existing->save();
+                $akun_baru = $existing;
+            } else {
+                $akun_baru = new Akun($input);
+                $akun_baru->save();
+            }
+            $saldoAwal = Saldo::upsert([
+                    #Tipe Gabungan
+                    'id-tipe' => 0,
+                    'id-akun' => $akun_baru->id,
+                    'tanggal' => $this->year . '-01-01',
+                    'saldo_awal' => $input['saldo_awal'],
+                    'id-kategori' => $akun_baru->{'id-kategori'},
+                ], 
+                ['id-akun', 'id-tipe', 'tanggal'],
+                ['saldo_awal', 'id-kategori']
+            );
         }catch(QueryException $exception){
             $this->flashError($exception->getMessage());
             return back();
@@ -76,8 +108,8 @@ class AkunController extends Controller
                         'saldo_awal' => $input['saldo_awal'],
                         'tanggal' => $this->year . '-01-01',
                     ]], 
-                    ['id-tipe', 'id-akun', 'id-kategori', 'tanggal',],
-                    ['saldo_awal']
+                    ['id-tipe', 'id-akun', 'tanggal',],
+                    ['saldo_awal', 'id-kategori']
                 );
             }
             DB::commit();
@@ -91,10 +123,11 @@ class AkunController extends Controller
         return back();
     }
 
-    public function destroy($id){
+    public function destroy($year, $id){
         try {
             $akun = Akun::findOrFail($id);
-            $akun->delete();
+            $akun->status = 0;
+            $akun->save();
         }catch (QueryException $exception) {
             $this->flashError($exception->getMessage());
             return back();
