@@ -47,6 +47,8 @@ class LoginController extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
+        $this->redirectTo = $this->year;
         $this->middleware('guest')->except('logout');
     }
 
