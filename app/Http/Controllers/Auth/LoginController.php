@@ -38,7 +38,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/dashboard';
+    protected $redirectTo = '/';
 
     /**
      * Create a new controller instance.
@@ -73,6 +73,6 @@ class LoginController extends Controller
      */
     protected function loggedOut(Request $request)
     {
-        redirect('/login');
+        return redirect('/login');
     }
 }

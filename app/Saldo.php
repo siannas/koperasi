@@ -18,7 +18,7 @@ class Saldo extends Model
      * @var array
      */
     protected $fillable = [
-        'id-tipe',
+        'id-tipe',  // tipe 0: khusus saldo awal aja
         'id-akun',
         'id-kategori',
         'saldo_awal',

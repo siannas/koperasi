@@ -10,8 +10,15 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+// Route::middleware(['guest'])->group(function() {
+    Auth::routes();
+// });
 
-Auth::routes();
+Route::middleware(['auth'])->group(function() {
+    # generator
+    Route::get('/generateSaldo/{year}/{isValidated?}', 'SaldoController@GenerateSaldoByYear');
+    Route::get('/generateSaldo/{month}/{year}/{isValidated?}', 'SaldoController@GenerateSaldoByMonth');
+});
 
 Route::middleware(['auth'])->prefix('{tahun}')->group(function () {
     Route::get('/', 'DashboardController@dashboard');

@@ -45,7 +45,7 @@ class KategoriController extends Controller
     public function destroy($id){
         try {
             $kategori = Kategori::findOrFail($id);
-            $kategori->delete();
+            // $kategori->delete();
         }catch (QueryException $exception) {
             $this->flashError($exception->getMessage());
             return back();

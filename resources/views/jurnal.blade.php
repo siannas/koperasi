@@ -196,12 +196,12 @@ active
     <div class="row">
     <div class="col-md-12">
         <div class="card">
-        <div class="card-header card-header-primary card-header-icon">
+        <!-- <div class="card-header card-header-primary card-header-icon">
             <div class="card-icon">
                 <i class="material-icons">account_balance_wallet</i>
             </div>
             <h4 class="card-title">Jurnal {{ucwords($currentTipe->tipe)}}</h4>
-        </div>
+        </div> -->
         <div class="card-body">
             <form action="{{route('jurnal.filter', ['tipe'=>$currentTipe->tipe]).'?dateawal='.$dateawal.'&date='.$date}}" method="POST">
             @csrf
@@ -454,6 +454,11 @@ $(document).ready(function() {
         responsive:{
             details: false
         },
+        "lengthMenu": [
+            [10, 25, 50, 100, -1],
+            [10, 25, 50, 100, "All"]
+        ],
+        iDisplayLength: 50,
         columnDefs: [
             {   
                 class: "details-control",
