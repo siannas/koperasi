@@ -226,7 +226,7 @@ active
                     </div>
                 </div>
                 <div class="col-md-4 text-right">
-                    <button type="submit" class="btn btn-success btn-sm" formaction="{{url($currentTipe->tipe.'/jurnal/excel')}}">Download</button>
+                    <button type="submit" class="btn btn-success btn-sm" formaction="{{url($year . '/' . $currentTipe->tipe.'/jurnal/excel')}}">Download</button>
                     @if(!array_intersect($role, ['Supervisor', 'Admin']))
                     <button type="button" class="btn btn-primary btn-sm" onclick="onTambah(this)">Tambah</button>
                     @endif
@@ -605,9 +605,10 @@ $(document).ready(function() {
 
     $('.unvalidasi').on('click', function(e) {
         allVals = [];
-        $(".unvalidasi").each(function() {
-            allVals.push($(this).attr('data-id'));
-        });
+        //$(".unvalidasi").each(function() {
+        //    allVals.push($(this).attr('data-id'));
+        //});
+        allVals.push($(this).attr('data-id'));
         var mainContainer = document.getElementById("peringatanValidasi");
         var submit = document.getElementById("btnValidasi");
 
