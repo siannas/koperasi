@@ -20,6 +20,7 @@ $role = explode(', ', $role);
     <!-- CSS Files -->
     <link href="{{asset('css/material-dashboard.css?v=2.2.2')}}" rel="stylesheet" />
     <link href="{{asset('css/custom.css')}}" rel="stylesheet" />
+    @yield('css')
 </head>
 
 <body class="">

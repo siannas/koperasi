@@ -50,6 +50,12 @@ $role = explode(', ', $role);
                 <p> Akun </p>
             </a>
         </li>
+        <li class="nav-item @yield('configNeracaStatus')">
+            <a class="nav-link" href="{{url('/' . $year . '/config_neraca')}}">
+                <i class="material-icons">settings</i>
+                <p> Konfigurasi </p>
+            </a>
+        </li>
         @endif
         @if($role[0]!='Admin')
         @php

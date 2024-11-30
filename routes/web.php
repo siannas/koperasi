@@ -80,6 +80,8 @@ Route::middleware(['auth'])->prefix('{tahun}')->group(function () {
         Route::resource('user', 'DashboardController')->except([
             'create',
         ]);
+        Route::get('/config_neraca', 'ConfigController@index');
+        Route::post('/config_neraca', 'ConfigController@update')->name('configneraca.update');
     });
 
     /*
