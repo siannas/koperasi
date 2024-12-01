@@ -14,8 +14,9 @@ class SaldoController extends Controller
     public static function GenerateSaldoByMonth(int $month, int $year, string $isValidated0 = 'true') {
         $isValidated = ($isValidated0 == 'true');
         $monthLiteral = sprintf("%02d", $month);
-        $subQuery = function($to) { return ;
-        };
+        DB::table((new Saldo())->getTable())
+            ->where('tanggal', "{$year}-{$monthLiteral}-01")
+            ->update(['saldo' => 0]);
         
         $jurnalRecap = function($from, $to) use ($year, $monthLiteral, $isValidated) { return (Jurnal::select(
                 DB::Raw("`id-{$from}` as `id-akun`"),

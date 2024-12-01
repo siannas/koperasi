@@ -260,6 +260,7 @@ active
                     <th data-priority="1">Debit</th>
                     <th data-priority="3">Akun Kredit</th>
                     <th data-priority="1">Kredit</th>
+                    <th data-priority="4" class="center">Validasi</th>
                     <th data-priority="4" class="disabled-sorting text-right">Actions</th>
                     <th></th>
                     <th></th>
@@ -275,6 +276,7 @@ active
                     <th>Debit</th>
                     <th>Akun Kredit</th>
                     <th>Kredit</th>
+                    <th class="center">Validasi</th>
                     <th class="disabled-sorting text-right">Actions</th>
                     <th></th>
                     <th></th>
@@ -298,6 +300,11 @@ active
                     <td>Rp {{ number_format($j->debit, 2) }}</td>
                     <td>{{$j->akunKredit->{'no-akun'} }}</td>
                     <td>Rp {{ number_format($j->kredit, 2) }}</td>
+                    @if($j->validasi==1)
+                    <td class="center"><i class="material-icons">task_alt</i></td>
+                    @else
+                    <td></td>
+                    @endif
                     <td class="text-right">
                     
                     @if($j->validasi==1 && $m2->lessThan($datelock))
@@ -465,7 +472,7 @@ $(document).ready(function() {
                 orderable: false,
                 targets: 0
             },
-            { "visible": false, "targets": [8,9,10] },
+            { "visible": false, "targets": [9, 10, 11] },
         ]
     });
     function format (d) {
