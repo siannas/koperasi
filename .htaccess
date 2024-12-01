@@ -8,6 +8,12 @@
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    
+    # rewrite public files to their actual path
+    RewriteRule ^css/(.+\.css)$ public/css/$1 [L,NC]
+    RewriteRule ^scss/(.+\.scss)$ public/scss/$1 [L,NC]
+    RewriteRule ^js/(.+\.js)$ public/js/$1 [L,NC]
+    RewriteRule ^img/(.+)$ public/img/$1 [L,NC]
 
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
