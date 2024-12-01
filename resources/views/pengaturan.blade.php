@@ -101,7 +101,7 @@ active
 var table;
 
 $(document).ready(function() {
-    my.initFormExtendedDatetimepickers();
+    my.initFormExtendedDatetimepickers({{$year}});
 } );
 </script>
 @endsection

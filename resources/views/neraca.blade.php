@@ -28,7 +28,7 @@ active
     <div class="row">
     <div class="col-md-12">
         <div class="card">
-        <div class="card-header card-header-primary card-header-icon">
+        <!-- <div class="card-header card-header-primary card-header-icon">
             <div class="card-icon">
                 <i class="material-icons">account_balance_wallet</i>
             </div>
@@ -37,7 +37,7 @@ active
             @else
             <h4 class="card-title">Neraca Gabungan</h4>
             @endif
-        </div>
+        </div> -->
         <div class="card-body">
             <div class="toolbar mb-5">
                 <div class="row ">
@@ -48,11 +48,11 @@ active
                         <form action="{{route('neraca.filter.gabungan')}}" method="GET">
                         @endif
                         <div class="form-group d-inline-block">
-                            <input required name="date_month" autocomplete="off" type="text" class="form-control monthpicker" value="{{$month}}">
+                            <input required name="date_month" autocomplete="off" type="text" class="form-control monthpicker" value="{{$month_literal}}">
                         </div>
-                        <div class="form-group d-inline-block">
+                        <!-- <div class="form-group d-inline-block">
                             <input required name="date_year" autocomplete="off" type="text" class="form-control yearpicker" value="{{$year}}">
-                        </div>
+                        </div> -->
                         <!-- <div class="form-group d-inline-block">
                             <input name="date" type="text" class="form-control monthyearpicker" value="{{$date}}" id="date-filter">
                         </div> -->
@@ -102,16 +102,7 @@ active
                     <table class="table table-no-bordered table-hover dataTable" cellspacing="0" width="100%" style="width:100%">
                         <thead>
                         <tr>
-                            <th width="1">
-                                <!-- <div class="form-check ml-auto mr-auto" style="width: 20px;">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" type="checkbox" value="">
-                                    <span class="form-check-sign">
-                                    <span class="check"></span>
-                                    </span>
-                                </label>
-                                </div> -->
-                            </th>
+                            <th width="1"></th>
                             <th>Keterangan</th>
                             <th class="text-right" width="15%">Awal Periode</th>
                             <th class="text-right" width="15%">Periode Berjalan</th>
@@ -122,75 +113,50 @@ active
                         $total_saldo_berjalan=0;
                         $total_saldo_awal=0;
                         @endphp
-                        @foreach($kategoris_debit as $k => $kd)
-                        @if($kd->getAkun()->get()->isEmpty() === false)
-                        @php
-                        $saldo_berjalan=0;
-                        $saldo_awal=0;
-                        @endphp
-                        <tbody>
-                        <tr>
-                            <td><button class="btn btn-success btn-round btn-fab btn-sm mr-1 my-button-toggle"
-                                data-toggle="collapse" data-target="#collapseDebit{{$k}}" aria-expanded="false" aria-controls="collapseDebit{{$k}}" >
-                                <i class="material-icons">add</i>
-                                </button></td>
-                            <td colspan="4"><b>{{$kd->kategori}}</b></td>
-                            <!-- <td class="text-right text-success"><b>Rp00<b></td>
-                            <td class="text-right"><b>Rp{{ number_format($saldo_berjalan,2) }}<b></td>
-                            <td class="text-right"><b>Rp00<b></td> -->
-                        </tr>
-                        </tbody>
-                        <tbody class="no-anim collapse" id="collapseDebit{{$k}}">
-                        @php
-                        $visited=[];
-                        $visited2=[];
-                        foreach($kd->getAkun()->get() as $akun){
-                            $visited[ $akun->{'nama-akun'} ][]=$akun->id;
-                        }
-                        @endphp
-                        @foreach($kd->getAkun()->get() as $akun)
-                        @if(array_key_exists($akun->{'nama-akun'} , $visited2) === FALSE)
-                        @php
-                        $awal=0;
-                        $cur=0;
-                        foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
-                            $debit=$jurnal_debit->has($id_ak) ? $jurnal_debit[$id_ak]->debit : 0;
-                            $kredit=$jurnal_kredit->has($id_ak) ? $jurnal_kredit[$id_ak]->kredit : 0;
-                            $cur+=$debit-$kredit;
-                            $awal+=$saldos->has($id_ak) ? $saldos[$id_ak]->saldo : 0;
-                        }
-                        $saldo_awal+=$awal;
-                        $saldo_berjalan+=$cur;
-                        @endphp
-                        <tr>
-                            <td></td>
-                            <td>{{ $akun->{'nama-akun'} }}</td>
-                            <td class="text-right">Rp {{ number_format($awal,2) }}</td>
-                            <td class="text-right {{ $cur<0 ? 'text-danger':'text-success' }} ">Rp {{ number_format($cur,2) }}</td>
-                            <td class="text-right">Rp {{ number_format($cur+$awal,2) }}</td>
-                        </tr> 
-                        @php
-                        $visited2[ $akun->{'nama-akun'} ]=1;
-                        @endphp    
-                        @endif
-                        @endforeach
-                        </tbody>
-                        <tbody>
-                        <tr class="table-info">
-                            <td class="text-right" colspan="2">Jumlah {{$kd->kategori}} </td>
-                            <td class="text-right">Rp {{ number_format($saldo_awal,2) }}</td>
-                            <td class="text-right">Rp {{ number_format($saldo_berjalan,2) }}</td>
-                            <td class="text-right">Rp {{ number_format($saldo_awal+$saldo_berjalan,2) }}</td>
-                        </tr>   
-                        </tbody>
-                        @php
-                        $total_saldo_berjalan+=$saldo_berjalan;
-                        $total_saldo_awal+=$saldo_awal;
-                        @endphp
-                        @endif
+                        @foreach($aset as $k => $kd)
+                            @php
+                                $saldo_berjalan=0;
+                                $saldo_awal=0;
+                            @endphp
+                            <tbody>
+                            <tr>
+                                <td><button class="btn btn-success btn-round btn-fab btn-sm mr-1 my-button-toggle"
+                                    data-toggle="collapse" data-target="#collapseDebit{{$k}}" aria-expanded="false" aria-controls="collapseDebit{{$k}}" >
+                                    <i class="material-icons">add</i>
+                                    </button></td>
+                                <td colspan="4"><b>{{$kd['name']}}</b></td>
+                            </tr>
+                            </tbody>
+                            <tbody class="no-anim collapse" id="collapseDebit{{$k}}">
+                            @foreach($kd['data'] as $akun)
+                                @php
+                                $saldo_awal += $akun['saldo_awal'];
+                                $saldo_berjalan += $akun['saldo'];
+                                @endphp
+                                <tr>
+                                    <td></td>
+                                    <td>{{ $akun['name'] }}</td>
+                                    <td class="text-right">Rp {{ number_format($akun['saldo_awal'],2) }}</td>
+                                    <td class="text-right {{ $akun['saldo']<0 ? 'text-danger':'text-success' }} ">Rp {{ number_format($akun['saldo'],2) }}</td>
+                                    <td class="text-right">Rp {{ number_format($akun['saldo_awal']+$akun['saldo'],2) }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                            <tbody>
+                            <tr class="table-info">
+                                <td class="text-right" colspan="2">Jumlah {{$kd['name']}} </td>
+                                <td class="text-right">Rp {{ number_format($saldo_awal,2) }}</td>
+                                <td class="text-right">Rp {{ number_format($saldo_berjalan,2) }}</td>
+                                <td class="text-right">Rp {{ number_format($saldo_awal+$saldo_berjalan,2) }}</td>
+                            </tr>   
+                            </tbody>
+                            @php
+                            $total_saldo_berjalan+=$saldo_berjalan;
+                            $total_saldo_awal+=$saldo_awal;
+                            @endphp
                         @endforeach
                         @php
-                        $akhir_aset=$total_saldo_awal+$total_saldo_berjalan;                        
+                        $akhir_aset=$total_saldo_awal+$total_saldo_berjalan;
                         @endphp
                         <tfoot>
                         <tr class="bg-dark text-white">
@@ -204,7 +170,7 @@ active
                     </div>
                 </div>
                 <div id="kredit-container" class="tab-pane" >
-                    <div class="material-datatables" >
+                <div class="material-datatables" >
                     <table class="table table-no-bordered table-hover dataTable" cellspacing="0" width="100%" style="width:100%">
                         <thead>
                         <tr>
@@ -219,79 +185,54 @@ active
                         $total_saldo_berjalan=0;
                         $total_saldo_awal=0;
                         @endphp
-                        @foreach($kategoris_kredit as $k => $kd)
-                        @if($kd->getAkun()->get()->isEmpty() === false)
-                        @php
-                        $saldo_berjalan=0;
-                        $saldo_awal=0;
-                        @endphp
-                        <tbody>
-                        <tr>
-                            <td><button class="btn btn-success btn-round btn-fab btn-sm mr-1 my-button-toggle"
-                                data-toggle="collapse" data-target="#collapseKredit{{$k}}" aria-expanded="false" aria-controls="collapseKredit{{$k}}" >
-                                <i class="material-icons">add</i>
-                                </button></td>
-                            <td colspan="4"><b>{{$kd->kategori}}</b></td>
-                            <!-- <td class="text-right text-success"><b>Rp00<b></td>
-                            <td class="text-right"><b>Rp{{ number_format($saldo_berjalan,2) }}<b></td>
-                            <td class="text-right"><b>Rp00<b></td> -->
-                        </tr>
-                        </tbody>
-                        <tbody class="no-anim collapse" id="collapseKredit{{$k}}">
-                        @php
-                        $visited=[];
-                        $visited2=[];
-                        foreach($kd->getAkun()->get() as $akun){
-                            $visited[ $akun->{'nama-akun'} ][]=$akun->id;
-                        }
-                        @endphp
-                        @foreach($kd->getAkun()->get() as $akun)
-                        @if(array_key_exists($akun->{'nama-akun'} , $visited2) === FALSE)
-                        @php
-                        $awal=0;
-                        $cur=0;
-                        foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
-                            $debit=$jurnal_debit->has($id_ak) ? $jurnal_debit[$id_ak]->debit : 0;
-                            $kredit=$jurnal_kredit->has($id_ak) ? $jurnal_kredit[$id_ak]->kredit : 0;
-                            $cur+=$kredit-$debit;
-                            $awal+=$saldos->has($id_ak) ? $saldos[$id_ak]->saldo : 0;
-                        }
-                        $saldo_awal+=$awal;
-                        $saldo_berjalan+=$cur;
-                        @endphp
-                        <tr>
-                            <td></td>
-                            <td>{{ $akun->{'nama-akun'} }}</td>
-                            <td class="text-right">Rp {{ number_format($awal,2) }}</td>
-                            <td class="text-right {{ $cur<0 ? 'text-danger':'text-success' }}">Rp {{ number_format($cur,2) }}</td>
-                            <td class="text-right">Rp {{ number_format($cur+$awal,2) }}</td>
-                        </tr>
-                        @php
-                        $visited2[ $akun->{'nama-akun'} ]=1;
-                        @endphp    
-                        @endif
-                        @endforeach
-                        </tbody>
-                        <tbody>
-                        <tr class="table-info">
-                            <td class="text-right" colspan="2">Jumlah Aset Lancar</td>
-                            <td class="text-right">Rp {{ number_format($saldo_awal,2) }}</td>
-                            <td class="text-right">Rp {{ number_format($saldo_berjalan,2) }}</td>
-                            <td class="text-right">Rp {{ number_format($saldo_awal+$saldo_berjalan,2) }}</td>
-                        </tr>   
-                        </tbody>
-                        @php
-                        $total_saldo_berjalan+=$saldo_berjalan;
-                        $total_saldo_awal+=$saldo_awal;
-                        @endphp
-                        @endif
+                        @foreach($beban as $k => $kd)
+                            @php
+                                $saldo_berjalan=0;
+                                $saldo_awal=0;
+                            @endphp
+                            <tbody>
+                            <tr>
+                                <td><button class="btn btn-success btn-round btn-fab btn-sm mr-1 my-button-toggle"
+                                    data-toggle="collapse" data-target="#collapseKredit{{$k}}" aria-expanded="false" aria-controls="collapseKredit{{$k}}" >
+                                    <i class="material-icons">add</i>
+                                    </button></td>
+                                <td colspan="4"><b>{{$kd['name']}}</b></td>
+                            </tr>
+                            </tbody>
+                            <tbody class="no-anim collapse" id="collapseKredit{{$k}}">
+                            @foreach($kd['data'] as $akun)
+                                @php
+                                $saldo_awal += $akun['saldo_awal'];
+                                $saldo_berjalan += $akun['saldo'];
+                                @endphp
+                                <tr>
+                                    <td></td>
+                                    <td>{{ $akun['name'] }}</td>
+                                    <td class="text-right">Rp {{ number_format($akun['saldo_awal'],2) }}</td>
+                                    <td class="text-right {{ $akun['saldo']<0 ? 'text-danger':'text-success' }} ">Rp {{ number_format($akun['saldo'],2) }}</td>
+                                    <td class="text-right">Rp {{ number_format($akun['saldo_awal']+$akun['saldo'],2) }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                            <tbody>
+                            <tr class="table-info">
+                                <td class="text-right" colspan="2">Jumlah {{$kd['name']}} </td>
+                                <td class="text-right">Rp {{ number_format($saldo_awal,2) }}</td>
+                                <td class="text-right">Rp {{ number_format($saldo_berjalan,2) }}</td>
+                                <td class="text-right">Rp {{ number_format($saldo_awal+$saldo_berjalan,2) }}</td>
+                            </tr>   
+                            </tbody>
+                            @php
+                            $total_saldo_berjalan+=$saldo_berjalan;
+                            $total_saldo_awal+=$saldo_awal;
+                            @endphp
                         @endforeach
                         @php
-                        $akhir_kewajiban=$total_saldo_awal+$total_saldo_berjalan;                        
+                        $akhir_kewajiban=$total_saldo_awal+$total_saldo_berjalan;
                         @endphp
                         <tfoot>
                         <tr class="bg-dark text-white">
-                            <th class="text-right" colspan="2">Jumlah Aset</th>
+                            <th class="text-right" colspan="2">Jumlah Kewajiban</th>
                             <th class="text-right">Rp {{ number_format($total_saldo_awal,2) }}</th>
                             <th class="text-right">Rp {{ number_format($total_saldo_berjalan,2) }}</th>
                             <th class="text-right">Rp {{ number_format($total_saldo_awal+$total_saldo_berjalan,2) }}</th>
@@ -333,7 +274,7 @@ const setFormDate = function(e){
 }
 
 $(document).ready(function() {
-    my.initFormExtendedDatetimepickers();
+    my.initFormExtendedDatetimepickers({{$year}});
     if ($('.slider').length != 0) {
         md.initSliders();
     }
@@ -353,7 +294,12 @@ $(document).ready(function() {
     })
 
     // set alert status neraca
-    if( @json($akhir_aset) !== @json($akhir_kewajiban)){
+    let asetTotal = @json($akhir_aset);
+    let bebanTotal = @json($akhir_kewajiban);
+
+    var roundNum = function(num) { return (Math.round( num * 100 ) / 100).toFixed(2); }
+
+    if(roundNum(asetTotal) !== roundNum(bebanTotal)){
         $('#statusContainer').html(statusDanger);
     }else{
         $('#statusContainer').html(statusSuccess);

@@ -216,7 +216,7 @@ const setFormDate = function(e){
 }
 
 $(document).ready(function() {
-    my.initFormExtendedDatetimepickers();
+    my.initFormExtendedDatetimepickers({{$year}});
     if ($('.slider').length != 0) {
         md.initSliders();
     }

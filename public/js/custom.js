@@ -36,7 +36,10 @@ const my = {
       rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
       return 'Rp' + rupiah ;
     },
-    "initFormExtendedDatetimepickers": function() {
+    "initFormExtendedDatetimepickers": function(year = null) {
+        if (year == null) {
+          year = new Date().getFullYear();
+        }
         $('.datetimepicker').datetimepicker({
           icons: {
             time: "fa fa-clock-o",
@@ -108,6 +111,8 @@ const my = {
         $(".monthpicker").datetimepicker( {
           viewMode: 'months',
           format: 'MMMM',
+          minDate: new Date((year - 1) + "-12-31"),
+          maxDate: new Date(year + "-12-31"),
         });
     },
 }

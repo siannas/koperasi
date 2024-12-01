@@ -445,7 +445,7 @@ $(document).ready(function() {
     window.history.replaceState('', '', location.pathname.split( '?' )[0]+"?"+"dateawal="+dateawal+"&"+"date="+date);
     // END of KONTROL STATE DATE FILTER
 
-    my.initFormExtendedDatetimepickers();
+    my.initFormExtendedDatetimepickers({{$year}});
     if ($('.slider').length != 0) {
         md.initSliders();
     }
