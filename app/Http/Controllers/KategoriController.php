@@ -28,7 +28,7 @@ class KategoriController extends Controller
         return back();
     }
 
-    public function update(Request $request, $id){
+    public function update(Request $request, $year, $id){
         try{
             $kategori = Kategori::findOrFail($id);
             $kategori->fill($request->all());
@@ -42,7 +42,7 @@ class KategoriController extends Controller
         return back();
     }
 
-    public function destroy($id){
+    public function destroy($year, $id){
         try {
             $kategori = Kategori::findOrFail($id);
             // $kategori->delete();

@@ -34,7 +34,7 @@ active
                 </div>
                 <div class="col-md-6">
                     <div class="card">
-                        <h4 class="card-title">Modal</h4>
+                        <h4 class="card-title">ASET</h4>
                         <div class="card-body dd-container2" data-type="modal">
                             @foreach($left as $d)
                             <div class="card category">
@@ -59,7 +59,7 @@ active
                 </div>
                 <div class="col-md-6">
                     <div class="card">
-                        <h4 class="card-title">Beban</h4>
+                        <h4 class="card-title">KEWAJIBAN</h4>
                         <div class="card-body dd-container2" data-type="beban">
                             @foreach($right as $d)
                             <div class="card category">

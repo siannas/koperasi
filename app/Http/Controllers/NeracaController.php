@@ -47,7 +47,7 @@ class NeracaController extends Controller
 
         // KOP
         $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-        $drawing->setPath( $cmd==='view-gabungan' ? asset('img/logo.png') : 'public/img/logo.png');
+        $drawing->setPath( $cmd==='view-gabungan' ? asset('img/logo.png') : asset('img/logo.png'));
         $drawing->setCoordinates('C1');
         $drawing->setOffsetX(70);
         $drawing->setOffsetY(5);

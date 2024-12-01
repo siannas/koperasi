@@ -14,8 +14,10 @@ class ConfigController extends Controller
     public function index()
     {
         $categories = Kategori::with(['getAkun' => function($q) {
-            $q->where('status', '=', 1);
+            $q->where('status', '=', 1)
+            ->orderBy('no-akun','ASC');
         }])
+        ->where('parent', '<>', Kategori::SHU)
         ->whereNotNull('tipe-pendapatan')
         ->orderBy('priority','ASC')
         ->get();
@@ -25,7 +27,14 @@ class ConfigController extends Controller
 
         $categoriesId = [];
         if ($categories) {
-            $categoriesId = $categories->pluck('id');
+            $categoriesId = $categories->pluck('id')->toArray();
+        }
+
+        $shuCategories = Kategori::select('id')->where('parent', '=', Kategori::SHU)
+        ->orderBy('priority','ASC')
+        ->get();
+        if ($shuCategories) {
+            $categoriesId = array_merge($categoriesId, $shuCategories->pluck('id')->toArray());
         }
 
         # don't have category

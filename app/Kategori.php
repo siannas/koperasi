@@ -8,6 +8,9 @@ class Kategori extends Model
 {
     protected $table = 'kategori';
 
+    public const SHU = 17;
+    public const NONSHU = 16;
+
     /**
     * The attributes that are mass assignable.
     *
