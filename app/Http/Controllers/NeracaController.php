@@ -38,31 +38,39 @@ class NeracaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function excel(Request $request, $cmd=NULL){
-        if($tipe=$request->get('tipe')){
-            $d = $this->init($request, $tipe);
-        }else{
-            $d = $this->initGabungan($request);
+    public function excel(Request $request, $year){
+        $viewOnly = $request->isMethod('get');
+        if ($request->input('date_month')) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('date_month') . "/" . $this->year);
+        } else {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
         }
+        if($tipe=$request->get('tipe')){
+            $data = $this->init($request, $tipe->id);
+        }else{
+            $data = $this->init($request);
+        }
+        $data['currentTipe'] = $tipe;
+        $tipeLiteral = $tipe ? $tipe->tipe : 'Gabungan';
 
-        $tanggalString = Carbon::createFromFormat('m/Y', $d['date'])->isoFormat('MMMM Y');
+        $tanggalString = $this->filterDate->translatedFormat('F_Y');
         
         $ex = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $ex->getProperties()->setCreator("siannasGG");
         $ac = $ex->getActiveSheet();
-
+        
         $ac->getStyle('C:E')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
         $ac->getStyle('H:J')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
-
+        
         // KOP
-        $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-        $drawing->setPath( $cmd==='view-gabungan' ? asset('img/logo.png') : asset('img/logo.png'));
-        $drawing->setCoordinates('C1');
-        $drawing->setOffsetX(70);
-        $drawing->setOffsetY(5);
-        $drawing->setHeight(80);
-        $drawing->setWorksheet($ex->getActiveSheet());
-
+        // $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+        // $drawing->setPath(asset('img/logo.png'));
+        // $drawing->setCoordinates('C1');
+        // $drawing->setOffsetX(70);
+        // $drawing->setOffsetY(5);
+        // $drawing->setHeight(80);
+        // $drawing->setWorksheet($ex->getActiveSheet());
+        
         $ac->mergeCells('C1:J1');
         $ac->getCell('C1')->setValue("KOPERASI KONSUMEN PEGAWAI REPUBLIK INDONESIA");
         $ac->mergeCells('C2:J2');
@@ -105,9 +113,9 @@ class NeracaController extends Controller
         $ac->getStyle('B6:J6')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         $ac->mergeCells('B7:J7');
-        $ac->getCell('B7')->setValue("Periode ".$tanggalString);
+        $ac->getCell('B7')->setValue("Periode {$data['month_literal']} {$data['year']}");
         $ac->getStyle('B7:J7')->getFont()->setSize(12)->setBold(true);
-        $ac->getStyle('B7:J7')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);;
+        $ac->getStyle('B7:J7')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         // HEAD TABEL
         $ac->getCell('B10')->setValue("KETERANGAN");
@@ -136,71 +144,45 @@ class NeracaController extends Controller
         $ac->getStyle("G10:J10")->getFill()
             ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
             ->getStartColor()->setRGB('00B0F0');
-        
 
         // Isi Aset
         $from=11;
         $walk=0;
         $total_saldo_berjalan=0;
         $total_saldo_awal=0;
-        foreach($d['kategoris_debit'] as $k => $kd){
-            if($kd->getAkun()->get()->isEmpty() === false){
-                $saldo_berjalan=0;
-                $saldo_awal=0;
-
-                $visited=[];
-                $visited2=[];
-                foreach($kd->getAkun()->get() as $akun){
-                    $visited[ $akun->{'nama-akun'} ][]=$akun->id;
-                }
-                // display per kategori
-                $now=$walk;
-                foreach($kd->getAkun()->get() as $akun){
-                    // pastikan nama akun belum di-visit (guna view gabungan untuk nama akun yg sama)
-                    if(array_key_exists($akun->{'nama-akun'} , $visited2) === FALSE){
-                        $walk++;
-
-                        $awal=0;
-                        $cur=0;
-                        //gabungin saldo semua akun yang memiliki nama yang kembar.
-                        foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
-                            $debit=$d['jurnal_debit']->has($id_ak) ? $d['jurnal_debit'][$id_ak]->debit : 0;
-                            $kredit=$d['jurnal_kredit']->has($id_ak) ? $d['jurnal_kredit'][$id_ak]->kredit : 0;
-                            $cur+=$debit-$kredit;
-                            $awal+=$d['saldos']->has($id_ak) ? $d['saldos'][$id_ak]->saldo : 0;
-                        }
-                        $saldo_awal+=$awal;
-                        $saldo_berjalan+=$cur;
-
-                        $ac->getCell('B'.($from+$walk))->setValue( "      ".$akun->{'nama-akun'} );
-                        $ac->getCell('C'.($from+$walk))->setValue( number_format($awal,2) );
-                        $ac->getCell('D'.($from+$walk))->setValue( number_format($cur,2) );
-                        $ac->getCell('E'.($from+$walk))->setValue( number_format($awal+$cur,2) );
-                        $ac->getStyle("B".($from+$walk).":E".($from+$walk))->getFill()
-                            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                            ->getStartColor()->setRGB('F2F2F2');
-
-                        $visited2[ $akun->{'nama-akun'} ]=1;
-                    }
-                }
-
-                // display total saldo kategori
-                $row = $from+$now;
-                $ac->getCell('B'.($row))->setValue( $kd->kategori );
-                $ac->getCell('C'.($row))->setValue( number_format($saldo_awal,2) );
-                $ac->getCell('D'.($row))->setValue( number_format($saldo_berjalan,2) );
-                $ac->getCell('E'.($row))->setValue( number_format($saldo_awal+$saldo_berjalan,2) );
-                $ac->getStyle("B{$row}:E{$row}")->getFont()->setBold(true);
-                // $ac->getStyle("B{$row}:E{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-                $ac->getStyle("B{$row}:E{$row}")->getFill()
-                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                    ->getStartColor()->setRGB('00B0F0');
-
+        foreach($data['aset'] as $k => $kd){
+            $saldo_berjalan=0;
+            $saldo_awal=0;
+            $now = $walk;
+            foreach($kd['data'] as $akun){
                 $walk++;
-
-                $total_saldo_berjalan+=$saldo_berjalan;
-                $total_saldo_awal+=$saldo_awal;
+                $awal=$akun['saldo_awal'];
+                $cur=$akun['saldo'];
+                $saldo_awal+=$awal;
+                $saldo_berjalan+=$cur;
+                $ac->getCell('B'.($from+$walk))->setValue( "      ".$akun['name'] );
+                $ac->getCell('C'.($from+$walk))->setValue( number_format($awal,2) );
+                $ac->getCell('D'.($from+$walk))->setValue( number_format($cur,2) );
+                $ac->getCell('E'.($from+$walk))->setValue( number_format($awal+$cur,2) );
+                $ac->getStyle("B".($from+$walk).":E".($from+$walk))->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setRGB('F2F2F2');
             }
+
+            // display total saldo kategori
+            $row = $from + $now;
+            $ac->getCell('B'.($row))->setValue( $kd['name'] );
+            $ac->getCell('C'.($row))->setValue( number_format($saldo_awal,2) );
+            $ac->getCell('D'.($row))->setValue( number_format($saldo_berjalan,2) );
+            $ac->getCell('E'.($row))->setValue( number_format($saldo_awal+$saldo_berjalan,2) );
+            $ac->getStyle("B{$row}:E{$row}")->getFont()->setBold(true);
+            // $ac->getStyle("B{$row}:E{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+            $ac->getStyle("B{$row}:E{$row}")->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('00B0F0');
+            $walk++;
+            $total_saldo_berjalan+=$saldo_berjalan;
+            $total_saldo_awal+=$saldo_awal;
         }
 
         // set total aset
@@ -215,62 +197,40 @@ class NeracaController extends Controller
         $walk=0;
         $total_saldo_berjalan=0;
         $total_saldo_awal=0;
-        foreach($d['kategoris_kredit'] as $k => $kd){
-            if($kd->getAkun()->get()->isEmpty() === false){
-                $saldo_berjalan=0;
-                $saldo_awal=0;
-
-                $visited=[];
-                $visited2=[];
-                foreach($kd->getAkun()->get() as $akun){
-                    $visited[ $akun->{'nama-akun'} ][]=$akun->id;
-                }
-                // display per kategori kewajiban
-                $now=$walk;
-                foreach($kd->getAkun()->get() as $akun){
-                    if (array_key_exists($akun->{'nama-akun'}, $visited2) === false) {
-                        $walk++;
-
-                        $awal=0;
-                        $cur=0;
-                        foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
-                            $debit=$d['jurnal_debit']->has($id_ak) ? $d['jurnal_debit'][$id_ak]->debit : 0;
-                            $kredit=$d['jurnal_kredit']->has($id_ak) ? $d['jurnal_kredit'][$id_ak]->kredit : 0;
-                            $cur=$kredit-$debit;
-                            $awal+=$d['saldos']->has($id_ak) ? $d['saldos'][$id_ak]->saldo : 0;
-                        }
-                        $saldo_awal+=$awal;
-                        $saldo_berjalan+=$cur;
-
-                        $ac->getCell('G'.($from+$walk))->setValue("      ".$akun->{'nama-akun'});
-                        $ac->getCell('H'.($from+$walk))->setValue(number_format($awal, 2));
-                        $ac->getCell('I'.($from+$walk))->setValue(number_format($cur, 2));
-                        $ac->getCell('J'.($from+$walk))->setValue(number_format($awal+$cur, 2));
-                        $ac->getStyle("G".($from+$walk).":J".($from+$walk))->getFill()
-                            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                            ->getStartColor()->setRGB('F2F2F2');
-                        
-                        $visited2[ $akun->{'nama-akun'} ]=1;
-                    }
-                }
-                
-
-                // display total saldo kategori kewajiban
-                $row = $from+$now;
-                $ac->getCell('G'.($row))->setValue( $kd->kategori );
-                $ac->getCell('H'.($row))->setValue( number_format($saldo_awal,2) );
-                $ac->getCell('I'.($row))->setValue( number_format($saldo_berjalan,2) );
-                $ac->getCell('J'.($row))->setValue( number_format($saldo_awal+$saldo_berjalan,2) );
-                $ac->getStyle("G{$row}:J{$row}")->getFont()->setBold(true);
-                // $ac->getStyle("G{$row}:J{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-                $ac->getStyle("G{$row}:J{$row}")->getFill()
-                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                    ->getStartColor()->setRGB('00B0F0');
+        foreach($data['beban'] as $k => $kd){
+            $saldo_berjalan=0;
+            $saldo_awal=0;
+            $now = $walk;
+            foreach($kd['data'] as $akun){
                 $walk++;
+                $awal=$akun['saldo_awal'];
+                $cur=$akun['saldo'];
+                $saldo_awal+=$awal;
+                $saldo_berjalan+=$cur;
+                $ac->getCell('G'.($from+$walk))->setValue("      ".$akun['name']);
+                $ac->getCell('H'.($from+$walk))->setValue(number_format($awal, 2));
+                $ac->getCell('I'.($from+$walk))->setValue(number_format($cur, 2));
+                $ac->getCell('J'.($from+$walk))->setValue(number_format($awal+$cur, 2));
+                $ac->getStyle("G".($from+$walk).":J".($from+$walk))->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setRGB('F2F2F2');
+            }   
 
-                $total_saldo_berjalan+=$saldo_berjalan;
-                $total_saldo_awal+=$saldo_awal;
-            }
+            // display total saldo kategori kewajiban
+            $row = $from + $now;
+            $ac->getCell('G'.($row))->setValue( $kd['name'] );
+            $ac->getCell('H'.($row))->setValue( number_format($saldo_awal,2) );
+            $ac->getCell('I'.($row))->setValue( number_format($saldo_berjalan,2) );
+            $ac->getCell('J'.($row))->setValue( number_format($saldo_awal+$saldo_berjalan,2) );
+            $ac->getStyle("G{$row}:J{$row}")->getFont()->setBold(true);
+            // $ac->getStyle("G{$row}:J{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+            $ac->getStyle("G{$row}:J{$row}")->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('00B0F0');
+            $walk++;
+
+            $total_saldo_berjalan+=$saldo_berjalan;
+            $total_saldo_awal+=$saldo_awal;
         }
 
         // set total ASET DAN Kewajiban dan menampilkan pada bagian paling bawah tabel
@@ -316,8 +276,7 @@ class NeracaController extends Controller
         $ac->getStyle('B5')->getFont()->setSize(14)->setBold(true);
         $ac->getStyle('B5')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
-
-        if($cmd==='view-gabungan'){
+        if($viewOnly){
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Html($ex);
             // $header = $writer->generateHTMLHeader();
             echo $writer->generateStyles();
@@ -326,7 +285,7 @@ class NeracaController extends Controller
             echo $writer->generateHTMLFooter();
         }else{
             // send file ke user
-            $fileName="Neraca_".$tanggalString.".xlsx";
+            $fileName="Neraca_{$tipeLiteral}_".$tanggalString.".xlsx";
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             header('Content-Disposition: attachment; filename="'. urlencode($fileName).'"');
             header('Cache-Control: max-age=0');
@@ -388,6 +347,9 @@ class NeracaController extends Controller
                     'saldo_awal' => (array_key_exists($akun->{'id'}, $awal) ? floatval($awal[$akun->{'id'}]['saldo']) : 0) + $sb,
                     'saldo' => array_key_exists($akun->{'id'}, $saldos) ? floatval($saldos[$akun->{'id'}]['saldo']) : 0,
                 ];
+            }
+            if (empty($childs)) {
+                continue;
             }
             $cat = [
                 'id' => $category->id,

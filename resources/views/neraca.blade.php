@@ -61,20 +61,22 @@ active
                     </div>
                     <div class="col-6 text-right">
                         @if($currentTipe)
-                        <form class="d-inline-block" action="{{route('neraca.excel', ['tipe' => $currentTipe->tipe])}}" method="POST" onsubmit="setFormDate(event)">
+                        <form class="d-inline-block" action="{{route('neraca.download', ['tipe' => $currentTipe->tipe])}}" method="POST" onsubmit="setFormDate(event)">
                         @else
-                        <form class="d-inline-block" action="{{route('neraca.excel.gabungan')}}" method="POST" onsubmit="setFormDate(event)">
+                        <form class="d-inline-block" action="{{route('neraca.download.gabungan')}}" method="POST" onsubmit="setFormDate(event)">
                         @endif
                         @csrf
+                        <input required name="date_month" type="hidden" value="{{$month_literal}}">
                         <input type="hidden" name="date">
                         <button type="submit" class="btn btn-success btn-sm">Download</button>
                         </form>
                         @if($currentTipe)
-                        <form target="_blank" class="d-inline-block" action="{{route('neraca.excel', ['tipe' => $currentTipe->tipe, 'cmd'=>'view-gabungan'])}}" method="POST" onsubmit="setFormDate(event)">
+                        <form target="_blank" class="d-inline-block" action="{{route('neraca.excel', ['tipe' => $currentTipe->tipe])}}" method="GET" onsubmit="setFormDate(event)">
                         @else
-                        <form target="_blank" class="d-inline-block" action="{{route('neraca.excel.gabungan', ['cmd'=>'view-gabungan'])}}" method="POST" onsubmit="setFormDate(event)">
+                        <form target="_blank" class="d-inline-block" action="{{route('neraca.excel.gabungan')}}" method="GET" onsubmit="setFormDate(event)">
                         @endif
                         @csrf
+                        <input required name="date_month" type="hidden" value="{{$month_literal}}">
                         <input type="hidden" name="date">
                         <button type="submit" class="btn btn-primary btn-sm">View Neraca</button>
                         </form>

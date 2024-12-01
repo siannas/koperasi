@@ -57,7 +57,8 @@ Route::middleware(['auth'])->prefix('{tahun}')->group(function () {
 
             Route::get('neraca', 'NeracaController@index')->name('neraca.index');
             Route::get('neraca', 'NeracaController@index')->name('neraca.filter');
-            Route::post('neraca/excel/{cmd?}', 'NeracaController@excel')->name('neraca.excel');
+            Route::get('neraca/excel', 'NeracaController@excel')->name('neraca.excel');
+            Route::post('neraca/excel', 'NeracaController@excel')->name('neraca.download');
 
             Route::get('buku-besar', 'BukuBesarController@index');
             Route::post('buku-besar', 'BukuBesarController@filter');
@@ -90,7 +91,8 @@ Route::middleware(['auth'])->prefix('{tahun}')->group(function () {
     Route::middleware(['role:Spesial,Supervisor'])->group(function(){
         Route::get('neraca', 'NeracaController@index')->name('neraca.index.gabungan');
         Route::get('neraca', 'NeracaController@index')->name('neraca.filter.gabungan');
-        Route::post('neraca/excel/{cmd?}', 'NeracaController@excel')->name('neraca.excel.gabungan');
+        Route::get('neraca/excel', 'NeracaController@excel')->name('neraca.excel.gabungan');
+        Route::post('neraca/excel', 'NeracaController@excel')->name('neraca.download.gabungan');
 
         Route::get('shu', 'SHUController@index')->name('shu.index.gabungan');
         Route::post('shu', 'SHUController@index')->name('shu.filter.gabungan');
