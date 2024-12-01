@@ -65,8 +65,9 @@ Route::middleware(['auth'])->prefix('{tahun}')->group(function () {
             Route::post('buku-besar/excel', 'BukuBesarController@excel');
 
             Route::get('shu', 'SHUController@index')->name('shu.index');
-            Route::post('shu', 'SHUController@index')->name('shu.filter');
-            Route::post('shu/excel/{cmd?}', 'SHUController@excel')->name('shu.excel');
+            Route::get('shu', 'SHUController@index')->name('shu.filter');
+            Route::get('shu/excel', 'SHUController@excel')->name('shu.excel');
+            Route::post('shu/excel', 'SHUController@excel')->name('shu.download');
         });
             
 
@@ -95,8 +96,9 @@ Route::middleware(['auth'])->prefix('{tahun}')->group(function () {
         Route::post('neraca/excel', 'NeracaController@excel')->name('neraca.download.gabungan');
 
         Route::get('shu', 'SHUController@index')->name('shu.index.gabungan');
-        Route::post('shu', 'SHUController@index')->name('shu.filter.gabungan');
-        Route::post('shu/excel/{cmd?}', 'SHUController@excel')->name('shu.excel.gabungan');
+        Route::get('shu', 'SHUController@index')->name('shu.filter.gabungan');
+        Route::get('shu/excel', 'SHUController@excel')->name('shu.excel.gabungan');
+        Route::post('shu/excel', 'SHUController@excel')->name('shu.download.gabungan');
     });
     
     Route::middleware(['role:Supervisor'])->group(function(){

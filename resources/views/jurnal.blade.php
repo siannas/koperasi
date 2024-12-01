@@ -211,15 +211,16 @@ active
                         <div class="col-md-3" >    
                             <div class="form-group" >    
                                 <label for="dateawal" style="top:-16px!important;">Awal</label>
-                                <input name="dateawal" id="dateawal" type="text" class="form-control datepicker" placeholder="PILIH TANGGAL" value="{{$dateawal}}" >
+                                <input required id="dateawal" name="dateawal" autocomplete="off" type="text" class="form-control monthpicker" value="{{$dateawal}}">
+                                <!-- <input name="dateawal" id="dateawal" type="text" class="form-control datepicker" placeholder="PILIH TANGGAL" value="{{$dateawal}}" > -->
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <!-- <div class="col-md-3">
                             <div class="form-group" >    
                                 <label for="dateakhir" style="top:-16px!important;">Akhir</label>
                                 <input name="date" id="dateakhir" type="text" class="form-control datepicker" placeholder="PILIH TANGGAL" value="{{$date}}" >
                             </div>
-                        </div>
+                        </div> -->
                         <div class="col" style="padding-left:0;">
                             <button type="submit" class="btn btn-primary btn-round" formaction="{{route('jurnal.filter', ['tipe'=>$currentTipe->tipe]).'?dateawal='.$dateawal.'&date='.$date }}"><i class="material-icons">filter_alt</i> Proses</button>    
                         </div>
@@ -236,10 +237,11 @@ active
                 </div>
             </div>
             </form>
-            <div class="filter-tags" data-select="#selectrole" data-tags="#tagsinput" data-col="10">
+            <!-- data-col="11" means column index for role filter -->
+            <div class="filter-tags" data-select="#selectrole" data-tags="#tagsinput" data-col="11">
                 <div class="form-group d-inline-block" style="width: 120px;">
                     <select id="selectrole" class="selectpicker" data-style2="btn-default btn-round btn-sm text-white" data-style="select-with-transition" multiple title="Filter" data-size="7">
-                        <option value="Reguler">Reguler</option>
+                        <!-- <option value="Reguler">Reguler</option> -->
                         @foreach($byroleFilter as $r)
                         <option value="{{$r}}">{{$r}}</option>
                         @endforeach
@@ -257,9 +259,9 @@ active
                     <th data-priority="1">Tanggal</th>
                     <th data-priority="2">Keterangan</th>
                     <th data-priority="3">Akun Debit</th>
-                    <th data-priority="1">Debit</th>
+                    <th data-priority="1">Debit (Rp)</th>
                     <th data-priority="3">Akun Kredit</th>
-                    <th data-priority="1">Kredit</th>
+                    <th data-priority="1">Kredit (Rp)</th>
                     <th data-priority="4" class="center">Validasi</th>
                     <th data-priority="4" class="disabled-sorting text-right">Actions</th>
                     <th></th>
@@ -273,9 +275,9 @@ active
                     <th>Tanggal</th>
                     <th>Keterangan</th>
                     <th>Akun Debit</th>
-                    <th>Debit</th>
+                    <th>Debit (Rp)</th>
                     <th>Akun Kredit</th>
-                    <th>Kredit</th>
+                    <th>Kredit (Rp)</th>
                     <th class="center">Validasi</th>
                     <th class="disabled-sorting text-right">Actions</th>
                     <th></th>
@@ -296,10 +298,10 @@ active
                     </td>
                     <td>{{$m2->format('d/m/Y')}}</td>
                     <td>{{$j->keterangan}}</td>
-                    <td>{{$j->akunDebit->{'no-akun'} }}</td>
-                    <td>Rp {{ number_format($j->debit, 2) }}</td>
-                    <td>{{$j->akunKredit->{'no-akun'} }}</td>
-                    <td>Rp {{ number_format($j->kredit, 2) }}</td>
+                    <td class="text-right">{{$j->akunDebit->{'no-akun'} }} - {{$j->akunDebit->{'nama-akun'} }}</td>
+                    <td class="text-right">{{ number_format($j->debit, 2) }}</td>
+                    <td class="text-right">{{$j->akunKredit->{'no-akun'} }} - {{$j->akunKredit->{'nama-akun'} }}</td>
+                    <td class="text-right">{{ number_format($j->kredit, 2) }}</td>
                     @if($j->validasi==1)
                     <td class="center"><i class="material-icons">task_alt</i></td>
                     @else
@@ -323,7 +325,7 @@ active
                       </label>
                     </div>
                     @else
-                        @if(!array_intersect($role, ['Supervisor', 'Spesial']) && $j->{'by-role'} !== $byrole)
+                        @if(!array_intersect($role, ['Supervisor', 'Spesial']) || !in_array($j->{'by-role'}, array_merge($byrole, [NULL])))
                         <button class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">block</i></button>
                         @else
                         <button data-toggle="tooltip" data-placement="left" title="Edit" class="btn btn-link btn-warning btn-just-icon edit btn-sm" key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></button>
@@ -404,7 +406,7 @@ function onDuplicate(self) {
 function onTambah(self) {
     var $modal=$('#modalTambah');
     
-    $modal.find('[name=tanggal]').val('').change();
+    $modal.find('[name=tanggal]').val('{{$defaultDateInput}}').change();
     $modal.find('[name=keterangan]').val('').change();
     $modal.find('[name=id-debit]').val('').change();
     $modal.find('[name=id-kredit]').val('').change();
@@ -426,30 +428,20 @@ $(document).ready(function() {
     let dateawal, date;
     if(localStorage.date){
         dateawal =localStorage.dateawal;
-        date = localStorage.date;
-
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
-        let dateParam = urlParams.get('date');
         let dateawalParam = urlParams.get('dateawal');
-
-        if( !dateParam || !dateawalParam){
-            console.log(dateParam, dateawalParam, date, dateawal);
-            window.location.replace(location.pathname.split( '?' )[0]+"?"+"dateawal="+dateawal+"&"+"date="+date);
-        }else if(date != dateParam || dateawal != dateawalParam){
+        if(!dateawalParam){
+            window.location.replace(location.pathname.split( '?' )[0]+"?"+"dateawal="+dateawal);
+        }else if(dateawal != dateawalParam){
             localStorage.setItem('dateawal', dateawalParam);
-            localStorage.setItem('date', dateParam);
             dateawal =dateawalParam;
-            date = dateParam;
         }
-
     }else{
         dateawal = @json($dateawal);
-        date = @json($date);
         localStorage.setItem('dateawal', dateawal);
-        localStorage.setItem('date', date);
     }
-    window.history.replaceState('', '', location.pathname.split( '?' )[0]+"?"+"dateawal="+dateawal+"&"+"date="+date);
+    window.history.replaceState('', '', location.pathname.split( '?' )[0]+"?"+"dateawal="+dateawal);
     // END of KONTROL STATE DATE FILTER
 
     my.initFormExtendedDatetimepickers({{$year}});
@@ -465,7 +457,7 @@ $(document).ready(function() {
             [10, 25, 50, 100, -1],
             [10, 25, 50, 100, "All"]
         ],
-        iDisplayLength: 50,
+        iDisplayLength: 100,
         columnDefs: [
             {   
                 class: "details-control",
@@ -479,9 +471,9 @@ $(document).ready(function() {
         return '<table class="table table-no-style"><tbody>'+
             '<tr><td width="15%"><b>'+'Tanggal'+'</b></td><td>'+d[1]+'</td></tr>'+
             '<tr><td><b>'+'Keterangan'+'</b></td><td>'+d[2]+'</td></tr>'+
-            '<tr><td><b>'+'Akun Debit'+'</b></td><td>'+d[3]+' - '+d[8]+'</td></tr>'+
+            '<tr><td><b>'+'Akun Debit'+'</b></td><td>'+d[3]+' - '+d[9]+'</td></tr>'+
             '<tr><td><b>'+'Debit'+'</b></td><td>'+d[4]+'</td></tr>'+
-            '<tr><td><b>'+'Akun Kredit'+'</b></td><td>'+d[5]+' - '+d[9]+'</td></tr>'+
+            '<tr><td><b>'+'Akun Kredit'+'</b></td><td>'+d[5]+' - '+d[10]+'</td></tr>'+
             '<tr><td><b>'+'Kredit'+'</b></td><td>'+d[6]+'</td></tr>'+
             '<tbody></table>';
     } 
@@ -548,29 +540,29 @@ $(document).ready(function() {
         put.tagsinput('input').attr('hidden',true);
         
         sel.change(function(){
-        put.tagsinput('removeAll');
-        sel.val().forEach(function(s){
-            put.tagsinput('add', s);
-        })
+            put.tagsinput('removeAll');
+            sel.val().forEach(function(s){
+                put.tagsinput('add', s);
+            })
 
-        //search nya pakai regex misal "Pusat|Spesial" artinya boleh Pusat atau Spesial
-        var searchStr=sel.val().join('|');
-        table.column(col).search( searchStr , true, false).draw();
+            //search nya pakai regex misal "Pusat|Spesial" artinya boleh Pusat atau Spesial
+            var searchStr=sel.val().join('|');
+            table.column(col).search( searchStr , true, false).draw();
         });
 
         put.on('itemRemoved', function(event) {
-        sel.selectpicker('deselectAll');
-        sel.selectpicker('val', put.tagsinput('items'));
+            sel.selectpicker('deselectAll');
+            sel.selectpicker('val', put.tagsinput('items'));
         });
     });
 
     //set filter dulu
     $('#selectrole').selectpicker('deselectAll');
-    if(@json($byrole)){
-        $('#selectrole').selectpicker('val', @json($byrole));
-    }else{
-        $('#selectrole').selectpicker('val', 'Reguler');
-    }
+    @if($byrole)
+    $('#selectrole').selectpicker('val', @json($byrole));
+    @else
+    $('#selectrole').selectpicker('val', 'Reguler');
+    @endif
 } );
 </script>
 <script type="text/javascript">
@@ -578,7 +570,6 @@ $(document).ready(function() {
     var allVals = [];
 
     $('.validasi').on('click', function(e) {
-        console.log()
         allVals = [];
         $(".sub_chk:checked").each(function() {
             allVals.push($(this).attr('data-id'));

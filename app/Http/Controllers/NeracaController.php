@@ -337,8 +337,11 @@ class NeracaController extends Controller
             $saldosBerjalan = array_combine(array_column($saldosBerjalan->toArray(), 'id-akun'), $saldosBerjalan->toArray()) : [];
         $aset = [];
         $beban = [];
+        $saldoAwalAsetTotal = 0;
+        $saldoAwalBebanTotal = 0;
         foreach ($categories as $category) {
             $childs = [];
+            $saldoAwal = 0;
             foreach ($category->getAkun as $akun) {
                 $sb = array_key_exists($akun->{'id'}, $saldosBerjalan) ? floatval($saldosBerjalan[$akun->{'id'}]['saldo']) : 0;
                 $childs[] = [
@@ -347,6 +350,7 @@ class NeracaController extends Controller
                     'saldo_awal' => (array_key_exists($akun->{'id'}, $awal) ? floatval($awal[$akun->{'id'}]['saldo']) : 0) + $sb,
                     'saldo' => array_key_exists($akun->{'id'}, $saldos) ? floatval($saldos[$akun->{'id'}]['saldo']) : 0,
                 ];
+                $saldoAwal += $childs[count($childs) - 1]['saldo_awal'];
             }
             if (empty($childs)) {
                 continue;
@@ -358,8 +362,10 @@ class NeracaController extends Controller
             ];
             if ($category['tipe-pendapatan']  == 'debit') {
                 $aset[] = $cat;
+                $saldoAwalAsetTotal += $saldoAwal;
             } else {
                 $beban[] = $cat;
+                $saldoAwalBebanTotal += $saldoAwal;
             }
         }
     
@@ -372,6 +378,8 @@ class NeracaController extends Controller
             'year' => $year,
             'aset' => $aset,
             'beban' => $beban,
+            'saldo_awal_aset_total' => $saldoAwalAsetTotal,
+            'saldo_awal_beban_total' => $saldoAwalBebanTotal,
         ];
     }
 }
