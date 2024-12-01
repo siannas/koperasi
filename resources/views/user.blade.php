@@ -184,15 +184,15 @@ active
     <div class="row">
     <div class="col-md-12">
         <div class="card">
-        <div class="card-header card-header-primary card-header-icon">
+        <!-- <div class="card-header card-header-primary card-header-icon">
             <div class="card-icon">
                 <i class="material-icons">people</i>
             </div>
             <h4 class="card-title">User</h4>
-        </div>
+        </div> -->
         <div class="card-body">
             <div class="toolbar text-right">
-                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalTambah">Tambah</button>
+                <button class="btn btn-primary btn-sm btn-text-14" data-toggle="modal" data-target="#modalTambah"><i class="material-icons">add</i>Kategori</button>
             </div>
             
             <div class="material-datatables">
@@ -254,7 +254,7 @@ active
 
 @section('script')
 <!--	Plugin for Tags, full documentation here: https://github.com/bootstrap-tagsinput/bootstrap-tagsinputs  -->
-<script src="{{asset('public/js/plugins/bootstrap-tagsinput.js')}}"></script>
+<script src="{{asset('js/plugins/bootstrap-tagsinput.js')}}"></script>
 <script>
 var table;
 var myUsers = @json($user);
@@ -286,7 +286,7 @@ function onDelete(self) {
 } 
 
 $(document).ready(function() {
-    my.initFormExtendedDatetimepickers();
+    my.initFormExtendedDatetimepickers({{$year}});
     if ($('.slider').length != 0) {
         md.initSliders();
     }

@@ -12,7 +12,10 @@ class JurnalController extends Controller
     private $ROLES_RANK=[
         'Pusat',
         // 'Spesial',
+        'Reguler',
     ];
+
+    private $filterDate = null;
 
     /**
      * Display a listing of the resource.
@@ -21,30 +24,26 @@ class JurnalController extends Controller
      */
     public function index(Request $request)
     {
-        if(!$request->dateawal OR !$request->date){
-            $dateAwal=$this->date['date']->format('Y-m').'-01';
-            $dateAkhir=$this->date['date']->format('Y-m-d');
-            $dateawal_raw='01/'.$this->date['date']->format('m/Y');
-            $date_raw=$this->date['date']->format('d/m/Y');
-        }else{
-            $dateAwal=Carbon::createFromFormat('d/m/Y', $request->dateawal);
-            $dateAkhir=Carbon::createFromFormat('d/m/Y', $request->date);
-            $dateAwal=$dateAwal->format('Y-m-d');
-            $dateAkhir=$dateAkhir->format('Y-m-d');
-
-            $dateAwal=$dateAwal;
-            $dateAkhir= $dateAkhir;
-            $dateawal_raw=$request->dateawal;
-            $date_raw=$request->date;
+        if ($request->input('dateawal')) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('dateawal') . "/" . $this->year);
+        } else {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
         }
+        $dateAkhir = clone($this->filterDate);
+        $dateAkhir = $dateAkhir->addMonth();
+        $dateAwal = $this->filterDate->format('Y-m-d');
+        $dateAkhir=$dateAkhir->format('Y-m-d');
+        $dateawal_raw=$dateAwal;
+        $date_raw=$dateAkhir;
 
         $datelock = \App\Meta::where('key','setting_datelock')->pluck('value')->first();
         $datelock = Carbon::parse($datelock)->addMonth();
         
         $tipe=$request->get('tipe');
 
-        $byrole=array_intersect($this->ROLES_RANK,$request->get('roles'));
-        $byrole=empty($byrole)?NULL:$byrole[0];
+        // $byrole=array_intersect($this->ROLES_RANK,$request->get('roles'));
+        $byrole=$this->ROLES_RANK;
+        // $byrole=empty($byrole)?NULL:$byrole[0];
 
         $akuns = \App\Akun::where('id-tipe',$tipe->id)
             ->select('id','nama-akun')
@@ -52,25 +51,28 @@ class JurnalController extends Controller
         $jurnals = \App\Jurnal::where('id-tipe',$tipe->id)
             ->with('akunDebit')
             ->with('akunKredit')
+            ->orderBy('tanggal','DESC')
             ->orderBy('id','DESC')
             ->whereDate('tanggal','>=',$dateAwal)
             ->whereDate('tanggal','<=',$dateAkhir)
             ->get();
         return view('jurnal', [
+            'dateawal' => $this->filterDate->translatedFormat('F'),
             'akuns'=>$akuns,
             'currentTipe'=>$tipe,
             'jurnals'=>$jurnals,
-            'dateawal'=>$dateawal_raw,
+            // 'dateawal'=>$dateawal_raw,
             'date'=>$date_raw,
             'byrole'=>$byrole,
             'byroleFilter'=>$this->ROLES_RANK,
             'datelock'=>$datelock,
+            'defaultDateInput'=>$this->filterDate->format('d/m/Y'),
         ]);
     }
 
     public function filter(Request $request){
         $tipe=$request->get('tipe');
-        return redirect(route( 'jurnal.index',['tipe'=>$tipe->tipe])."?dateawal={$request->dateawal}&date={$request->date}");
+        return redirect(route( 'jurnal.index',['tipe'=>$tipe->tipe])."?dateawal={$request->dateawal}");
     }
 
     /**
@@ -119,22 +121,23 @@ class JurnalController extends Controller
             // Jika pengisian lebih dari today
             if($jurnal->tanggal > $today){
                 $this->flashError('Tanggal Melebihi Hari Ini: '.$today->isoFormat('D MMMM Y'));
-                return redirect(url('/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
+                return redirect(url($this->year.'/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
             }
             // Jika selisih pengisian & today lebih dari DATE LOCK
             elseif($date->lessThan($datelock)){
                 
                 $this->flashError('Tanggal Sudah Melewati Batas Waktu Pengisian');
-                return redirect(url('/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
+                return redirect(url($this->year.'/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
             }
             $jurnal->save();
         }catch (QueryException $exception) {
             $this->flashError($exception->getMessage());
-            return redirect(url('/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
+            return redirect(url($this->year.'/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
         }
 
         $this->flashSuccess('Data Jurnal Berhasil Ditambahkan');
-        return redirect(url('/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
+        return back();
+        // return redirect(url($this->year.'/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
     }
 
     /**
@@ -166,7 +169,7 @@ class JurnalController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $year, $id)
     {
         $tipe=$request->get('tipe');
         $data = $request->validate([
@@ -184,11 +187,12 @@ class JurnalController extends Controller
             $jurnal->save();
         }catch (QueryException $exception) {
             $this->flashError($exception->getMessage());
-            return redirect(url('/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
+            return redirect(url($this->year.'/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
         }
 
         $this->flashSuccess('Data Jurnal Berhasil Diperbarui');
-        return redirect(url('/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
+        return back();
+        // return redirect(url($this->year.'/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
     }
 
     /**
@@ -197,7 +201,7 @@ class JurnalController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, $year, $id)
     {
         $tipe=$request->get('tipe');
         try {
@@ -205,11 +209,12 @@ class JurnalController extends Controller
             $jurnal->delete();
         }catch (QueryException $exception) {
             $this->flashError($exception->getMessage());
-            return redirect(url('/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
+            return redirect(url($this->year.'/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
         }
         
         $this->flashSuccess('Data Jurnal Berhasil Dihapus');
-        return redirect(url('/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
+        return back();
+        // return redirect(url($this->year.'/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
     }
 
     public function validasi(Request $request){
@@ -227,12 +232,13 @@ class JurnalController extends Controller
         }
         
         $this->flashSuccess('Status Validasi Pada Data Jurnal Berhasil Diubah');
-        return redirect(url('/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
+        return back();
+        // return redirect(url($this->year.'/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
     }
 
     public function excel(Request $request){
-        
-        $my=Carbon::createFromFormat('d/m/Y', $request->date);
+        $my = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('dateawal') . "/" . $this->year);
+        // $my=Carbon::createFromFormat('d/m/Y', $request->date);
         $month = $my->month;
         $year = $my->year;
         
@@ -256,7 +262,7 @@ class JurnalController extends Controller
         $ac = $ex->getActiveSheet();
 
         $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-        $drawing->setPath('public/img/logo.png');
+        $drawing->setPath(base_path('public/img/logo.png'));
         $drawing->setCoordinates('C1');
         $drawing->setOffsetX(180);
         $drawing->setOffsetY(5);

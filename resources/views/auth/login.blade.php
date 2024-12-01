@@ -1,7 +1,7 @@
 <head>
   <meta charset="utf-8" />
-  <link rel="apple-touch-icon" sizes="76x76" href="{{asset('public/img/apple-icon.png')}}">
-  <link rel="icon" type="image/png" href="{{asset('public/img/favicon.png')}}">
+  <link rel="apple-touch-icon" sizes="76x76" href="{{asset('img/apple-icon.png')}}">
+  <link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>Koperasi</title>
   <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
@@ -10,8 +10,16 @@
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
   <!-- CSS Files -->
-  <link href="{{asset('public/css/material-dashboard.css?v=2.2.2')}}" rel="stylesheet" />
-  
+  <link href="{{asset('css/material-dashboard.css?v=2.2.2')}}" rel="stylesheet" />
+  <style>
+    #login-year-selector {
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      border-radius: 0;
+      padding: 0;
+    }
+  </style>
 </head>
 
 <body class="off-canvas-sidebar">
@@ -59,7 +67,7 @@
   </nav>
   <!-- End Navbar -->
   <div class="wrapper wrapper-full-page">
-    <div class="page-header login-page header-filter" filter-color="black" style="background-image: url('{{asset('public/img/login.jpeg')}}'); background-size: cover; background-position: bottom center;">
+    <div class="page-header login-page header-filter" filter-color="black" style="background-image: url('{{asset('img/login.jpeg')}}'); background-size: cover; background-position: bottom center;">
       <!--   you can change the color of the filter page using: data-color="blue | purple | green | orange | red | rose " -->
       <div class="container">
         <div class="row">
@@ -112,6 +120,22 @@
                       </div>
                     </div>
                   </span>
+                  <span class="bmd-form-group">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">
+                          <i class="material-icons">calendar_month</i>
+                        </span>
+                      </div>
+                      <!-- <div class="form-group"> -->
+                        <select id="login-year-selector" name="year" class="custom-select form-control" data-style="btn btn-primary btn-round" title="Year" required>
+                          @for($i = intval(date('Y')); $i >= 2024; $i--) 
+                          <option value="{{$i}}">{{$i}}</option> 
+                          @endfor
+                        </select>
+                      <!-- </div> -->
+                    </div>
+                  </span>
                 </div>
                 <div class="card-footer justify-content-center">
                   <button type="submit" class="btn btn-rose btn-link btn-lg">LOGIN</button>
@@ -159,13 +183,14 @@
     </div>
   </div>
   <!--   Core JS Files   -->
-  <script src="{{asset('public/js/core/jquery.min.js')}}"></script>
-  <script src="{{asset('public/js/core/popper.min.js')}}"></script>
-  <script src="{{asset('public/js/core/bootstrap-material-design.min.js')}}"></script>
-  <script src="{{asset('public/js/plugins/perfect-scrollbar.min.js')}}"></script>
+  <script src="{{asset('js/core/jquery.min.js')}}"></script>
+  <script src="{{asset('js/core/popper.min.js')}}"></script>
+  <script src="{{asset('js/core/bootstrap-material-design.min.js')}}"></script>
+  <script src="{{asset('js/plugins/perfect-scrollbar.min.js')}}"></script>
+  <script src="{{asset('js/plugins/bootstrap-selectpicker.js')}}"></script>
   
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="{{asset('public/js/material-dashboard.js?v=2.2.2')}}" type="text/javascript"></script>
+  <script src="{{asset('js/material-dashboard.js?v=2.2.2')}}" type="text/javascript"></script>
   
   <script>
     $(document).ready(function() {

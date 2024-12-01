@@ -18,7 +18,11 @@ class RedirectIfAuthenticated
     public function handle($request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->check()) {
-            return redirect('/');
+            $year = date('Y');
+            if (request()->cookie('tahun')) {
+                $year = request()->cookie('tahun');
+            }
+            return redirect('/' . $year);
         }
 
         return $next($request);

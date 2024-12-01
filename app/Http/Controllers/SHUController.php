@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Kategori;
+use App\Saldo;
 
 class SHUController extends Controller
 {
+    private $filterDate = null;
+
     /**
      * Display a listing of the resource.
      *
@@ -15,12 +19,17 @@ class SHUController extends Controller
      */
     public function index(Request $request)
     {
-        if($tipe=$request->get('tipe')){
-            $data = $this->init($request, $tipe);
-        }else{
-            $data = $this->initGabungan($request);
+        if ($request->input('date_month')) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('date_month') . "/" . $this->year);
+        } else {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
         }
-
+        if($tipe=$request->get('tipe')){
+            $data = $this->init($request, $tipe->id, $tipe->slug);
+        }else{
+            $data = $this->init($request);
+        }
+        $data['currentTipe'] = $tipe;
         return view('shu', $data);
     }
 
@@ -29,29 +38,27 @@ class SHUController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function excel(Request $request, $cmd=NULL){
-        if($tipe=$request->get('tipe')){
-            $d = $this->init($request, $tipe);
-        }else{
-            $d = $this->initGabungan($request);
+    public function excel(Request $request, $year){
+        $viewOnly = $request->isMethod('get');
+        if ($request->input('date_month')) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('date_month') . "/" . $this->year);
+        } else {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
         }
+        if($tipe=$request->get('tipe')){
+            $data = $this->init($request, $tipe->id, $tipe->slug);
+        }else{
+            $data = $this->init($request);
+        }
+        $data['currentTipe'] = $tipe;
 
-        $tanggalString = Carbon::createFromFormat('m/Y', $d['date'])->isoFormat('MMMM Y');
+        $tanggalString = "{$data['month_literal']} {$year}";
         
         $ex = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $ex->getProperties()->setCreator("siannasGG");
         $ac = $ex->getActiveSheet();
 
         $ac->getStyle('C:G')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
-
-        // KOP
-        $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-        $drawing->setPath( $cmd==='view-gabungan' ? asset('public/img/logo.png') : 'public/img/logo.png');
-        $drawing->setCoordinates('B1');
-        $drawing->setOffsetX(100);
-        $drawing->setOffsetY(5);
-        $drawing->setHeight(80);
-        $drawing->setWorksheet($ex->getActiveSheet());
 
         $ac->mergeCells('B1:G1');
         $ac->getCell('B1')->setValue("KOPERASI KONSUMEN PEGAWAI REPUBLIK INDONESIA");
@@ -120,71 +127,49 @@ class SHUController extends Controller
         $from=10;
         $walk=0;
         $master=[];
-        foreach($d['kategoris'] as $k => $kd){
-            $master[$kd->id]=[
+        foreach($data['shu'] as $k => $kd){
+            $master[$kd['id']]=[
                 'awal'=>0,
                 'berjalan'=>0,
             ];
-            if($kd->getAkun->isEmpty() === false ){
-                $saldo_berjalan=0;
-                $saldo_awal=0;
-                $coef= ($kd->{'tipe-pendapatan'} ==='kredit') ? -1 : 1;
-
-                $visited=[];
-                $visited2=[];
-                foreach($kd->getAkun as $akun){
-                    $visited[ $akun->{'nama-akun'} ][]=$akun->id;
-                }
-                // display per kategori
-                $now=$walk;
-                foreach($kd->getAkun as $akun){
-                    // pastikan nama akun belum di-visit (guna view gabungan untuk nama akun yg sama)
-                    if (array_key_exists($akun->{'nama-akun'}, $visited2) === false) {
-                        $walk++;
-
-                        $awal=0;
-                        $cur=0;
-                        foreach ($visited[$akun->{'nama-akun'} ] as $id_ak) {
-                            $debit=$d['jurnal_debit']->has($id_ak) ? $d['jurnal_debit'][$id_ak]->debit : 0;
-                            $kredit=$d['jurnal_kredit']->has($id_ak) ? $d['jurnal_kredit'][$id_ak]->kredit : 0;
-                            $cur+=$coef*($debit-$kredit);
-                            $awal+=$d['saldos']->has($id_ak) ? $d['saldos'][$id_ak]->saldo : 0;
-                        }
-                        $saldo_awal+=$awal;
-                        $saldo_berjalan+=$cur;
-
-                        $ac->getCell('B'.($from+$walk))->setValue("      ".$akun->{'nama-akun'});
-                        $ac->getCell('C'.($from+$walk))->setValue(number_format($awal, 2));
-                        $ac->getCell('D'.($from+$walk))->setValue(number_format($cur, 2));
-                        $ac->getCell('E'.($from+$walk))->setValue(number_format($awal+$cur, 2));
-
-                        $visited2[ $akun->{'nama-akun'} ]=1;
-                    }
-                }
-
-                // display total saldo kategori
-                $row = $from+$now;
-                $ac->getCell('B'.($row))->setValue( $kd->kategori );
+            $saldo_berjalan=0;
+            $saldo_awal=0;
+            // display per kategori
+            $now=$walk;
+            foreach($kd['data'] as $akun){
+                // pastikan nama akun belum di-visit (guna view gabungan untuk nama akun yg sama)
                 $walk++;
-                $row = $from+$walk;
-                $ac->getCell('B'.($row))->setValue( 'JUMLAH '.strtoupper($kd->kategori) );
-                $ac->getCell('C'.($row))->setValue( number_format($saldo_awal,2) );
-                $ac->getCell('D'.($row))->setValue( number_format($saldo_berjalan,2) );
-                $ac->getCell('E'.($row))->setValue( number_format($saldo_awal+$saldo_berjalan,2) );
-                $ac->getStyle("B{$row}:G{$row}")->getFont()->setBold(true);
-                $ac->getStyle("B{$row}:G{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-                $walk++;
+                $saldo_awal+=$akun['saldo_awal'];
+                $saldo_berjalan+=$akun['saldo'];
 
-                $master[$kd->id]=[
-                    'awal'=>$saldo_awal,
-                    'berjalan'=>$saldo_berjalan,
-                ];
+                $ac->getCell('B'.($from+$walk))->setValue("      ".$akun['name']);
+                $ac->getCell('C'.($from+$walk))->setValue(number_format($akun['saldo_awal'], 2));
+                $ac->getCell('D'.($from+$walk))->setValue(number_format($akun['saldo'], 2));
+                $ac->getCell('E'.($from+$walk))->setValue(number_format($akun['saldo_awal'] + $akun['saldo'], 2));
             }
+
+            // display total saldo kategori
+            $row = $from+$now;
+            $ac->getCell('B'.($row))->setValue( $kd['name'] );
+            $walk++;
+            $row = $from+$walk;
+            $ac->getCell('B'.($row))->setValue( 'JUMLAH '.strtoupper($kd['name']) );
+            $ac->getCell('C'.($row))->setValue( number_format($saldo_awal,2) );
+            $ac->getCell('D'.($row))->setValue( number_format($saldo_berjalan,2) );
+            $ac->getCell('E'.($row))->setValue( number_format($saldo_awal+$saldo_berjalan,2) );
+            $ac->getStyle("B{$row}:G{$row}")->getFont()->setBold(true);
+            $ac->getStyle("B{$row}:G{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+            $walk++;
+
+            $master[$kd['id']]=[
+                'awal'=>$saldo_awal,
+                'berjalan'=>$saldo_berjalan,
+            ];
         }
 
         // kalkulasi semua rumus total dari tabel meta shu
-        foreach($d['meta'] as $i=>$m){
-            $title=ucwords(str_replace("_"," ", substr($m->key, $d['metaKeyLen']) ));
+        foreach($data['meta'] as $i=>$m){
+            $title=ucwords(str_replace("_"," ", substr($m->key, $data['metaKeyLen']) ));
             $res=$this->calculate($master, $m->value);
 
             $row = $from+$walk;
@@ -200,7 +185,17 @@ class SHUController extends Controller
         //set border luar tabel
         $ac->getStyle("B{$from}:G{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
-        if($cmd==='view-gabungan'){
+        // KOP
+        $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+
+        $drawing->setPath(base_path('public/img/logo.png'));
+        $drawing->setCoordinates('B1');
+        $drawing->setOffsetX(100);
+        $drawing->setOffsetY(5);
+        $drawing->setHeight(80);
+        $drawing->setWorksheet($ex->getActiveSheet());
+
+        if($viewOnly){
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Html($ex);
             // $header = $writer->generateHTMLHeader();
             echo $writer->generateStyles();
@@ -209,7 +204,7 @@ class SHUController extends Controller
             echo $writer->generateHTMLFooter();
         }else{
             // send file ke user
-            $fileName="SHU_".$tanggalString.".xlsx";
+            $fileName="SHU_{$data['month_literal']}_{$year}.xlsx";
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             header('Content-Disposition: attachment; filename="'. urlencode($fileName).'"');
             header('Cache-Control: max-age=0');
@@ -224,162 +219,80 @@ class SHUController extends Controller
      *
      * @return Object
      */
-    private function init(Request $request){
-        //dapetin tanggal shu
-        $month = $this->date['m'];
-        $year = $this->date['y'];
-        $backDate=Carbon::instance($this->date['date'])->subMonthsNoOverflow(1);
-        if ($request->input('date')) {
-            $my=Carbon::createFromFormat('m/Y', $request->input('date'));
-            $month = $my->month;
-            $year = $my->year;
-            $backDate=$my->subMonthsNoOverflow(1);
-        }
-        $tipe=$request->get('tipe');
-        
-        $saldosIds=\App\Saldo::select(DB::raw('COUNT(`id-akun`) cnt'),DB::raw('MAX(`id`) id'))
-            ->whereDate('tanggal','<',$backDate->format('Y-m-d'))
-            ->groupBy('id-akun')->pluck('id');
-        $saldos=\App\Saldo::select('id','id-kategori','id-akun','saldo')
-            ->whereIn('id',$saldosIds)
-            ->get()->keyBy('id-akun');
-
-        // Ambil kategori parent yang SHU
-        $SHU=\App\Kategori::where('kategori', 'SHU')->select('id')->first();
-
-        $kategoris=\App\Kategori::with(['getAkun' => function($q) use($tipe) {
-            /** NOTE:
-             * ambil akun dengan string nama yang sama
-             * */ 
-            $q->select('B.id','akun.nama-akun','akun.no-akun', 'akun.id-kategori','akun.id-tipe')
-                ->leftJoin('akun AS B','akun.nama-akun','LIKE','B.nama-akun')
-                ->where(function($q2) use($tipe){
-                    $q2->where('akun.id-tipe',$tipe->id)
-                        ->where('akun.id','=',DB::raw('B.id'));
-                })
-                ->orWhere(function($q2) use($tipe){
-                    $q2->where('B.id-tipe','<>',$tipe->id)
-                        ->where('akun.id','<>',DB::raw('B.id'));
-                        // ->whereNotNull('B.nama-akun');
-                });
-            }])
-            ->where('parent',$SHU->id)
-            ->get();
-    
-        $jurnal_debit=\App\Jurnal::leftJoin('akun AS A','id-debit','LIKE','A.id')
-            ->leftJoin('akun AS B','A.nama-akun','LIKE','B.nama-akun')
-            ->selectRaw('`id-debit`, sum(debit) as debit')
-            ->groupBy('id-debit')
-            ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
-            ->where('validasi',1)
-            ->where(function($q) use($tipe){
-                $q->where(function($q2) use($tipe){
-                        $q2->where('A.id-tipe',$tipe->id)
-                        ->where('A.id','=',DB::raw('B.id'));
-                    })
-                    ->orWhere(function($q2) use($tipe){
-                        $q2->where('A.id-tipe','<>',$tipe->id)
-                            ->where('A.id','<>',DB::raw('B.id'));
-                    });
+    private function init(Request $request, ?int $tipe = null, string $slug = ''){
+        $saldos = \App\Saldo::select('id-akun', DB::Raw('SUM(`saldo`) as saldo'))
+            ->where('tanggal', '=', $this->filterDate->format('Y-m-') . '01')
+            ->where('id-tipe', '<>', 0)
+            ->when($tipe != null, function($q) use($tipe) {
+                $q->where('id-tipe', '=', $tipe);
             })
-            ->get()->keyBy('id-debit');
-
-        $jurnal_kredit=\App\Jurnal::leftJoin('akun AS A','id-kredit','LIKE','A.id')
-            ->leftJoin('akun AS B','A.nama-akun','LIKE','B.nama-akun')
-            ->selectRaw('`id-kredit`, sum(kredit) as kredit')
-            ->groupBy('id-kredit')
-            ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
-            ->where('validasi',1)
-            ->where(function($q) use($tipe){
-                $q->where(function($q2) use($tipe){
-                        $q2->where('A.id-tipe',$tipe->id)
-                        ->where('A.id','=',DB::raw('B.id'));
-                    })
-                    ->orWhere(function($q2) use($tipe){
-                        $q2->where('A.id-tipe','<>',$tipe->id)
-                            ->where('A.id','<>',DB::raw('B.id'));
-                    });
-            })
-            ->get()->keyBy('id-kredit');
-
-        $metaForeKey="shu_".strtolower($tipe->slug).'_';
-        $meta=\App\Meta::where('key','like',$metaForeKey.'%')->get();
-        
-        return [
-            'metaKeyLen' => strlen($metaForeKey),
-            'meta'=>$meta,
-            'currentTipe'=>$tipe,
-            'date'=> $month.'/'.$year,
-            'kategoris' => $kategoris,
-            'jurnal_debit' => $jurnal_debit,
-            'jurnal_kredit' => $jurnal_kredit,
-            'saldos'=>$saldos,
-        ];
-    }
-
-    /**
-     * Init data-data.
-     *
-     * @return Object
-     */
-    private function initGabungan(Request $request){
-        //dapetin tanggal shu
-        $month = $this->date['m'];
-        $year = $this->date['y'];
-        $backDate=Carbon::instance($this->date['date'])->subMonthsNoOverflow(1);
-        if ($request->input('date')) {
-            $my=Carbon::createFromFormat('m/Y', $request->input('date'));
-            $month = $my->month;
-            $year = $my->year;
-            $backDate=$my->subMonthsNoOverflow(1);
-        }
-        $tipe=$request->get('tipe');
-        
-        $saldosIds=\App\Saldo::select(DB::raw('COUNT(`id-akun`) cnt'),DB::raw('MAX(`id`) id'))
-            ->whereDate('tanggal','<',$backDate->format('Y-m-d'))
-            ->groupBy('id-akun')->pluck('id');
-        $saldos=\App\Saldo::select('id','id-kategori','id-akun','saldo')
-            ->whereIn('id',$saldosIds)
-            ->get()->keyBy('id-akun');
-
-        // Ambil kategori parent yang SHU
-        $SHU=\App\Kategori::where('kategori', 'SHU')->select('id')->first();
-
-        $kategoris=\App\Kategori::with(['getAkun' => function($q) use($tipe) {
-            $q->select('a2.id','a2.nama-akun','a2.no-akun', 'akun.id-kategori','a2.id-tipe')
-                    ->rightJoin(DB::raw('akun a2'), 'akun.nama-akun','=','a2.nama-akun');
-            }])
-            ->where('parent',$SHU->id)
+            ->groupBy('id-akun')
             ->get();
+        $saldosBerjalan = \App\Saldo::select('id-akun', DB::Raw('SUM(`saldo`) as saldo'))
+            ->where('tanggal', '<', $this->filterDate->format('Y-m-') . '01')
+            ->where('tanggal', '>=', $this->filterDate->format('Y-') . '01-01')
+            ->where('id-tipe', '<>', 0)
+            ->when($tipe != null, function($q) use($tipe) {
+                $q->where('id-tipe', '=', $tipe);
+            })
+            ->groupBy('id-akun')
+            ->get();
+        $awal = \App\Saldo::select('id-akun', DB::Raw('SUM(`saldo_awal`) as saldo'))
+            ->where('tanggal', '=', $this->filterDate->format('Y-') . '01-01')
+            ->where('id-tipe', '=', 0)
+            ->groupBy('id-akun')
+            ->get();
+        $categories = Kategori::with(['getAkun' => function($q) {
+                $q->where('status', '=', 1)
+                ->orderBy('no-akun','ASC');
+            }])
+            ->where('parent', '=', Kategori::SHU)
+            ->orderBy('priority','ASC')
+            ->get();
+        $awal = $awal ? $awal = array_combine(array_column($awal->toArray(), 'id-akun'), $awal->toArray()) : [];
+        $saldos = $saldos ? $saldos = array_combine(array_column($saldos->toArray(), 'id-akun'), $saldos->toArray()) : [];
+        $saldosBerjalan = $saldosBerjalan ?
+            $saldosBerjalan = array_combine(array_column($saldosBerjalan->toArray(), 'id-akun'), $saldosBerjalan->toArray()) : [];
+        $shu = [];
+        foreach ($categories as $category) {
+            $childs = [];
+            $saldoAwal = 0;
+            foreach ($category->getAkun as $akun) {
+                $sb = array_key_exists($akun->{'id'}, $saldosBerjalan) ? floatval($saldosBerjalan[$akun->{'id'}]['saldo']) : 0;
+                $childs[] = [
+                    'id' => $akun->id,
+                    'name' => $akun->{'no-akun'} . ' - ' . $akun->{'nama-akun'},
+                    'saldo_awal' => (array_key_exists($akun->{'id'}, $awal) ? floatval($awal[$akun->{'id'}]['saldo']) : 0) + $sb,
+                    'saldo' => array_key_exists($akun->{'id'}, $saldos) ? floatval($saldos[$akun->{'id'}]['saldo']) : 0,
+                ];
+                $saldoAwal += $childs[count($childs) - 1]['saldo_awal'];
+            }
+            $cat = [
+                'id' => $category->id,
+                'name' => $category->kategori,
+                'data' => $childs,
+            ];
+            $shu[] = $cat;
+        }
     
-        $jurnal_debit=\App\Jurnal::selectRaw('`id-debit`, sum(debit) as debit')
-            ->groupBy('id-debit')
-            ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
-            ->where('validasi',1)
-            ->get()->keyBy('id-debit');
+        $month = $this->filterDate->month;
+        $year = $this->year;
+        $monthLiteral = $this->filterDate->translatedFormat('F');
 
-        $jurnal_kredit=\App\Jurnal::selectRaw('`id-kredit`, sum(kredit) as kredit')
-            ->groupBy('id-kredit')
-            ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
-            ->where('validasi',1)
-            ->get()->keyBy('id-kredit');
-
-        $metaForeKey="shu_usp_";
-        $meta=\App\Meta::where('key','like',$metaForeKey.'%')->get();
-        
+        $meta = [];
+        $metaForeKey="shu_".strtolower($slug).'_';
+        $meta=\App\Meta::where('key','like',$metaForeKey.'%')
+            ->when($slug =='', function($q){
+                $q->where('key','not like','shu_tk%')
+                ->where('key','not like','shu_fc%')
+                ->where('key','not like','shu_usp%');
+            })->get();
         return [
-            'metaKeyLen' => strlen($metaForeKey),
+            'metaKeyLen' => max(strlen($metaForeKey)-1, 0),
             'meta'=>$meta,
-            'currentTipe'=>$tipe,
             'date'=> $month.'/'.$year,
-            'kategoris' => $kategoris,
-            'jurnal_debit' => $jurnal_debit,
-            'jurnal_kredit' => $jurnal_kredit,
-            'saldos'=>$saldos,
+            'shu' => $shu,
+            'month_literal'=> $monthLiteral,
         ];
     }
 

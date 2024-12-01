@@ -10,10 +10,17 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+// Route::middleware(['guest'])->group(function() {
+    Auth::routes();
+// });
 
-Auth::routes();
+Route::middleware(['auth'])->group(function() {
+    # generator
+    Route::get('/generateSaldo/{year}/{isValidated?}', 'SaldoController@GenerateSaldoByYear');
+    Route::get('/generateSaldo/{month}/{year}/{isValidated?}', 'SaldoController@GenerateSaldoByMonth');
+});
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth'])->prefix('{tahun}')->group(function () {
     Route::get('/', 'DashboardController@dashboard');
 
     Route::prefix('{tipe}')->middleware(['customize.parameter'])->group(function(){
@@ -49,16 +56,18 @@ Route::middleware(['auth'])->group(function () {
             Route::post('jurnal/validasi', 'JurnalController@validasi')->name('jurnal.validasi');
 
             Route::get('neraca', 'NeracaController@index')->name('neraca.index');
-            Route::post('neraca', 'NeracaController@index')->name('neraca.filter');
-            Route::post('neraca/excel/{cmd?}', 'NeracaController@excel')->name('neraca.excel');
+            Route::get('neraca', 'NeracaController@index')->name('neraca.filter');
+            Route::get('neraca/excel', 'NeracaController@excel')->name('neraca.excel');
+            Route::post('neraca/excel', 'NeracaController@excel')->name('neraca.download');
 
             Route::get('buku-besar', 'BukuBesarController@index');
             Route::post('buku-besar', 'BukuBesarController@filter');
             Route::post('buku-besar/excel', 'BukuBesarController@excel');
 
             Route::get('shu', 'SHUController@index')->name('shu.index');
-            Route::post('shu', 'SHUController@index')->name('shu.filter');
-            Route::post('shu/excel/{cmd?}', 'SHUController@excel')->name('shu.excel');
+            Route::get('shu', 'SHUController@index')->name('shu.filter');
+            Route::get('shu/excel', 'SHUController@excel')->name('shu.excel');
+            Route::post('shu/excel', 'SHUController@excel')->name('shu.download');
         });
             
 
@@ -73,6 +82,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('user', 'DashboardController')->except([
             'create',
         ]);
+        Route::get('/config_neraca', 'ConfigController@index');
+        Route::post('/config_neraca', 'ConfigController@update')->name('configneraca.update');
     });
 
     /*
@@ -80,12 +91,14 @@ Route::middleware(['auth'])->group(function () {
     */
     Route::middleware(['role:Spesial,Supervisor'])->group(function(){
         Route::get('neraca', 'NeracaController@index')->name('neraca.index.gabungan');
-        Route::post('neraca', 'NeracaController@index')->name('neraca.filter.gabungan');
-        Route::post('neraca/excel/{cmd?}', 'NeracaController@excel')->name('neraca.excel.gabungan');
+        Route::get('neraca', 'NeracaController@index')->name('neraca.filter.gabungan');
+        Route::get('neraca/excel', 'NeracaController@excel')->name('neraca.excel.gabungan');
+        Route::post('neraca/excel', 'NeracaController@excel')->name('neraca.download.gabungan');
 
         Route::get('shu', 'SHUController@index')->name('shu.index.gabungan');
-        Route::post('shu', 'SHUController@index')->name('shu.filter.gabungan');
-        Route::post('shu/excel/{cmd?}', 'SHUController@excel')->name('shu.excel.gabungan');
+        Route::get('shu', 'SHUController@index')->name('shu.filter.gabungan');
+        Route::get('shu/excel', 'SHUController@excel')->name('shu.excel.gabungan');
+        Route::post('shu/excel', 'SHUController@excel')->name('shu.download.gabungan');
     });
     
     Route::middleware(['role:Supervisor'])->group(function(){

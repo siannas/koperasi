@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Kategori;
+use App\Saldo;
 
 class NeracaController extends Controller
 {
+    private $filterDate = null;
+
     /**
      * Display a listing of the resource.
      *
@@ -15,12 +19,17 @@ class NeracaController extends Controller
      */
     public function index(Request $request)
     {
-        if($tipe=$request->get('tipe')){
-            $data = $this->init($request, $tipe);
-        }else{
-            $data = $this->initGabungan($request);
+        if ($request->input('date_month')) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('date_month') . "/" . $this->year);
+        } else {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
         }
-        
+        if($tipe=$request->get('tipe')){
+            $data = $this->init($request, $tipe->id);
+        }else{
+            $data = $this->init($request);
+        }
+        $data['currentTipe'] = $tipe;
         return view('neraca', $data);
     }
 
@@ -29,31 +38,39 @@ class NeracaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function excel(Request $request, $cmd=NULL){
-        if($tipe=$request->get('tipe')){
-            $d = $this->init($request, $tipe);
-        }else{
-            $d = $this->initGabungan($request);
+    public function excel(Request $request, $year){
+        $viewOnly = $request->isMethod('get');
+        if ($request->input('date_month')) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('date_month') . "/" . $this->year);
+        } else {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
         }
+        if($tipe=$request->get('tipe')){
+            $data = $this->init($request, $tipe->id);
+        }else{
+            $data = $this->init($request);
+        }
+        $data['currentTipe'] = $tipe;
+        $tipeLiteral = $tipe ? $tipe->tipe : 'Gabungan';
 
-        $tanggalString = Carbon::createFromFormat('m/Y', $d['date'])->isoFormat('MMMM Y');
+        $tanggalString = $this->filterDate->translatedFormat('F_Y');
         
         $ex = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $ex->getProperties()->setCreator("siannasGG");
         $ac = $ex->getActiveSheet();
-
+        
         $ac->getStyle('C:E')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
         $ac->getStyle('H:J')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
-
+        
         // KOP
-        $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-        $drawing->setPath( $cmd==='view-gabungan' ? asset('public/img/logo.png') : 'public/img/logo.png');
-        $drawing->setCoordinates('C1');
-        $drawing->setOffsetX(70);
-        $drawing->setOffsetY(5);
-        $drawing->setHeight(80);
-        $drawing->setWorksheet($ex->getActiveSheet());
-
+        // $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+        // $drawing->setPath(asset('img/logo.png'));
+        // $drawing->setCoordinates('C1');
+        // $drawing->setOffsetX(70);
+        // $drawing->setOffsetY(5);
+        // $drawing->setHeight(80);
+        // $drawing->setWorksheet($ex->getActiveSheet());
+        
         $ac->mergeCells('C1:J1');
         $ac->getCell('C1')->setValue("KOPERASI KONSUMEN PEGAWAI REPUBLIK INDONESIA");
         $ac->mergeCells('C2:J2');
@@ -96,9 +113,9 @@ class NeracaController extends Controller
         $ac->getStyle('B6:J6')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         $ac->mergeCells('B7:J7');
-        $ac->getCell('B7')->setValue("Periode ".$tanggalString);
+        $ac->getCell('B7')->setValue("Periode {$data['month_literal']} {$data['year']}");
         $ac->getStyle('B7:J7')->getFont()->setSize(12)->setBold(true);
-        $ac->getStyle('B7:J7')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);;
+        $ac->getStyle('B7:J7')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         // HEAD TABEL
         $ac->getCell('B10')->setValue("KETERANGAN");
@@ -127,71 +144,45 @@ class NeracaController extends Controller
         $ac->getStyle("G10:J10")->getFill()
             ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
             ->getStartColor()->setRGB('00B0F0');
-        
 
         // Isi Aset
         $from=11;
         $walk=0;
         $total_saldo_berjalan=0;
         $total_saldo_awal=0;
-        foreach($d['kategoris_debit'] as $k => $kd){
-            if($kd->getAkun()->get()->isEmpty() === false){
-                $saldo_berjalan=0;
-                $saldo_awal=0;
-
-                $visited=[];
-                $visited2=[];
-                foreach($kd->getAkun()->get() as $akun){
-                    $visited[ $akun->{'nama-akun'} ][]=$akun->id;
-                }
-                // display per kategori
-                $now=$walk;
-                foreach($kd->getAkun()->get() as $akun){
-                    // pastikan nama akun belum di-visit (guna view gabungan untuk nama akun yg sama)
-                    if(array_key_exists($akun->{'nama-akun'} , $visited2) === FALSE){
-                        $walk++;
-
-                        $awal=0;
-                        $cur=0;
-                        //gabungin saldo semua akun yang memiliki nama yang kembar.
-                        foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
-                            $debit=$d['jurnal_debit']->has($id_ak) ? $d['jurnal_debit'][$id_ak]->debit : 0;
-                            $kredit=$d['jurnal_kredit']->has($id_ak) ? $d['jurnal_kredit'][$id_ak]->kredit : 0;
-                            $cur+=$debit-$kredit;
-                            $awal+=$d['saldos']->has($id_ak) ? $d['saldos'][$id_ak]->saldo : 0;
-                        }
-                        $saldo_awal+=$awal;
-                        $saldo_berjalan+=$cur;
-
-                        $ac->getCell('B'.($from+$walk))->setValue( "      ".$akun->{'nama-akun'} );
-                        $ac->getCell('C'.($from+$walk))->setValue( number_format($awal,2) );
-                        $ac->getCell('D'.($from+$walk))->setValue( number_format($cur,2) );
-                        $ac->getCell('E'.($from+$walk))->setValue( number_format($awal+$cur,2) );
-                        $ac->getStyle("B".($from+$walk).":E".($from+$walk))->getFill()
-                            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                            ->getStartColor()->setRGB('F2F2F2');
-
-                        $visited2[ $akun->{'nama-akun'} ]=1;
-                    }
-                }
-
-                // display total saldo kategori
-                $row = $from+$now;
-                $ac->getCell('B'.($row))->setValue( $kd->kategori );
-                $ac->getCell('C'.($row))->setValue( number_format($saldo_awal,2) );
-                $ac->getCell('D'.($row))->setValue( number_format($saldo_berjalan,2) );
-                $ac->getCell('E'.($row))->setValue( number_format($saldo_awal+$saldo_berjalan,2) );
-                $ac->getStyle("B{$row}:E{$row}")->getFont()->setBold(true);
-                // $ac->getStyle("B{$row}:E{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-                $ac->getStyle("B{$row}:E{$row}")->getFill()
-                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                    ->getStartColor()->setRGB('00B0F0');
-
+        foreach($data['aset'] as $k => $kd){
+            $saldo_berjalan=0;
+            $saldo_awal=0;
+            $now = $walk;
+            foreach($kd['data'] as $akun){
                 $walk++;
-
-                $total_saldo_berjalan+=$saldo_berjalan;
-                $total_saldo_awal+=$saldo_awal;
+                $awal=$akun['saldo_awal'];
+                $cur=$akun['saldo'];
+                $saldo_awal+=$awal;
+                $saldo_berjalan+=$cur;
+                $ac->getCell('B'.($from+$walk))->setValue( "      ".$akun['name'] );
+                $ac->getCell('C'.($from+$walk))->setValue( number_format($awal,2) );
+                $ac->getCell('D'.($from+$walk))->setValue( number_format($cur,2) );
+                $ac->getCell('E'.($from+$walk))->setValue( number_format($awal+$cur,2) );
+                $ac->getStyle("B".($from+$walk).":E".($from+$walk))->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setRGB('F2F2F2');
             }
+
+            // display total saldo kategori
+            $row = $from + $now;
+            $ac->getCell('B'.($row))->setValue( $kd['name'] );
+            $ac->getCell('C'.($row))->setValue( number_format($saldo_awal,2) );
+            $ac->getCell('D'.($row))->setValue( number_format($saldo_berjalan,2) );
+            $ac->getCell('E'.($row))->setValue( number_format($saldo_awal+$saldo_berjalan,2) );
+            $ac->getStyle("B{$row}:E{$row}")->getFont()->setBold(true);
+            // $ac->getStyle("B{$row}:E{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+            $ac->getStyle("B{$row}:E{$row}")->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('00B0F0');
+            $walk++;
+            $total_saldo_berjalan+=$saldo_berjalan;
+            $total_saldo_awal+=$saldo_awal;
         }
 
         // set total aset
@@ -206,62 +197,40 @@ class NeracaController extends Controller
         $walk=0;
         $total_saldo_berjalan=0;
         $total_saldo_awal=0;
-        foreach($d['kategoris_kredit'] as $k => $kd){
-            if($kd->getAkun()->get()->isEmpty() === false){
-                $saldo_berjalan=0;
-                $saldo_awal=0;
-
-                $visited=[];
-                $visited2=[];
-                foreach($kd->getAkun()->get() as $akun){
-                    $visited[ $akun->{'nama-akun'} ][]=$akun->id;
-                }
-                // display per kategori kewajiban
-                $now=$walk;
-                foreach($kd->getAkun()->get() as $akun){
-                    if (array_key_exists($akun->{'nama-akun'}, $visited2) === false) {
-                        $walk++;
-
-                        $awal=0;
-                        $cur=0;
-                        foreach($visited[$akun->{'nama-akun'} ] as $id_ak ){
-                            $debit=$d['jurnal_debit']->has($id_ak) ? $d['jurnal_debit'][$id_ak]->debit : 0;
-                            $kredit=$d['jurnal_kredit']->has($id_ak) ? $d['jurnal_kredit'][$id_ak]->kredit : 0;
-                            $cur=$kredit-$debit;
-                            $awal+=$d['saldos']->has($id_ak) ? $d['saldos'][$id_ak]->saldo : 0;
-                        }
-                        $saldo_awal+=$awal;
-                        $saldo_berjalan+=$cur;
-
-                        $ac->getCell('G'.($from+$walk))->setValue("      ".$akun->{'nama-akun'});
-                        $ac->getCell('H'.($from+$walk))->setValue(number_format($awal, 2));
-                        $ac->getCell('I'.($from+$walk))->setValue(number_format($cur, 2));
-                        $ac->getCell('J'.($from+$walk))->setValue(number_format($awal+$cur, 2));
-                        $ac->getStyle("G".($from+$walk).":J".($from+$walk))->getFill()
-                            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                            ->getStartColor()->setRGB('F2F2F2');
-                        
-                        $visited2[ $akun->{'nama-akun'} ]=1;
-                    }
-                }
-                
-
-                // display total saldo kategori kewajiban
-                $row = $from+$now;
-                $ac->getCell('G'.($row))->setValue( $kd->kategori );
-                $ac->getCell('H'.($row))->setValue( number_format($saldo_awal,2) );
-                $ac->getCell('I'.($row))->setValue( number_format($saldo_berjalan,2) );
-                $ac->getCell('J'.($row))->setValue( number_format($saldo_awal+$saldo_berjalan,2) );
-                $ac->getStyle("G{$row}:J{$row}")->getFont()->setBold(true);
-                // $ac->getStyle("G{$row}:J{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-                $ac->getStyle("G{$row}:J{$row}")->getFill()
-                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                    ->getStartColor()->setRGB('00B0F0');
+        foreach($data['beban'] as $k => $kd){
+            $saldo_berjalan=0;
+            $saldo_awal=0;
+            $now = $walk;
+            foreach($kd['data'] as $akun){
                 $walk++;
+                $awal=$akun['saldo_awal'];
+                $cur=$akun['saldo'];
+                $saldo_awal+=$awal;
+                $saldo_berjalan+=$cur;
+                $ac->getCell('G'.($from+$walk))->setValue("      ".$akun['name']);
+                $ac->getCell('H'.($from+$walk))->setValue(number_format($awal, 2));
+                $ac->getCell('I'.($from+$walk))->setValue(number_format($cur, 2));
+                $ac->getCell('J'.($from+$walk))->setValue(number_format($awal+$cur, 2));
+                $ac->getStyle("G".($from+$walk).":J".($from+$walk))->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setRGB('F2F2F2');
+            }   
 
-                $total_saldo_berjalan+=$saldo_berjalan;
-                $total_saldo_awal+=$saldo_awal;
-            }
+            // display total saldo kategori kewajiban
+            $row = $from + $now;
+            $ac->getCell('G'.($row))->setValue( $kd['name'] );
+            $ac->getCell('H'.($row))->setValue( number_format($saldo_awal,2) );
+            $ac->getCell('I'.($row))->setValue( number_format($saldo_berjalan,2) );
+            $ac->getCell('J'.($row))->setValue( number_format($saldo_awal+$saldo_berjalan,2) );
+            $ac->getStyle("G{$row}:J{$row}")->getFont()->setBold(true);
+            // $ac->getStyle("G{$row}:J{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+            $ac->getStyle("G{$row}:J{$row}")->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('00B0F0');
+            $walk++;
+
+            $total_saldo_berjalan+=$saldo_berjalan;
+            $total_saldo_awal+=$saldo_awal;
         }
 
         // set total ASET DAN Kewajiban dan menampilkan pada bagian paling bawah tabel
@@ -307,8 +276,7 @@ class NeracaController extends Controller
         $ac->getStyle('B5')->getFont()->setSize(14)->setBold(true);
         $ac->getStyle('B5')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
-
-        if($cmd==='view-gabungan'){
+        if($viewOnly){
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Html($ex);
             // $header = $writer->generateHTMLHeader();
             echo $writer->generateStyles();
@@ -317,7 +285,7 @@ class NeracaController extends Controller
             echo $writer->generateHTMLFooter();
         }else{
             // send file ke user
-            $fileName="Neraca_".$tanggalString.".xlsx";
+            $fileName="Neraca_{$tipeLiteral}_".$tanggalString.".xlsx";
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             header('Content-Disposition: attachment; filename="'. urlencode($fileName).'"');
             header('Cache-Control: max-age=0');
@@ -332,199 +300,86 @@ class NeracaController extends Controller
      *
      * @return Object
      */
-    private function init(Request $request, $tipe){
-        //dapetin tanggal neraca yg ingin di download
-        $month = $this->date['m'];
-        $year = $this->date['y'];
-        $filter = Carbon::instance($this->date['date']);
-        // $filter->day = 1;
-        // if($request->input('date')){
-        //     $my=Carbon::createFromFormat('m/Y', $request->input('date'));
-        //     $month = $my->month;
-        //     $year = $my->year;
-        //     $filter=$my;
-        // }
-        if($request->post('date_month')){
-            $my=Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->post('date_month') . "/" . $request->post('date_year'));
-            $month = $my->month;
-            $year = $my->year;
-            $filter=$my;
-        }
-        $filter->day = 1;
-        $saldosIds=\App\Saldo::select(DB::raw('COUNT(`id-akun`) cnt'),DB::raw('MAX(`id`) id'))
-            ->whereDate('tanggal','<',$filter->format('Y-m-d'))
-            ->groupBy('id-akun')->pluck('id');
-        $saldos=\App\Saldo::select('id','id-kategori','id-akun','saldo')
-            ->whereIn('id',$saldosIds)
-            ->get()->keyBy('id-akun');
-
-        // Ambil kategori parent yang non SHU
-        $nonSHU=\App\Kategori::where('kategori','NON-SHU')->select('id')->first();
-        
-        $kategoris_debit=\App\Kategori::with(['getAkun' => function($q) use($tipe) {
-                /** NOTE:
-                 * ambil akun dengan string nama yang sama
-                 * */ 
-                $q->select('B.id','akun.nama-akun','akun.no-akun', 'akun.id-kategori','akun.id-tipe')
-                    ->leftJoin('akun AS B','akun.nama-akun','LIKE','B.nama-akun')
-                    ->where(function($q2) use($tipe){
-                        $q2->where('akun.id-tipe',$tipe->id)
-                           ->where('akun.id','=',DB::raw('B.id'));
-                    })
-                    ->orWhere(function($q2) use($tipe){
-                        $q2->where('B.id-tipe','<>',$tipe->id)
-                            ->where('akun.id','<>',DB::raw('B.id'));
-                            // ->whereNotNull('B.nama-akun');
-                    });
-            }])
-            ->where('tipe-pendapatan', 'debit')
-            ->where('parent',$nonSHU->id)
-            ->orderBy('priority','ASC')
-            ->get();
-
-        $kategoris_kredit=\App\Kategori::with(['getAkun' => function($q) use($tipe) {
-                /** NOTE:
-                 * ambil akun dengan string nama yang sama
-                 * */ 
-                $q->select('B.id','akun.nama-akun','akun.no-akun', 'akun.id-kategori','akun.id-tipe')
-                    ->leftJoin('akun AS B','akun.nama-akun','LIKE','B.nama-akun')
-                    ->where(function($q2) use($tipe){
-                        $q2->where('akun.id-tipe',$tipe->id)
-                           ->where('akun.id','=',DB::raw('B.id'));
-                    })
-                    ->orWhere(function($q2) use($tipe){
-                        $q2->where('B.id-tipe','<>',$tipe->id)
-                            ->where('akun.id','<>',DB::raw('B.id'));
-                            // ->whereNotNull('B.nama-akun');
-                    });
-            }])
-            ->where('tipe-pendapatan', 'kredit')
-            ->where('parent',$nonSHU->id)
-            ->orderBy('priority','ASC')
-            ->get();
-
-        $jurnal_debit=\App\Jurnal::leftJoin('akun AS A','id-debit','LIKE','A.id')
-            ->leftJoin('akun AS B','A.nama-akun','LIKE','B.nama-akun')
-            ->selectRaw('`id-debit`, sum(debit) as debit')
-            ->groupBy('id-debit')
-            ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
-            ->where('validasi',1)
-            ->where(function($q) use($tipe){
-                $q->where(function($q2) use($tipe){
-                        $q2->where('A.id-tipe',$tipe->id)
-                        ->where('A.id','=',DB::raw('B.id'));
-                    })
-                    ->orWhere(function($q2) use($tipe){
-                        $q2->where('A.id-tipe','<>',$tipe->id)
-                            ->where('A.id','<>',DB::raw('B.id'));
-                    });
+    private function init(Request $request, ?int $tipe = null){
+        $saldos = \App\Saldo::select('id-akun', DB::Raw('SUM(`saldo`) as saldo'))
+            ->where('tanggal', '=', $this->filterDate->format('Y-m-') . '01')
+            ->where('id-tipe', '<>', 0)
+            ->when($tipe != null, function($q) use($tipe) {
+                $q->where('id-tipe', '=', $tipe);
             })
-            ->get()->keyBy('id-debit');
-
-        $jurnal_kredit=\App\Jurnal::leftJoin('akun AS A','id-kredit','LIKE','A.id')
-            ->leftJoin('akun AS B','A.nama-akun','LIKE','B.nama-akun')
-            ->selectRaw('`id-kredit`, sum(kredit) as kredit')
-            ->groupBy('id-kredit')
-            ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
-            ->where('validasi',1)
-            ->where(function($q) use($tipe){
-                $q->where(function($q2) use($tipe){
-                        $q2->where('A.id-tipe',$tipe->id)
-                        ->where('A.id','=',DB::raw('B.id'));
-                    })
-                    ->orWhere(function($q2) use($tipe){
-                        $q2->where('A.id-tipe','<>',$tipe->id)
-                            ->where('A.id','<>',DB::raw('B.id'));
-                    });
+            ->groupBy('id-akun')
+            ->get();
+        $saldosBerjalan = \App\Saldo::select('id-akun', DB::Raw('SUM(`saldo`) as saldo'))
+            ->where('tanggal', '<', $this->filterDate->format('Y-m-') . '01')
+            ->where('tanggal', '>=', $this->filterDate->format('Y-') . '01-01')
+            ->where('id-tipe', '<>', 0)
+            ->when($tipe != null, function($q) use($tipe) {
+                $q->where('id-tipe', '=', $tipe);
             })
-            ->get()->keyBy('id-kredit');
-    
-        return [
-            'currentTipe'=>$tipe,
-            'date'=> $month.'/'.$year,
-            'month'=> $filter->localeMonth,
-            'year' => $year,
-            'kategoris_debit' => $kategoris_debit,
-            'kategoris_kredit' => $kategoris_kredit,
-            'jurnal_debit' => $jurnal_debit,
-            'jurnal_kredit' => $jurnal_kredit,
-            'saldos'=>$saldos,
-        ];
-    }
-
-    /**
-     * Init data-data.
-     *
-     * @return Object
-     */
-    private function initGabungan(Request $request){
-        //dapetin tanggal neraca yg ingin di download
-        $month = $this->date['m'];
-        $year = $this->date['y'];
-        $filter = Carbon::instance($this->date['date']);
-        // $filter->day = 1;
-        if($request->post('date_month')){
-            $my=Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->post('date_month') . "/" . $request->post('date_year'));
-            $month = $my->month;
-            $year = $my->year;
-            $filter=$my;
+            ->groupBy('id-akun')
+            ->get();
+        $awal = \App\Saldo::select('id-akun', DB::Raw('SUM(`saldo_awal`) as saldo'))
+            ->where('tanggal', '=', $this->filterDate->format('Y-') . '01-01')
+            ->where('id-tipe', '=', 0)
+            ->groupBy('id-akun')
+            ->get();
+        $categories = Kategori::with(['getAkun' => function($q) {
+                $q->where('status', '=', 1)
+                ->orderBy('no-akun','ASC');
+            }])
+            ->where('parent', '<>', Kategori::SHU)
+            ->whereNotNull('tipe-pendapatan')
+            ->orderBy('priority','ASC')
+            ->get();
+        $awal = $awal ? $awal = array_combine(array_column($awal->toArray(), 'id-akun'), $awal->toArray()) : [];
+        $saldos = $saldos ? $saldos = array_combine(array_column($saldos->toArray(), 'id-akun'), $saldos->toArray()) : [];
+        $saldosBerjalan = $saldosBerjalan ?
+            $saldosBerjalan = array_combine(array_column($saldosBerjalan->toArray(), 'id-akun'), $saldosBerjalan->toArray()) : [];
+        $aset = [];
+        $beban = [];
+        $saldoAwalAsetTotal = 0;
+        $saldoAwalBebanTotal = 0;
+        foreach ($categories as $category) {
+            $childs = [];
+            $saldoAwal = 0;
+            foreach ($category->getAkun as $akun) {
+                $sb = array_key_exists($akun->{'id'}, $saldosBerjalan) ? floatval($saldosBerjalan[$akun->{'id'}]['saldo']) : 0;
+                $childs[] = [
+                    'id' => $akun->id,
+                    'name' => $akun->{'no-akun'} . ' - ' . $akun->{'nama-akun'},
+                    'saldo_awal' => (array_key_exists($akun->{'id'}, $awal) ? floatval($awal[$akun->{'id'}]['saldo']) : 0) + $sb,
+                    'saldo' => array_key_exists($akun->{'id'}, $saldos) ? floatval($saldos[$akun->{'id'}]['saldo']) : 0,
+                ];
+                $saldoAwal += $childs[count($childs) - 1]['saldo_awal'];
+            }
+            if (empty($childs)) {
+                continue;
+            }
+            $cat = [
+                'id' => $category->id,
+                'name' => $category->kategori,
+                'data' => $childs,
+            ];
+            if ($category['tipe-pendapatan']  == 'debit') {
+                $aset[] = $cat;
+                $saldoAwalAsetTotal += $saldoAwal;
+            } else {
+                $beban[] = $cat;
+                $saldoAwalBebanTotal += $saldoAwal;
+            }
         }
-        $filter->day = 1;
-        
-        $saldosIds=\App\Saldo::select(DB::raw('COUNT(`id-akun`) cnt'),DB::raw('MAX(`id`) id'))
-            ->whereDate('tanggal','<',$filter->format('Y-m-d'))
-            ->groupBy('id-akun')->pluck('id');
-        $saldos=\App\Saldo::select('id','id-kategori','id-akun','saldo')
-            ->whereIn('id',$saldosIds)
-            ->get()->keyBy('id-akun');
-
-        // Ambil kategori parent yang non SHU
-        $nonSHU=\App\Kategori::where('kategori','NON-SHU')->select('id')->first();
-        
-        $kategoris_debit=\App\Kategori::with(['getAkun' => function($q){
-                $q->select('a2.id','a2.nama-akun','a2.no-akun', 'akun.id-kategori','a2.id-tipe')
-                    ->rightJoin(DB::raw('akun a2'), 'akun.nama-akun','=','a2.nama-akun');
-            }])
-            ->where('tipe-pendapatan', 'debit')
-            ->where('parent',$nonSHU->id)
-            ->orderBy('priority','ASC')
-            ->get();
-
-        $kategoris_kredit=\App\Kategori::with(['getAkun' => function($q){
-                $q->select('a2.id','a2.nama-akun','a2.no-akun', 'akun.id-kategori','a2.id-tipe')
-                    ->rightJoin(DB::raw('akun a2'), 'akun.nama-akun','=','a2.nama-akun');
-            }])
-            ->where('tipe-pendapatan', 'kredit')
-            ->where('parent',$nonSHU->id)
-            ->orderBy('priority','ASC')
-            ->get();
-
-        $jurnal_debit=\App\Jurnal::selectRaw('`id-debit`, sum(debit) as debit')
-            ->groupBy('id-debit')
-            ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
-            ->where('validasi',1)
-            ->get()->keyBy('id-debit');
-
-        $jurnal_kredit=\App\Jurnal::selectRaw('`id-kredit`, sum(kredit) as kredit')
-            ->groupBy('id-kredit')
-            ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
-            ->where('validasi',1)
-            ->get()->keyBy('id-kredit');
     
+        $month = $this->filterDate->month;
+        $year = $this->year;
+        $monthLiteral = $this->filterDate->translatedFormat('F');
         return [
-            'currentTipe'=>NULL,
             'date'=> $month.'/'.$year,
-            'month'=> $filter->localeMonth,
+            'month_literal'=> $monthLiteral,
             'year' => $year,
-            'kategoris_debit' => $kategoris_debit,
-            'kategoris_kredit' => $kategoris_kredit,
-            'jurnal_debit' => $jurnal_debit,
-            'jurnal_kredit' => $jurnal_kredit,
-            'saldos'=>$saldos,
+            'aset' => $aset,
+            'beban' => $beban,
+            'saldo_awal_aset_total' => $saldoAwalAsetTotal,
+            'saldo_awal_beban_total' => $saldoAwalBebanTotal,
         ];
     }
 }

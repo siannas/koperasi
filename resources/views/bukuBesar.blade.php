@@ -18,14 +18,14 @@ active
     <div class="row">
     <div class="col-md-12">
         <div class="card">
-        <div class="card-header card-header-primary card-header-icon">
+        <!-- <div class="card-header card-header-primary card-header-icon">
             <div class="card-icon">
                 <i class="material-icons">account_balance_wallet</i>
             </div>
             <h4 class="card-title">Buku Besar {{ucwords($currentTipe->tipe)}}</h4>
-        </div>
+        </div> -->
         <div class="card-body">
-            <form action="{{url('/'.$currentTipe->tipe.'/buku-besar')}}" method="POST">
+            <form action="{{url($year . '/' .$currentTipe->tipe.'/buku-besar')}}" method="POST">
             @csrf
             <div class="toolbar row">
                 <div class="col">
@@ -53,7 +53,7 @@ active
                     </form>
                 </div>
                 <div class="col-2 text-right">
-                    <button class="btn btn-sm btn-success" formaction="{{url($currentTipe->tipe.'/buku-besar/excel')}}">Download</button>
+                    <button class="btn btn-sm btn-success" formaction="{{url($year . '/' . $currentTipe->tipe.'/buku-besar/excel')}}">Download</button>
                 </div>
             </div>
             </form>
@@ -147,7 +147,7 @@ active
 <script>
 $(document).ready(function() {
 
-    my.initFormExtendedDatetimepickers();
+    my.initFormExtendedDatetimepickers({{$year}});
     if ($('.slider').length != 0) {
         md.initSliders();
     }
