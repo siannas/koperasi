@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Akun extends Model
 {
+    const SHU_BERJALAN_ID = 269;
+
     protected $table = 'akun';
 
     /**

@@ -262,8 +262,8 @@ class SHUController extends Controller
                 $childs[] = [
                     'id' => $akun->id,
                     'name' => $akun->{'no-akun'} . ' - ' . $akun->{'nama-akun'},
-                    'saldo_awal' => (array_key_exists($akun->{'id'}, $awal) ? floatval($awal[$akun->{'id'}]['saldo']) : 0) + $sb,
-                    'saldo' => array_key_exists($akun->{'id'}, $saldos) ? floatval($saldos[$akun->{'id'}]['saldo']) : 0,
+                    'saldo_awal' => (array_key_exists($akun->{'id'}, $awal) ? floatval($awal[$akun->{'id'}]['saldo']) : 0) + $sb * -1,
+                    'saldo' => array_key_exists($akun->{'id'}, $saldos) ? -1 * floatval($saldos[$akun->{'id'}]['saldo']) : 0,
                 ];
                 $saldoAwal += $childs[count($childs) - 1]['saldo_awal'];
             }
@@ -310,8 +310,8 @@ class SHUController extends Controller
         $berjalan=[];
         $res=[];
         foreach ($master as $id=>$m) {
-            $awal['/\['.$id.']/']=strval($m['awal']);
-            $berjalan['/\['.$id.']/']=strval($m['berjalan']);
+            $awal['/\['.$id.']/']="(".strval($m['awal']).")";
+            $berjalan['/\['.$id.']/']="(".strval($m['berjalan']).")";
         }
         $awal_res = preg_replace(array_keys($awal), array_values($awal), $formula);
         $awal_res=eval('return '.$awal_res.';');

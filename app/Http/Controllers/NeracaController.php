@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Kategori;
 use App\Saldo;
+use App\Akun;
 
 class NeracaController extends Controller
 {
@@ -335,6 +336,38 @@ class NeracaController extends Controller
         $saldos = $saldos ? $saldos = array_combine(array_column($saldos->toArray(), 'id-akun'), $saldos->toArray()) : [];
         $saldosBerjalan = $saldosBerjalan ?
             $saldosBerjalan = array_combine(array_column($saldosBerjalan->toArray(), 'id-akun'), $saldosBerjalan->toArray()) : [];
+        # get shu formula
+        $meta = [];
+        $metaForeKey="shu_".strtolower($tipe).'_';
+        $shuFormula=\App\Meta::where('key','like',$metaForeKey.'%')
+            ->where('key','like','%sisa_hasil_usaha_sebelum_pajak')
+            ->when($tipe =='', function($q){
+                $q->where('key','not like','shu_tk%')
+                ->where('key','not like','shu_fc%')
+                ->where('key','not like','shu_usp%');
+            })->first();
+        # get shu data
+        $shuCat = Kategori::with(['getAkun' => function($q) {
+                $q->where('status', '=', 1)
+                ->orderBy('no-akun','ASC');
+            }])
+            ->where('parent', '=', Kategori::SHU)
+            ->orderBy('priority','ASC')
+            ->get();
+        $shuMap = [];
+        foreach ($shuCat as $cat) {
+            $shuMap[$cat->id] = [
+                'awal' => 0,
+                'berjalan' => 0,
+            ];
+            foreach ($cat->getAkun as $akun) {
+                $sb = array_key_exists($akun->{'id'}, $saldosBerjalan) ? floatval($saldosBerjalan[$akun->{'id'}]['saldo']) : 0;
+                $shuMap[$cat->id]['awal'] += (-1 * $sb);
+                $shuMap[$cat->id]['berjalan'] += array_key_exists($akun->{'id'}, $saldos) ? -1 * floatval($saldos[$akun->{'id'}]['saldo']) : 0;
+            }
+        }
+        [$shuAwal, $shuBerjalan, $shuAkhir] = SHUController::calculate($shuMap, $shuFormula->value);
+        # plot
         $aset = [];
         $beban = [];
         $saldoAwalAsetTotal = 0;
@@ -342,14 +375,24 @@ class NeracaController extends Controller
         foreach ($categories as $category) {
             $childs = [];
             $saldoAwal = 0;
+            $fac = $category['tipe-pendapatan']  == 'kredit' ? -1 : 1;
             foreach ($category->getAkun as $akun) {
-                $sb = array_key_exists($akun->{'id'}, $saldosBerjalan) ? floatval($saldosBerjalan[$akun->{'id'}]['saldo']) : 0;
-                $childs[] = [
-                    'id' => $akun->id,
-                    'name' => $akun->{'no-akun'} . ' - ' . $akun->{'nama-akun'},
-                    'saldo_awal' => (array_key_exists($akun->{'id'}, $awal) ? floatval($awal[$akun->{'id'}]['saldo']) : 0) + $sb,
-                    'saldo' => array_key_exists($akun->{'id'}, $saldos) ? floatval($saldos[$akun->{'id'}]['saldo']) : 0,
-                ];
+                $sb = array_key_exists($akun->{'id'}, $saldosBerjalan) ? $fac * floatval($saldosBerjalan[$akun->{'id'}]['saldo']) : 0;
+                if ($akun->id == Akun::SHU_BERJALAN_ID) {
+                    $childs[] = [
+                        'id' => $akun->id,
+                        'name' => $akun->{'no-akun'} . ' - ' . $akun->{'nama-akun'},
+                        'saldo_awal' => $shuAwal,
+                        'saldo' => $shuBerjalan,
+                    ];
+                } else {
+                    $childs[] = [
+                        'id' => $akun->id,
+                        'name' => $akun->{'no-akun'} . ' - ' . $akun->{'nama-akun'},
+                        'saldo_awal' => (array_key_exists($akun->{'id'}, $awal) ? floatval($awal[$akun->{'id'}]['saldo']) : 0) + $sb * $fac,
+                        'saldo' => array_key_exists($akun->{'id'}, $saldos) ? $fac * floatval($saldos[$akun->{'id'}]['saldo']) : 0,
+                    ];
+                }
                 $saldoAwal += $childs[count($childs) - 1]['saldo_awal'];
             }
             if (empty($childs)) {
