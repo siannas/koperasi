@@ -41,10 +41,12 @@ class AkunController extends Controller
         $input['saldo_awal'] = $input["saldo"];
         $input['status'] = 1;
         try{
-            $existing = Akun::where('no-akun', '=', DB::raw($input['no-akun']))->first();
+            $existing = Akun::where('no-akun', '=', $input['no-akun'])
+                ->orWhere('nama-akun', 'LIKE', trim($input['nama-akun']))
+                ->first();
             if ($existing) {
                 if ($existing->{'status'} == 1) {
-                    $this->flashError("Nomor Akun Telah Digunakan");
+                    $this->flashError("Nomor / Nama akun Telah Digunakan");
                     return back();
                 }
                 $existing->fill($input);
@@ -83,8 +85,8 @@ class AkunController extends Controller
         ]);
         if ($validator->fails()) return back()->with('error', 'Request Error');
         $input = $validator->valid();
-        $input["saldo_awal"] = $input["saldo_awal"] ? floatval($input["saldo_awal"]) : null;
-        $input["saldo"] = $input["saldo"] ? floatval($input["saldo"]) : null;
+        $input["saldo_awal"] = isset($input["saldo_awal"]) ? floatval($input["saldo_awal"]) : null;
+        // $input["saldo"] = $input["saldo"] ? floatval($input["saldo"]) : null;
         
         DB::beginTransaction();
         try{
@@ -93,13 +95,13 @@ class AkunController extends Controller
                 'no-akun' => $input['no-akun'],
                 'nama-akun' => $input['nama-akun'],
             ];
-            if ($input['saldo']) {
+            if (isset($input['saldo'])) {
                 $fill['saldo'] = $input['saldo'];
             }
             $akun->fill($fill);
             $akun->save();
 
-            if ($input['saldo_awal']) {
+            if (isset($input['saldo_awal'])) {
                 $saldoAwal = Saldo::upsert([[
                         #Tipe Gabungan
                         'id-tipe' => 0,

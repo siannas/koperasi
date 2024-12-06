@@ -24,13 +24,13 @@ active
         @csrf
         <div class="modal-body">
             <div class="row">
-                <div class="col">
+                <!-- <div class="col">
                     <div class="form-group is-filled">
                         <select name="id-tipe" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe" required>
                             @foreach($tipe as $unit) <option value="{{$unit->id}}">{{ucwords($unit->tipe)}}</option> @endforeach
                         </select>
                     </div>
-                </div>
+                </div> -->
                 <div class="col">
                     <div class="form-group is-filled">
                         <select name="id-kategori" class="selectpicker" data-style="btn btn-primary btn-round" title="Kategori" required>
@@ -79,7 +79,7 @@ active
         <input type="hidden" name="id-kategori">
         <div class="modal-body">
             <div class="row">
-                <div class="col">
+                <!-- <div class="col">
                     <div class="form-group is-filled">
                         <select name="id-tipe-selector" class="selectpicker" data-style="btn btn-primary btn-round" title="Tipe" required disabled>
                             @foreach($tipe as $unitTipe) 
@@ -87,7 +87,7 @@ active
                             @endforeach
                         </select>
                     </div>
-                </div>
+                </div> -->
                 <div class="col">
                     <div class="form-group is-filled">
                         <select name="id-kategori-selector" class="selectpicker" data-style="btn btn-primary btn-round" title="Kategori" required disabled>
@@ -111,11 +111,11 @@ active
                 <input id="_saldo_awal" name="saldo_awal" type="text" class="form-control rupiah-input" {{session()->get('role') == 'Admin' ? '' : 'readonly'}} required>
                 <input type="hidden" {{session()->get('role') == 'Admin' ? '' : 'readonly'}} name="saldo_awal" required>
             </div>
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label for="saldo" class="bmd-label-floating">Saldo</label>
                 <input id="_saldo" name="saldo" type="text" class="form-control rupiah-input" readonly required>
                 <input type="hidden" readonly name="saldo" required>
-            </div>
+            </div> -->
         </div>
         <div class="modal-footer">
             <button type="submit" class="btn btn-primary btn-link">Simpan</button>
@@ -171,35 +171,35 @@ active
             <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
                 <thead>
                 <tr>
-                    <th data-priority="3">Tipe</th>
+                    <!-- <th data-priority="3">Tipe</th> -->
                     <th data-priority="3">Kategori</th>
                     <th data-priority="2">No Akun</th>
                     <th data-priority="1">Nama Akun</th>
                     <th data-priority="4">Saldo Awal</th>
-                    <th data-priority="4">Saldo</th>
+                    <!-- <th data-priority="4">Saldo</th> -->
                     <th data-priority="1" class="disabled-sorting text-right">Aksi</th>
                 </tr>
                 </thead>
                 <tfoot>
                 <tr>
-                    <th>Tipe</th>
+                    <!-- <th>Tipe</th> -->
                     <th>Kategori</th>
                     <th>No Akun</th>
                     <th>Nama Akun</th>
-                    <th>Saldo Awal</th>
-                    <th>Saldo</th>
+                    <th>Saldo Awal (RP)</th>
+                    <!-- <th>Saldo</th> -->
                     <th class="text-right">Aksi</th>
                 </tr>
                 </tfoot>
                 <tbody>
                 @foreach($akun as $key=>$unit)
                 <tr>
-                    <td>{{$unit->getTipe ? ucwords($unit->getTipe->tipe) : ''}}</td>
+                    <!-- <td>{{$unit->getTipe ? ucwords($unit->getTipe->tipe) : ''}}</td> -->
                     <td>{{$unit->getKategori ? ucwords($unit->getKategori->kategori): ''}}</td>
                     <td>{{$unit->{'no-akun'} }}</td>
                     <td>{{$unit->{'nama-akun'} }}</td>
-                    <td>Rp {{ indo_num_format($unit->saldo_awal,2) }}</td>
-                    <td>Rp {{ indo_num_format($unit->saldo,2) }}</td>
+                    <td>{{ indo_num_format($unit->saldo_awal,2) }}</td>
+                    <!-- <td>Rp {{ indo_num_format($unit->saldo,2) }}</td> -->
                     <td class="text-right">
                         <button type="button" class="btn btn-sm btn-link btn-warning btn-just-icon edit" 
                             key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></button>
@@ -241,8 +241,8 @@ function onEdit(self) {
     $modal.find('[name=id-kategori-selector]').val(j['id-kategori']).change();
     $modal.find('[name=no-akun]').val(j['no-akun']).change();
     $modal.find('[name=nama-akun]').val(j['nama-akun']).change();
-    // $modal.find('[name=saldo]').val(j['saldoawal']).change().blur();
-    $modal.find('[name=saldo]').val(j['saldo']).change().blur();
+    $modal.find('[name=saldo_awal]').val(j['saldo_awal']).change().blur();
+    // $modal.find('[name=saldo]').val(j['saldo']).change().blur();
     $modal.find('form').attr('action', "{{route('akun.update', ['akun'=>''])}}/"+j['id']);
     $modal.modal('show');
 }
