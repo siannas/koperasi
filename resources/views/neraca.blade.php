@@ -302,8 +302,6 @@ $(document).ready(function() {
     let saldo_awal_aset_total = @json($saldo_awal_aset_total);
     let saldo_awal_beban_total = @json($saldo_awal_beban_total);
 
-    var roundNum = function(num) { return (Math.round( num * 100 ) / 100).toFixed(2); }
-
     if((roundNum(asetTotal) - roundNum(bebanTotal)) != (roundNum(saldo_awal_aset_total) - roundNum(saldo_awal_beban_total))){
         $('#statusContainer').html(statusDanger);
     }else{

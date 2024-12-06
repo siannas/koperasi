@@ -170,6 +170,13 @@ $role = explode(', ', $role);
 
   
   <script>
+    var roundNum = function(num) { return (Math.round( num * 100 ) / 100).toFixed(2); }
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('id-ID', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(amount);
+    }
     $(document).ready(function() {
       // Javascript method's body can be found in assets/js/demos.js
       md.initDashboardPageCharts();

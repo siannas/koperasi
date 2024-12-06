@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use App\Kategori;
 use App\Saldo;
@@ -22,11 +23,14 @@ class NeracaController extends Controller
     {
         if ($request->input('date_month')) {
             $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('date_month') . "/" . $this->year);
+        } elseif ($request->cookie('date_month')) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->cookie('date_month') . "/" . $this->year);
         } else {
             $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
         }
+        Cookie::queue(Cookie::forever('date_month', $this->filterDate->translatedFormat('F')));
         if($tipe=$request->get('tipe')){
-            $data = $this->init($request, $tipe->id);
+            $data = $this->init($request, $tipe->id, strtolower($tipe->slug));
         }else{
             $data = $this->init($request);
         }
@@ -47,7 +51,7 @@ class NeracaController extends Controller
             $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
         }
         if($tipe=$request->get('tipe')){
-            $data = $this->init($request, $tipe->id);
+            $data = $this->init($request, $tipe->id, strtolower($tipe->slug));
         }else{
             $data = $this->init($request);
         }
@@ -302,7 +306,7 @@ class NeracaController extends Controller
      *
      * @return Object
      */
-    private function init(Request $request, ?int $tipe = null){
+    private function init(Request $request, ?int $tipe = null, ?string $slug = null){
         $saldos = \App\Saldo::select('id-akun', DB::Raw('SUM(`saldo`) as saldo'))
             ->where('tanggal', '=', $this->filterDate->format('Y-m-') . '01')
             ->where('id-tipe', '<>', 0)
@@ -339,7 +343,7 @@ class NeracaController extends Controller
             $saldosBerjalan = array_combine(array_column($saldosBerjalan->toArray(), 'id-akun'), $saldosBerjalan->toArray()) : [];
         # get shu formula
         $meta = [];
-        $metaForeKey="shu_".strtolower($tipe).'_';
+        $metaForeKey="shu_".strtolower($slug).'_';
         $shuFormula=\App\Meta::where('key','like',$metaForeKey.'%')
             ->where('key','like','%sisa_hasil_usaha_sebelum_pajak')
             ->when($tipe =='', function($q){

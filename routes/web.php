@@ -24,6 +24,7 @@ Route::middleware(['auth'])->prefix('{tahun}')->group(function () {
     Route::get('/', 'DashboardController@dashboard');
 
     Route::prefix('{tipe}')->middleware(['customize.parameter'])->group(function(){
+        Route::post('jurnal/data', 'JurnalController@data')->name('jurnal.data');
     
         /*
         **  bisa akses semua pembukuan unit usaha (toko, simpan pinjam, fotokopi) 

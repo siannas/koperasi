@@ -25,7 +25,7 @@ active
         <div class="modal-content">
         <div class="modal-header">
             <h4 class="modal-title">Tambah Jurnal </h4>
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            <button type="button" class="close" data-dismiss="modal">
             <i class="material-icons">clear</i>
             </button>
         </div>
@@ -85,7 +85,7 @@ active
         <div class="modal-content">
         <div class="modal-header">
             <h4 class="modal-title">Edit Jurnal</h4>
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            <button type="button" class="close" data-dismiss="modal">
             <i class="material-icons">clear</i>
             </button>
         </div>
@@ -147,7 +147,7 @@ active
     <div class="modal-dialog modal-small">
         <div class="modal-content">
         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+            <button type="button" class="close" data-dismiss="modal"><i class="material-icons">clear</i></button>
         </div>
         <form class="" method="POST" action="">
             @method('DELETE')
@@ -171,7 +171,7 @@ active
     <div class="modal-dialog modal-small">
         <div class="modal-content">
         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+            <button type="button" class="close" data-dismiss="modal"><i class="material-icons">clear</i></button>
         </div>
         <div class="modal-body text-center">
             <p id="peringatanValidasi"></p>
@@ -238,7 +238,7 @@ active
             </div>
             </form>
             <!-- data-col="11" means column index for role filter -->
-            <div class="filter-tags" data-select="#selectrole" data-tags="#tagsinput" data-col="11">
+            <div class="filter-tags" data-select="#selectrole" data-tags="#tagsinput" data-col="12">
                 <div class="form-group d-inline-block" style="width: 120px;">
                     <select id="selectrole" class="selectpicker" data-style2="btn-default btn-round btn-sm text-white" data-style="select-with-transition" multiple title="Filter" data-size="7">
                         <!-- <option value="Reguler">Reguler</option> -->
@@ -257,6 +257,7 @@ active
                 <tr>
                     <th data-priority="1" width="1" class="disabled-sorting"></th>
                     <th data-priority="1">Tanggal</th>
+                    <th data-priority="4" class="center">Ref</th>
                     <th data-priority="2">Keterangan</th>
                     <th data-priority="3">Akun Debit</th>
                     <th data-priority="1">Debit (Rp)</th>
@@ -264,15 +265,13 @@ active
                     <th data-priority="1">Kredit (Rp)</th>
                     <th data-priority="4" class="center">Validasi</th>
                     <th data-priority="4" class="disabled-sorting text-right">Actions</th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
                 </tr>
                 </thead>
                 <tfoot>
                 <tr>
                     <th></th>
                     <th>Tanggal</th>
+                    <th>Ref</th>
                     <th>Keterangan</th>
                     <th>Akun Debit</th>
                     <th>Debit (Rp)</th>
@@ -280,66 +279,9 @@ active
                     <th>Kredit (Rp)</th>
                     <th class="center">Validasi</th>
                     <th class="disabled-sorting text-right">Actions</th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
                 </tr>
                 </tfoot>
                 <tbody>
-                @foreach($jurnals as $key=>$j)
-                <tr>
-                    @php
-                    $m2 = Carbon\Carbon::createFromDate($j->tanggal);
-                    @endphp
-                    <td class="dt-control">
-                        <button class="btn btn-success btn-round btn-fab btn-sm mr-1">
-                        <i class="material-icons">add</i>
-                        </button>
-                    </td>
-                    <td>{{$m2->format('d/m/Y')}}</td>
-                    <td>{{$j->keterangan}}</td>
-                    <td class="text-right">{{$j->akunDebit->{'no-akun'} }} - {{$j->akunDebit->{'nama-akun'} }}</td>
-                    <td class="text-right">{{ indo_num_format($j->debit, 2) }}</td>
-                    <td class="text-right">{{$j->akunKredit->{'no-akun'} }} - {{$j->akunKredit->{'nama-akun'} }}</td>
-                    <td class="text-right">{{ indo_num_format($j->kredit, 2) }}</td>
-                    @if($j->validasi==1)
-                    <td class="center"><i class="material-icons">task_alt</i></td>
-                    @else
-                    <td></td>
-                    @endif
-                    <td class="text-right">
-                    
-                    @if($j->validasi==1 && $m2->lessThan($datelock))
-                    <a href="#" class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">lock</i></a>
-                    @elseif(in_array('Supervisor', $role) && $j->validasi==1)
-                    <a href="#" class="btn btn-link text-warning btn-just-icon unvalidasi" data-toggle="modal" data-target="#modalValidasi" data-id="{{$j->id}}"><i class="material-icons">lock_open</i></a>
-                    @elseif(!in_array('Supervisor', $role) && $j->validasi==1)
-                    <a href="#" class="btn btn-link text-dark btn-just-icon disabled" data-toggle="modal" data-target="#modalValidasi"><i class="material-icons">lock</i></a>
-                    @elseif(in_array('Supervisor', $role))
-                    <div class="form-check">
-                      <label class="form-check-label" style="padding-right:5px;">
-                        <input class="form-check-input sub_chk" type="checkbox" data-id="{{$j->id}}">
-                        <span class="form-check-sign">
-                          <span class="check"></span>
-                        </span>
-                      </label>
-                    </div>
-                    @else
-                        @if(!array_intersect($role, ['Supervisor', 'Spesial']) || !in_array($j->{'by-role'}, array_merge($byrole, [NULL])))
-                        <button class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">block</i></button>
-                        @else
-                        <button data-toggle="tooltip" data-placement="left" title="Edit" class="btn btn-link btn-warning btn-just-icon edit btn-sm" key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></button>
-                        <button data-toggle="tooltip" data-placement="left" title="Delete" class="btn btn-link btn-danger btn-just-icon remove btn-sm" key="{{$key}}" onclick="onDelete(this)"><i class="material-icons">delete</i></button>
-                        <button data-toggle="tooltip" data-placement="left" title="Duplicate" class="btn btn-link btn-danger btn-just-icon duplicate btn-sm" key="{{$key}}" onclick="onDuplicate(this)"><i class="material-icons">content_copy</i></button>
-                        @endif
-                    @endif
-                    
-                    </td>
-                    <td hidden>{{$j->akunDebit->{'nama-akun'} }}</td>
-                    <td hidden>{{$j->akunKredit->{'nama-akun'} }}</td>
-                    <td hidden>{{$j->{'by-role'} ? $j->{'by-role'} : 'Reguler' }}</td>
-                </tr>
-                @endforeach
                 </tbody>
             </table>
             </div>
@@ -358,12 +300,14 @@ active
 @section('script')
 <script>
 var table;
-var myJurnals = @json($jurnals);
+const role = @json($role);
+const byroles = (@json($byrole)).concat([null]);
 
 //ketika klik edit
 function onEdit(self) {
     var key = $(self).attr('key');
-    var j = myJurnals[key];
+    let tr = $(self).closest('tr');
+    var j = table.row(tr).data();
     $modal=$('#modalEdit');
     
     $modal.find('[name=tanggal]').val(moment(j['tanggal']).format('L')).change();
@@ -379,7 +323,8 @@ function onEdit(self) {
 //ketika klik delete
 function onDelete(self) {
     var key = $(self).attr('key');
-    var j = myJurnals[key];
+    let tr = $(self).closest('tr');
+    var j = table.row(tr).data();
     $modal=$('#modalDelete');
 
     $modal.find('form').attr('action', "{{route('jurnal.destroy', ['tipe'=>$currentTipe->tipe , 'jurnal'=>''])}}/"+j['id']+"?"+"dateawal="+dateawal+"&"+"date="+date);
@@ -389,7 +334,8 @@ function onDelete(self) {
 //ketika klik duplicate
 function onDuplicate(self) {
     var key = $(self).attr('key');
-    var j = myJurnals[key];
+    let tr = $(self).closest('tr');
+    var j = table.row(tr).data();
     var $modal=$('#modalTambah');
     
     $modal.find('[name=tanggal]').val(moment(j['tanggal']).format('L')).change();
@@ -448,33 +394,101 @@ $(document).ready(function() {
     if ($('.slider').length != 0) {
         md.initSliders();
     }
-
     table = $('#datatables').DataTable({
         responsive:{
             details: false
         },
+        "processing": true,
+        "serverSide": true,
+        "language" : {
+            "infoFiltered": "",
+        },
+        "ajax": {
+            "url": "{{ route('jurnal.data', ['tipe'=>$currentTipe->tipe]) }}",
+            "type": "POST",
+            "data": {
+                _token: "{{ csrf_token() }}"
+            }
+        },
+        "columns": [
+            { "data": null, "render": function(data, type, row) {
+                return `<button class="btn btn-success btn-round btn-fab btn-sm mr-1">
+                    <i class="material-icons">add</i>
+                </button>`;
+            }},
+            { "data": "tanggal_formatted" },
+            { "data": "no-ref" },
+            { "data": "keterangan" },
+            { "data": "akun_debit" },
+            { "data": "debit", "render": function(data, type, row) {
+                return formatCurrency(roundNum(data));
+            }},
+            { "data": "akun_kredit" },
+            { "data": "kredit", "render": function(data, type, row) {
+                return formatCurrency(roundNum(data));
+            }},
+            { 
+                "data": "validasi",
+                "orderable": true,
+                "searchable": false,
+                "render": function(data, type, row) {
+                    return (data == 1) ? '<i class="material-icons">task_alt</i>' : '';
+                }
+            },
+            { 
+                "data": null,
+                "orderable": false,
+                "searchable": false,
+                "render": function(data, type, row) {
+                    if (row['validasi'] == 1) {
+                        return '<a href="#" class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">lock</i></a>'
+                    } else if (role.includes('Supervisor') && row['validasi'] == 1) {
+                        return '<a href="#" class="btn btn-link text-warning btn-just-icon unvalidasi" data-toggle="modal" data-target="#modalValidasi" data-id="' + data['id'] + '"><i class="material-icons">lock_open</i></a>'
+                    } else if (!role.includes('Supervisor') && row['validasi'] == 1) {
+                        return '<a href="#" class="btn btn-link text-dark btn-just-icon disabled" data-toggle="modal" data-target="#modalValidasi"><i class="material-icons">lock</i></a>'
+                    } else if (role.includes('Supervisor')) {
+                        return `<div class="form-check">
+                          <label class="form-check-label" style="padding-right:5px;">
+                            <input class="form-check-input sub_chk" type="checkbox" data-id="${row['id']}">
+                            <span class="form-check-sign"><span class="check"></span></span>
+                          </label>
+                        </div>`;
+                    } else {
+                        if(!(['Supervisor', 'Spesial']).filter(x => role.includes(x)) || !byroles.includes(row['by-role'])) {
+                            return '<button class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">block</i></button>'
+                        } else {
+                            return `<button data-toggle="tooltip" data-placement="left" title="Edit" class="btn btn-link btn-warning btn-just-icon edit btn-sm" onclick="onEdit(this)"><i class="material-icons">edit</i></button>
+                            <button data-toggle="tooltip" data-placement="left" title="Delete" class="btn btn-link btn-danger btn-just-icon remove btn-sm" onclick="onDelete(this)"><i class="material-icons">delete</i></button>
+                            <button data-toggle="tooltip" data-placement="left" title="Duplicate" class="btn btn-link btn-danger btn-just-icon duplicate btn-sm" onclick="onDuplicate(this)"><i class="material-icons">content_copy</i></button>`;
+                        }
+                    }
+                }
+            },
+        ],
         "lengthMenu": [
             [10, 25, 50, 100, -1],
             [10, 25, 50, 100, "All"]
         ],
-        iDisplayLength: 100,
+        iDisplayLength: 50,
         columnDefs: [
             {   
-                class: "details-control",
-                orderable: false,
-                targets: 0
+                "orderable": false,
+                "targets": 0,
+                "className": "dt-control",
+                "defaultContent": ''
             },
-            { "visible": false, "targets": [9, 10, 11] },
+            { "targets": [8], "className": "text-center" },
+            { "targets": [4, 5, 6, 7, 9], "className": "text-right" } // Right align the last column
         ]
     });
     function format (d) {
         return '<table class="table table-no-style"><tbody>'+
-            '<tr><td width="15%"><b>'+'Tanggal'+'</b></td><td>'+d[1]+'</td></tr>'+
-            '<tr><td><b>'+'Keterangan'+'</b></td><td>'+d[2]+'</td></tr>'+
-            '<tr><td><b>'+'Akun Debit'+'</b></td><td>'+d[3]+' - '+d[9]+'</td></tr>'+
-            '<tr><td><b>'+'Debit'+'</b></td><td>'+d[4]+'</td></tr>'+
-            '<tr><td><b>'+'Akun Kredit'+'</b></td><td>'+d[5]+' - '+d[10]+'</td></tr>'+
-            '<tr><td><b>'+'Kredit'+'</b></td><td>'+d[6]+'</td></tr>'+
+            '<tr><td width="15%"><b>'+'Tanggal'+'</b></td><td>'+d['tanggal_formatted']+'</td></tr>'+
+            '<tr><td><b>'+'Keterangan'+'</b></td><td>'+d['keterangan']+'</td></tr>'+
+            '<tr><td><b>'+'Akun Debit'+'</b></td><td>'+d['akun_debit']+'</td></tr>'+
+            '<tr><td><b>'+'Debit'+'</b></td><td>'+formatCurrency(roundNum(d['debit']))+'</td></tr>'+
+            '<tr><td><b>'+'Akun Kredit'+'</b></td><td>'+d['akun_kredit']+'</td></tr>'+
+            '<tr><td><b>'+'Kredit'+'</b></td><td>'+formatCurrency(roundNum(d['kredit']))+'</td></tr>'+
             '<tbody></table>';
     } 
 

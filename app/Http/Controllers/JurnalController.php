@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 
 class JurnalController extends Controller
@@ -26,9 +27,12 @@ class JurnalController extends Controller
     {
         if ($request->input('dateawal')) {
             $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('dateawal') . "/" . $this->year);
+        } elseif ($request->cookie('date_month')) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->cookie('date_month') . "/" . $this->year);
         } else {
             $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
         }
+        Cookie::queue(Cookie::forever('date_month', $this->filterDate->translatedFormat('F')));
         $dateAkhir = clone($this->filterDate);
         $dateAkhir = $dateAkhir->addMonth();
         $dateAwal = $this->filterDate->format('Y-m-d');
@@ -45,28 +49,93 @@ class JurnalController extends Controller
         $byrole=$this->ROLES_RANK;
         // $byrole=empty($byrole)?NULL:$byrole[0];
 
-        $akuns = \App\Akun::where('id-tipe',$tipe->id)
-            ->select('id','nama-akun')
-            ->get();
-        $jurnals = \App\Jurnal::where('id-tipe',$tipe->id)
-            ->with('akunDebit')
-            ->with('akunKredit')
-            ->orderBy('tanggal','DESC')
-            ->orderBy('id','DESC')
-            ->whereDate('tanggal','>=',$dateAwal)
-            ->whereDate('tanggal','<=',$dateAkhir)
+        $akuns = \App\Akun::select('id','nama-akun')
             ->get();
         return view('jurnal', [
             'dateawal' => $this->filterDate->translatedFormat('F'),
             'akuns'=>$akuns,
             'currentTipe'=>$tipe,
-            'jurnals'=>$jurnals,
             // 'dateawal'=>$dateawal_raw,
             'date'=>$date_raw,
             'byrole'=>$byrole,
             'byroleFilter'=>$this->ROLES_RANK,
             'datelock'=>$datelock,
             'defaultDateInput'=>$this->filterDate->format('d/m/Y'),
+        ]);
+    }
+
+    public function data(Request $request)
+    {
+        if ($request->input('dateawal')) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('dateawal') . "/" . $this->year);
+        } elseif ($request->cookie('date_month')) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->cookie('date_month') . "/" . $this->year);
+        } else {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
+        }
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $request->input('order.0.column');
+        $dir = $request->input('order.0.dir');
+        $search = $request->input('search.value');
+        
+        $dateAkhir = clone($this->filterDate);
+        $dateAkhir = $dateAkhir->addMonth();
+        $dateAwal = $this->filterDate->format('Y-m-d');
+        $dateAkhir=$dateAkhir->format('Y-m-d');
+
+        $tipe=$request->get('tipe');
+
+        $byrole=$this->ROLES_RANK;
+        $columns = ["id", "tanggal", "no-ref", "keterangan", "akun_debit", "debit", "akun_kredit", "kredit", "validasi"];
+        if (isset($order)) {
+            $order = $columns[$order];
+        }
+        $query = DB::query()->fromSub(function ($query) use ($tipe, $dateAwal, $dateAkhir) {
+            $query->from('jurnal')->select(
+                "jurnal.id AS id",
+                "tanggal",
+                DB::Raw("DATE_FORMAT(tanggal, '%d/%m/%Y') AS tanggal_formatted"),
+                "no-ref",
+                "keterangan",
+                DB::Raw("CONCAT(akunDebit.`no-akun`,' - ', akunDebit.`nama-akun`) AS akun_debit"),
+                "debit",
+                "id-debit",
+                DB::Raw("CONCAT(akunKredit.`no-akun`,' - ', akunKredit.`nama-akun`) AS akun_kredit"),
+                "kredit",
+                "id-kredit",
+                "validasi",
+                DB::Raw("IFNULL(`by-role`, 'Reguler') AS 'by-role'"),
+            )
+            ->where('jurnal.id-tipe',$tipe->id)
+            ->leftJoin('akun as akunDebit', 'akunDebit.id', '=', 'id-debit')
+            ->leftJoin('akun as akunKredit', 'akunKredit.id', '=', 'id-kredit')
+            ->whereDate('tanggal','>=',$dateAwal)
+            ->whereDate('tanggal','<=',$dateAkhir);
+        }, 'a')
+        ->when(isset($order), function($q) use ($order, $dir) {
+                $q->orderBy($order, $dir)->orderBy('id','DESC');
+            }, function($q) {
+                $q->orderBy('tanggal','DESC')->orderBy('id','DESC');
+        })
+        ->when(!empty($search), function($q) use ($search) {
+            $q->where('tanggal_formatted', 'LIKE', "%{$search}%")
+            ->orWhere('no-ref', 'LIKE', "%{$search}%")
+            ->orWhere('keterangan', 'LIKE', "%{$search}%")
+            ->orWhere('akun_debit', 'LIKE', "%{$search}%")
+            ->orWhere('debit', 'LIKE', "%{$search}%")
+            ->orWhere('akun_kredit', 'LIKE', "%{$search}%")
+            ->orWhere('kredit', 'LIKE', "%{$search}%")
+            ->orWhere('validasi', 'LIKE', "%{$search}%")
+            ->orWhere('by-role', 'LIKE', "%{$search}%");
+        });
+        $totalFiltered = $query->count();
+        $jurnals = $query->offset($start)->limit($limit)->get();
+        return response()->json([
+            "draw" => intval($request->input('draw')),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $jurnals
         ]);
     }
 
