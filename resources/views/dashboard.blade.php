@@ -85,7 +85,7 @@ active
                             <tr>
                                 <td>{{$ah[$x]->{'no-akun'} }}</td>
                                 <td>{{$ah[$x]->{'nama-akun'} }}</td>
-                                <td class="text-right">Rp {{number_format($ah[$x]->saldo)}}</td>
+                                <td class="text-right">Rp {{indo_num_format($ah[$x]->saldo)}}</td>
                             </tr>
                             @endfor
                             
@@ -199,7 +199,7 @@ active
                         <tr>
                             <td>{{$saldo[$x]->{'no-akun'} }}</td>
                             <td>{{$saldo[$x]->{'nama-akun'} }}</td>
-                            <td class="text-right">Rp {{number_format($saldo[$x]->saldo)}}</td>
+                            <td class="text-right">Rp {{indo_num_format($saldo[$x]->saldo)}}</td>
                         </tr>
                         @endfor
                         

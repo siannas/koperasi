@@ -129,9 +129,9 @@ active
                                 <tr>
                                     <td></td>
                                     <td>{{ $akun['name'] }}</td>
-                                    <td class="text-right">Rp {{ number_format($akun['saldo_awal'],2) }}</td>
-                                    <td class="text-right {{ $akun['saldo']<0 ? 'text-danger':'text-success' }} ">Rp {{ number_format($akun['saldo'],2) }}</td>
-                                    <td class="text-right">Rp {{ number_format($akun['saldo_awal']+$akun['saldo'],2) }}</td>
+                                    <td class="text-right">Rp {{ indo_num_format($akun['saldo_awal'],2) }}</td>
+                                    <td class="text-right {{ $akun['saldo']<0 ? 'text-danger':'text-success' }} ">Rp {{ indo_num_format($akun['saldo'],2) }}</td>
+                                    <td class="text-right">Rp {{ indo_num_format($akun['saldo_awal']+$akun['saldo'],2) }}</td>
                                     <td></td>
                                     <td></td>
                                 </tr>
@@ -140,9 +140,9 @@ active
                             <tbody>
                             <tr class="table-info">
                                 <td class="text-right" colspan="2">Jumlah {{$kd['name']}} </td>
-                                <td class="text-right">Rp {{ number_format($saldo_awal,2) }}</td>
-                                <td class="text-right">Rp {{ number_format($saldo_berjalan,2) }}</td>
-                                <td class="text-right">Rp {{ number_format($saldo_awal+$saldo_berjalan,2) }}</td>
+                                <td class="text-right">Rp {{ indo_num_format($saldo_awal,2) }}</td>
+                                <td class="text-right">Rp {{ indo_num_format($saldo_berjalan,2) }}</td>
+                                <td class="text-right">Rp {{ indo_num_format($saldo_awal+$saldo_berjalan,2) }}</td>
                                 <td></td>
                                 <td></td>
                             </tr>   
@@ -162,9 +162,9 @@ active
                     @endphp
                     <tr class="bg-dark text-white">
                         <th class="text-right" colspan="2" >Jumlah {{$title}}</th>
-                        <th class="text-right">Rp {{ number_format($res[0], 2) }}</th>
-                        <th class="text-right">Rp {{ number_format($res[1], 2) }}</th>
-                        <th class="text-right">Rp {{ number_format($res[2], 2) }}</th>
+                        <th class="text-right">Rp {{ indo_num_format($res[0], 2) }}</th>
+                        <th class="text-right">Rp {{ indo_num_format($res[1], 2) }}</th>
+                        <th class="text-right">Rp {{ indo_num_format($res[2], 2) }}</th>
                         <th class="text-right"></th>
                         <th class="text-right"></th>
                     </tr>  

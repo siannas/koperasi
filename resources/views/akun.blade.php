@@ -198,8 +198,8 @@ active
                     <td>{{$unit->getKategori ? ucwords($unit->getKategori->kategori): ''}}</td>
                     <td>{{$unit->{'no-akun'} }}</td>
                     <td>{{$unit->{'nama-akun'} }}</td>
-                    <td>Rp {{ number_format($unit->saldo_awal,2) }}</td>
-                    <td>Rp {{ number_format($unit->saldo,2) }}</td>
+                    <td>Rp {{ indo_num_format($unit->saldo_awal,2) }}</td>
+                    <td>Rp {{ indo_num_format($unit->saldo,2) }}</td>
                     <td class="text-right">
                         <button type="button" class="btn btn-sm btn-link btn-warning btn-just-icon edit" 
                             key="{{$key}}" onclick="onEdit(this)"><i class="material-icons">edit</i></button>

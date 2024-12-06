@@ -302,7 +302,7 @@ class JurnalController extends Controller
         $ac->mergeCells('I10:I11');
         $ac->getCell('I10')->setValue("KREDIT");
         
-        // $ac->getCell('F8')->setValue(number_format($saldoAwal->saldo, 2));
+        // $ac->getCell('F8')->setValue(indo_num_format($saldoAwal->saldo, 2));
 
         for($x=0;$x<count($jurnal);$x++){
             $ac->getCell('A'.($x+12))->setValue($jurnal[$x]->tanggal);
@@ -310,10 +310,10 @@ class JurnalController extends Controller
             $ac->getCell('C'.($x+12))->setValue($jurnal[$x]->keterangan);
             $ac->getCell('D'.($x+12))->setValue($jurnal[$x]->akunDebit->{'no-akun'});
             $ac->getCell('E'.($x+12))->setValue($jurnal[$x]->akunDebit->{'nama-akun'});
-            $ac->getCell('F'.($x+12))->setValue(number_format($jurnal[$x]->debit,2));
+            $ac->getCell('F'.($x+12))->setValue(indo_num_format($jurnal[$x]->debit,2));
             $ac->getCell('G'.($x+12))->setValue($jurnal[$x]->akunKredit->{'no-akun'});
             $ac->getCell('H'.($x+12))->setValue($jurnal[$x]->akunKredit->{'nama-akun'});
-            $ac->getCell('I'.($x+12))->setValue(number_format($jurnal[$x]->kredit,2));
+            $ac->getCell('I'.($x+12))->setValue(indo_num_format($jurnal[$x]->kredit,2));
         }
         
         

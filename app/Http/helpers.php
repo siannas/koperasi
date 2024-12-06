@@ -20,3 +20,10 @@ if (! function_exists('route')) {
         return app('url')->route($name, $parameters, $absolute);
     }
 }
+
+if (! function_exists('indo_num_format')) {
+    function indo_num_format($number)
+    {
+        return number_format($number,2,",",".");
+    }
+}

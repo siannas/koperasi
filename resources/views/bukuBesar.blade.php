@@ -81,7 +81,7 @@ active
                     <th></th>
                     <th></th>
                     <th></th>
-                    <th class="text-right">Rp {{number_format($saldoAwal,2)}} </th>
+                    <th class="text-right">Rp {{indo_num_format($saldoAwal,2)}} </th>
                 </tr>
                 @foreach($jurnal as $unit)
                 <tr>
@@ -90,7 +90,7 @@ active
                     <td>{{$unit->keterangan}}</td>
                     <td class="text-right">
                         @if(in_array($unit->{'id-debit'},$related)) 
-                        {{number_format($unit->debit,2)}}
+                        {{indo_num_format($unit->debit,2)}}
                         @php
                         if($curAkun->getKategori->{'tipe-pendapatan'} == 'debit'){
                             $jumlah += intval($unit->debit);
@@ -103,7 +103,7 @@ active
                         @endif</td>
                     <td class="text-right">
                         @if(in_array($unit->{'id-kredit'},$related))
-                        {{number_format($unit->kredit,2)}}
+                        {{indo_num_format($unit->kredit,2)}}
                         @php
                         if($curAkun->getKategori->{'tipe-pendapatan'} == 'debit'){
                             $jumlah -= intval($unit->kredit);
@@ -116,7 +116,7 @@ active
                         @endif</td>
                     <td class="text-right">
                         @php
-                        echo number_format($jumlah,2);
+                        echo indo_num_format($jumlah,2);
                         @endphp</td>
                 </tr>
                 @endforeach
@@ -125,7 +125,7 @@ active
                 <tr class="bg-dark text-white">
                     <th></th>
                     <th colspan="4">Saldo Akhir</th>
-                    <th class="text-right">Rp {{number_format($jumlah,2)}}</th>
+                    <th class="text-right">Rp {{indo_num_format($jumlah,2)}}</th>
                 </tr>
                 </tfoot>
             </table>

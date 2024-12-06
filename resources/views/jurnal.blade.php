@@ -299,9 +299,9 @@ active
                     <td>{{$m2->format('d/m/Y')}}</td>
                     <td>{{$j->keterangan}}</td>
                     <td class="text-right">{{$j->akunDebit->{'no-akun'} }} - {{$j->akunDebit->{'nama-akun'} }}</td>
-                    <td class="text-right">{{ number_format($j->debit, 2) }}</td>
+                    <td class="text-right">{{ indo_num_format($j->debit, 2) }}</td>
                     <td class="text-right">{{$j->akunKredit->{'no-akun'} }} - {{$j->akunKredit->{'nama-akun'} }}</td>
-                    <td class="text-right">{{ number_format($j->kredit, 2) }}</td>
+                    <td class="text-right">{{ indo_num_format($j->kredit, 2) }}</td>
                     @if($j->validasi==1)
                     <td class="center"><i class="material-icons">task_alt</i></td>
                     @else

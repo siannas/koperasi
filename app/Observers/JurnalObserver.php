@@ -35,7 +35,7 @@ class JurnalObserver
             'tipe' => $jurnal->{'id-tipe'},
             'jurnal-old' => null,
             'jurnal-now' => json_encode($jurnal),
-            'keterangan' => "<b>{$this->userNama}</b> membuat jurnal <b>{$jurnal->keterangan}</b> sebesar <b>Rp ".number_format($jurnal->debit, 2)."</b>",
+            'keterangan' => "<b>{$this->userNama}</b> membuat jurnal <b>{$jurnal->keterangan}</b> sebesar <b>Rp ".indo_num_format($jurnal->debit, 2)."</b>",
             'created_at' => Carbon::now()->toDateTimeString(),
         ];
 
@@ -116,7 +116,7 @@ class JurnalObserver
             'tipe' => $jurnal->{'id-tipe'},
             'jurnal-old' => json_encode($jurnal),
             'jurnal-now' => null,
-            'keterangan' => "<b>{$this->userNama}</b> <font color=\"red\">menghapus</font> jurnal <b>{$jurnal->keterangan}</b> sebesar <b>Rp ".number_format($jurnal->debit, 2)."</b>",
+            'keterangan' => "<b>{$this->userNama}</b> <font color=\"red\">menghapus</font> jurnal <b>{$jurnal->keterangan}</b> sebesar <b>Rp ".indo_num_format($jurnal->debit, 2)."</b>",
             'created_at' => Carbon::now()->toDateTimeString(),
         ];
         DB::beginTransaction();

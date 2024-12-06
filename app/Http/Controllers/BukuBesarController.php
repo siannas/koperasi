@@ -131,7 +131,7 @@ class BukuBesarController extends Controller
         $ac->getCell('E8')->setValue("SALDO AWAL");
         $ac->getCell('E9')->setValue("SALDO AKHIR");
 
-        $ac->getCell('F8')->setValue(": Rp ".number_format($saldoAwal, 2));
+        $ac->getCell('F8')->setValue(": Rp ".indo_num_format($saldoAwal, 2));
 
         $ac->mergeCells('A11:A12');
         $ac->getCell('A11')->setValue("TANGGAL");
@@ -147,7 +147,7 @@ class BukuBesarController extends Controller
         $ac->getCell('F11')->setValue("SALDO");
         
         $ac->getCell('C13')->setValue('SALDO AWAL');
-        $ac->getCell('F13')->setValue(number_format($saldoAwal, 2));
+        $ac->getCell('F13')->setValue(indo_num_format($saldoAwal, 2));
 
         $jumlah = $saldoAwal;
         for($x=0;$x<count($jurnal);$x++){
@@ -155,7 +155,7 @@ class BukuBesarController extends Controller
             $ac->getCell('B'.($x+14))->setValue($jurnal[$x]->{'no-ref'});
             $ac->getCell('C'.($x+14))->setValue($jurnal[$x]->keterangan);
             if(in_array($jurnal[$x]->{'id-debit'},$related)){
-                $ac->getCell('D'.($x+14))->setValue(number_format($jurnal[$x]->debit,2));
+                $ac->getCell('D'.($x+14))->setValue(indo_num_format($jurnal[$x]->debit,2));
                 if($tipePen->getKategori->{'tipe-pendapatan'} == 'debit'){
                     $jumlah += intval($jurnal[$x]->debit);
                 }
@@ -167,7 +167,7 @@ class BukuBesarController extends Controller
                 $ac->getCell('D'.($x+14))->setValue('-');
             }
             if(in_array($jurnal[$x]->{'id-kredit'},$related)){
-                $ac->getCell('E'.($x+14))->setValue(number_format($jurnal[$x]->kredit,2));
+                $ac->getCell('E'.($x+14))->setValue(indo_num_format($jurnal[$x]->kredit,2));
                 if($tipePen->getKategori->{'tipe-pendapatan'} == 'debit'){
                     $jumlah -= intval($jurnal[$x]->kredit);
                 }
@@ -179,9 +179,9 @@ class BukuBesarController extends Controller
                 $ac->getCell('E'.($x+14))->setValue('-');
             }
             
-            $ac->getCell('F'.($x+14))->setValue(number_format($jumlah,2));
+            $ac->getCell('F'.($x+14))->setValue(indo_num_format($jumlah,2));
         }
-        $ac->getCell('F9')->setValue(": Rp ".(number_format($jumlah,2)));
+        $ac->getCell('F9')->setValue(": Rp ".(indo_num_format($jumlah,2)));
         
         
         $titleStyle = [

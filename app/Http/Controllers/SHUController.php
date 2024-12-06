@@ -143,9 +143,9 @@ class SHUController extends Controller
                 $saldo_berjalan+=$akun['saldo'];
 
                 $ac->getCell('B'.($from+$walk))->setValue("      ".$akun['name']);
-                $ac->getCell('C'.($from+$walk))->setValue(number_format($akun['saldo_awal'], 2));
-                $ac->getCell('D'.($from+$walk))->setValue(number_format($akun['saldo'], 2));
-                $ac->getCell('E'.($from+$walk))->setValue(number_format($akun['saldo_awal'] + $akun['saldo'], 2));
+                $ac->getCell('C'.($from+$walk))->setValue(indo_num_format($akun['saldo_awal'], 2));
+                $ac->getCell('D'.($from+$walk))->setValue(indo_num_format($akun['saldo'], 2));
+                $ac->getCell('E'.($from+$walk))->setValue(indo_num_format($akun['saldo_awal'] + $akun['saldo'], 2));
             }
 
             // display total saldo kategori
@@ -154,9 +154,9 @@ class SHUController extends Controller
             $walk++;
             $row = $from+$walk;
             $ac->getCell('B'.($row))->setValue( 'JUMLAH '.strtoupper($kd['name']) );
-            $ac->getCell('C'.($row))->setValue( number_format($saldo_awal,2) );
-            $ac->getCell('D'.($row))->setValue( number_format($saldo_berjalan,2) );
-            $ac->getCell('E'.($row))->setValue( number_format($saldo_awal+$saldo_berjalan,2) );
+            $ac->getCell('C'.($row))->setValue( indo_num_format($saldo_awal,2) );
+            $ac->getCell('D'.($row))->setValue( indo_num_format($saldo_berjalan,2) );
+            $ac->getCell('E'.($row))->setValue( indo_num_format($saldo_awal+$saldo_berjalan,2) );
             $ac->getStyle("B{$row}:G{$row}")->getFont()->setBold(true);
             $ac->getStyle("B{$row}:G{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
             $walk++;
@@ -174,9 +174,9 @@ class SHUController extends Controller
 
             $row = $from+$walk;
             $ac->getCell('B'.($row))->setValue( $title );
-            $ac->getCell('C'.($row))->setValue( number_format($res[0],2) );
-            $ac->getCell('D'.($row))->setValue( number_format($res[1],2) );
-            $ac->getCell('E'.($row))->setValue( number_format($res[2],2) );                      
+            $ac->getCell('C'.($row))->setValue( indo_num_format($res[0],2) );
+            $ac->getCell('D'.($row))->setValue( indo_num_format($res[1],2) );
+            $ac->getCell('E'.($row))->setValue( indo_num_format($res[2],2) );                      
             $ac->getStyle("B{$row}:G{$row}")->getFont()->setBold(true);
             $ac->getStyle("B{$row}:G{$row}")->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
             $walk++;
