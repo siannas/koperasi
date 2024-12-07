@@ -25,10 +25,10 @@ class JurnalController extends Controller
      */
     public function index(Request $request)
     {
-        // if ($request->input('dateawal') != null) {
-        //     $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('dateawal') . "/" . $this->year);
-        // } else
-        if ($request->cookie('date_month') != null) {
+        $date_awal = $request->input('dateawal');
+        if (isset($date_awal)) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('dateawal') . "/" . $this->year);
+        } elseif ($request->cookie('date_month') != null) {
             $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->cookie('date_month') . "/" . $this->year);
         } else {
             $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
@@ -68,10 +68,10 @@ class JurnalController extends Controller
 
     public function data(Request $request)
     {
-        // if ($request->input('dateawal') != null) {
-        //     $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('dateawal') . "/" . $this->year);
-        // } else
-        if ($request->cookie('date_month') != null) {
+        $date_awal = $request->input('dateawal');
+        if (isset($date_awal)) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('dateawal') . "/" . $this->year);
+        } elseif ($request->cookie('date_month') != null) {
             $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->cookie('date_month') . "/" . $this->year);
         } else {
             $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
