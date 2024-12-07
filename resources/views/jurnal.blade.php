@@ -36,6 +36,10 @@ active
                     <input type="text" class="form-control datepicker" id="date" name="tanggal" required placeholder="Tanggal">
                 </div>
                 <div class="form-group">
+                    <label for="keterangan" class="bmd-label-floating">REF</label>
+                    <input type="text" class="form-control" id="ref" maxlength=18 name="no-ref">
+                </div>
+                <div class="form-group">
                     <label for="keterangan" class="bmd-label-floating">Keterangan</label>
                     <input type="text" class="form-control" id="keterangan" name="keterangan" required>
                 </div>
@@ -97,6 +101,10 @@ active
         <input type="hidden" class="form-control datepicker" id="date" name="date" value="{{$date}}">
             <div class="form-group">
                 <input type="text" class="form-control datepicker" id="date" name="tanggal" required>
+            </div>
+            <div class="form-group">
+                <label for="keterangan" class="bmd-label-floating">REF</label>
+                <input type="text" class="form-control" id="ref" maxlength=18 name="no-ref">
             </div>
             <div class="form-group">
                 <label for="keterangan-edit" class="bmd-label-floating">Keterangan</label>
@@ -312,6 +320,7 @@ function onEdit(self) {
     
     $modal.find('[name=tanggal]').val(moment(j['tanggal']).format('L')).change();
     $modal.find('[name=keterangan]').val(j['keterangan']).change();
+    $modal.find('[name=no-ref]').val(j['no-ref']).change();
     $modal.find('[name=id-debit]').val(j['id-debit']).change();
     $modal.find('[name=debit-dummy]').val(j['debit']).change().blur();
     $modal.find('[name=id-kredit]').val(j['id-kredit']).change();
@@ -394,6 +403,7 @@ $(document).ready(function() {
     if ($('.slider').length != 0) {
         md.initSliders();
     }
+    var isInitialLoad = true; // Flag to check if it's the initial load
     table = $('#datatables').DataTable({
         responsive:{
             details: false
@@ -479,7 +489,34 @@ $(document).ready(function() {
             },
             { "targets": [8], "className": "text-center" },
             { "targets": [4, 5, 6, 7, 9], "className": "text-right" } // Right align the last column
-        ]
+        ],
+        searchDelay: 500, // Delay in milliseconds
+        stateSave: true,
+        stateSaveCallback: function(settings, data) {
+            data['page'] = table.page.info().page;
+            if (isInitialLoad) return;
+            // console.log("save ", isInitialLoad, data['page']);
+            localStorage.setItem('DT_jurnal', JSON.stringify(data));
+        },
+        stateLoadCallback: function(settings) {
+            // return JSON.parse(localStorage.getItem('DT_jurnal'));
+            return JSON.parse(localStorage.getItem('DT_jurnal'));
+        },
+        initComplete: function (settings, json) {
+            if (localStorage.getItem('DT_jurnal') == null) {
+                isInitialLoad = false;
+                return;
+            }
+            data = JSON.parse(localStorage.getItem('DT_jurnal'));
+            // console.log("complete", data['page']);
+            if (data['page'] != null && data['page'] != 0) {
+                // console.log("set");
+                this.fnPageChange(data['page'], true);
+                isInitialLoad = false;
+            } else {
+                isInitialLoad = false;
+            }
+        }
     });
     function format (d) {
         return '<table class="table table-no-style"><tbody>'+

@@ -50,6 +50,7 @@ class JurnalController extends Controller
         // $byrole=empty($byrole)?NULL:$byrole[0];
 
         $akuns = \App\Akun::select('id','nama-akun')
+            ->where('id', '<>', \App\Akun::SHU_BERJALAN_ID)
             ->get();
         return view('jurnal', [
             'dateawal' => $this->filterDate->translatedFormat('F'),
@@ -164,15 +165,17 @@ class JurnalController extends Controller
     {
         $today = Carbon::today();
         $tipe=$request->get('tipe');
-        $data = $request->validate([
-            "tanggal" => "required",
-            "keterangan" => "required",
-            "id-debit" => "required",
-            "debit" => "required",
-            "id-kredit" => "required",
-            "kredit" => "required",
-        ]);
+        
         try {
+            $data = $request->validate([
+                "tanggal" => "required",
+                "keterangan" => "required",
+                "no-ref" => "nullable|string|max:18",
+                "id-debit" => "required",
+                "debit" => "required",
+                "id-kredit" => "required",
+                "kredit" => "required",
+            ]);
             $byrole=array_intersect($this->ROLES_RANK,$request->get('roles'));
             $jurnal = new \App\Jurnal($data);
 
@@ -188,20 +191,20 @@ class JurnalController extends Controller
             $datelock = Carbon::parse($datelock)->addMonth();
             
             // Jika pengisian lebih dari today
-            if($jurnal->tanggal > $today){
-                $this->flashError('Tanggal Melebihi Hari Ini: '.$today->isoFormat('D MMMM Y'));
-                return redirect(url($this->year.'/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
-            }
+            // if($jurnal->tanggal > $today){
+            //     $this->flashError('Tanggal Melebihi Hari Ini: '.$today->isoFormat('D MMMM Y'));
+            //     return back();
+            // }
             // Jika selisih pengisian & today lebih dari DATE LOCK
-            elseif($date->lessThan($datelock)){
-                
+            // elseif($date->lessThan($datelock)){
+            if($date->lessThan($datelock)){
                 $this->flashError('Tanggal Sudah Melewati Batas Waktu Pengisian');
-                return redirect(url($this->year.'/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
+                return back();
             }
             $jurnal->save();
         }catch (QueryException $exception) {
             $this->flashError($exception->getMessage());
-            return redirect(url($this->year.'/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
+            return back();
         }
 
         $this->flashSuccess('Data Jurnal Berhasil Ditambahkan');
@@ -241,22 +244,23 @@ class JurnalController extends Controller
     public function update(Request $request, $year, $id)
     {
         $tipe=$request->get('tipe');
-        $data = $request->validate([
-            "tanggal" => "required",
-            "keterangan" => "required",
-            "id-debit" => "required",
-            "debit" => "required",
-            "id-kredit" => "required",
-            "kredit" => "required",
-        ]);
         try {
+            $data = $request->validate([
+                "tanggal" => "required",
+                "no-ref" => "nullable|string|max:18",
+                "keterangan" => "required",
+                "id-debit" => "required",
+                "debit" => "required",
+                "id-kredit" => "required",
+                "kredit" => "required",
+            ]);
             $jurnal = \App\Jurnal::findOrFail($id);
             $jurnal->fill($data);
             $jurnal->tanggal = Carbon::createFromFormat('d/m/Y', $data['tanggal'])->format('Y-m-d');
             $jurnal->save();
         }catch (QueryException $exception) {
             $this->flashError($exception->getMessage());
-            return redirect(url($this->year.'/'.$tipe->tipe.'/jurnal')."?dateawal={$request->dateawal}&date={$request->date}");
+            return back();
         }
 
         $this->flashSuccess('Data Jurnal Berhasil Diperbarui');
