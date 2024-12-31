@@ -112,7 +112,7 @@ const my = {
           viewMode: 'months',
           format: 'MMMM',
           minDate: new Date((year - 1) + "-12-31"),
-          maxDate: new Date(year + "-12-31"),
+          maxDate: new Date((year + 1) + "-01-01"),
         });
     },
 }

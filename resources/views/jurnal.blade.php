@@ -246,10 +246,9 @@ active
             </div>
             </form>
             <!-- data-col="11" means column index for role filter -->
-            <div class="filter-tags" data-select="#selectrole" data-tags="#tagsinput" data-col="12">
+            <!-- <div class="filter-tags" data-select="#selectrole" data-tags="#tagsinput" data-col="12">
                 <div class="form-group d-inline-block" style="width: 120px;">
                     <select id="selectrole" class="selectpicker" data-style2="btn-default btn-round btn-sm text-white" data-style="select-with-transition" multiple title="Filter" data-size="7">
-                        <!-- <option value="Reguler">Reguler</option> -->
                         @foreach($byroleFilter as $r)
                         <option value="{{$r}}">{{$r}}</option>
                         @endforeach
@@ -258,7 +257,7 @@ active
                 <div class="h-100 d-inline-block">
                     <input id="tagsinput" hidden type="text" value="" class="form-control tagsinput" data-role="tagsinput" data-size="md" data-color="info" data-role="filter">
                 </div>
-            </div>
+            </div> -->
             <div class="material-datatables">
             <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
                 <thead>
