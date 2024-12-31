@@ -85,7 +85,7 @@ $role = explode(', ', $role);
                 @if(array_intersect($role, ['Supervisor', 'Spesial']))
                 <li class="nav-item @yield('jurnal'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/' . $year . '/'.$unit->tipe.'/jurnal')}}">
-                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-mini"> <span class="material-icons" style="font-size:small;">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
@@ -93,7 +93,7 @@ $role = explode(', ', $role);
                 @elseif(!in_array('Admin', $role) && $cek[$unit->id]==1)
                 <li class="nav-item @yield('jurnal'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/' . $year . '/'.$unit->tipe.'/jurnal')}}">
-                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-mini"> <span class="material-icons" style="font-size:small;">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
@@ -115,14 +115,14 @@ $role = explode(', ', $role);
                 @if(array_intersect($role, ['Supervisor', 'Spesial']))
                 <li class="nav-item @yield('buku'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/' . $year . '/'.$unit->tipe.'/buku-besar')}}">
-                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-mini"> <span class="material-icons" style="font-size:small;">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
                 @elseif(!in_array('Admin', $role) && $cek[$unit->id]==1)
                 <li class="nav-item @yield('buku'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/' . $year . '/'.$unit->tipe.'/buku-besar')}}">
-                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-mini"> <span class="material-icons" style="font-size:small;">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
@@ -144,14 +144,14 @@ $role = explode(', ', $role);
                 @if(array_intersect($role, ['Supervisor', 'Spesial']))
                 <li class="nav-item @yield('neraca'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/' . $year . '/'.$unit->tipe.'/neraca')}}">
-                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-mini"> <span class="material-icons" style="font-size:small;">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
                 @elseif(!in_array('Admin', $role) && $cek[$unit->id]==1)
                 <li class="nav-item @yield('neraca'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/' . $year . '/'.$unit->tipe.'/neraca')}}">
-                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-mini"> <span class="material-icons" style="font-size:small;">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
@@ -160,7 +160,7 @@ $role = explode(', ', $role);
                 @if(array_intersect(['Spesial','Supervisor'], $role))
                 <li class="nav-item @yield('neraca')">
                     <a class="nav-link" href="{{url('/' . $year . '/neraca')}}">
-                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-mini"> <span class="material-icons" style="font-size:small;">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> Neraca Gabungan </span>
                     </a>
                 </li>
@@ -181,14 +181,14 @@ $role = explode(', ', $role);
                 @if(array_intersect($role, ['Supervisor', 'Spesial']))
                 <li class="nav-item @yield('shu'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/' . $year . '/'.$unit->tipe.'/shu')}}">
-                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-mini"> <span class="material-icons" style="font-size:small;">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
                 @elseif(!in_array('Admin', $role) && $cek[$unit->id]==1)
                 <li class="nav-item @yield('shu'.$unit->tipe)">
                     <a class="nav-link" href="{{url('/' . $year . '/'.$unit->tipe.'/shu')}}">
-                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-mini"> <span class="material-icons" style="font-size:small;">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> {{$unit->tipe}} </span>
                     </a>
                 </li>
@@ -197,7 +197,7 @@ $role = explode(', ', $role);
                 @if(array_intersect(['Spesial','Supervisor'], $role))
                 <li class="nav-item @yield('shu')">
                     <a class="nav-link" href="{{url('/' . $year . '/shu')}}">
-                    <span class="sidebar-mini"> <span class="material-icons">radio_button_checked</span> </span>
+                    <span class="sidebar-mini"> <span class="material-icons" style="font-size:small;">radio_button_checked</span> </span>
                     <span class="sidebar-normal"> SHU Gabungan </span>
                     </a>
                 </li>
