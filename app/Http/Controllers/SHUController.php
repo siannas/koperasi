@@ -21,6 +21,8 @@ class SHUController extends Controller
     {
         if ($request->input('date_month')) {
             $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('date_month') . "/" . $this->year);
+        } elseif ($request->cookie('date_month')) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->cookie('date_month') . "/" . $this->year);
         } else {
             $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
         }
@@ -285,6 +287,7 @@ class SHUController extends Controller
             ->when($slug =='', function($q){
                 $q->where('key','not like','shu_tk%')
                 ->where('key','not like','shu_fc%')
+                ->where('key','not like','shu_pusat%')
                 ->where('key','not like','shu_usp%');
             })->get();
         return [
