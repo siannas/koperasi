@@ -28,6 +28,13 @@ class NeracaController extends Controller
         } else {
             $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
         }
+        $minDate = Carbon::parse($this->year. '-01-01');
+        $maxDate = Carbon::parse($this->year. '-12-31');
+        if ($this->filterDate->gt($maxDate)) {
+            $this->filterDate = Carbon::parse($this->year. '-12-01');
+        } elseif ($this->filterDate->lt($minDate)) {
+            $this->filterDate = Carbon::parse($this->year. '-01-01');
+        }
         Cookie::queue(Cookie::forever('date_month', $this->filterDate->translatedFormat('F')));
         if($tipe=$request->get('tipe')){
             $data = $this->init($request, $tipe->id, strtolower($tipe->slug));

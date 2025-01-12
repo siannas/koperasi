@@ -13,8 +13,25 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class BukuBesarController extends Controller
 {
     public function index(Request $request){
+        $date_awal = $request->input('dateawal');
+        if (isset($date_awal)) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->input('dateawal') . "/" . $this->year);
+        } elseif ($request->cookie('date_month') != null) {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!MMMM/Y', 'id', $request->cookie('date_month') . "/" . $this->year);
+        } else {
+            $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
+        }
+        $minDate = Carbon::parse($this->year. '-01-01');
+        $maxDate = Carbon::parse($this->year. '-12-31');
+        if ($this->filterDate->gt($maxDate)) {
+            $this->filterDate = Carbon::parse($this->year. '-12-01');
+        } elseif ($this->filterDate->lt($minDate)) {
+            $this->filterDate = Carbon::parse($this->year. '-01-01');
+        }
         $tipe=$request->get('tipe');
-        $akun=Akun::where('id-tipe', $tipe->id)->get();
+        $akun=Akun::where('id-tipe', $tipe->id)
+            ->orderBy('no-akun', 'ASC')
+            ->get();
         $jurnal=[];
         
         return view('bukuBesar', ['currentTipe'=>$tipe, 
@@ -22,7 +39,7 @@ class BukuBesarController extends Controller
                                 'curAkun'=>new Akun(),
                                 'jurnal'=>$jurnal,
                                 'saldoAwal'=>0,
-                                'bulan'=>0]);
+                                'bulan'=>$this->filterDate->format('m/Y')]);
     }
 
     public function filter(Request $request){
@@ -55,6 +72,8 @@ class BukuBesarController extends Controller
                 $q->whereIn('id-debit', $related)
                   ->orWhereIn('id-kredit', $related);
             })
+            ->orderBy('tanggal', 'ASC')
+            ->orderBy('id','DESC')
             ->get()->sortBy('tanggal');
 
         return view('bukuBesar', ['currentTipe'=>$tipe, 
@@ -97,6 +116,8 @@ class BukuBesarController extends Controller
                 $q->whereIn('id-debit', $related)
                   ->orWhereIn('id-kredit', $related);
             })
+            ->orderBy('tanggal', 'ASC')
+            ->orderBy('id','DESC')
             ->get()->sortBy('tanggal');
         
         $ex = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -104,7 +125,7 @@ class BukuBesarController extends Controller
         $ac = $ex->getActiveSheet();
 
         $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-        $drawing->setPath('public/img/logo.png');
+        $drawing->setPath(base_path('public/img/logo.png'));
         $drawing->setCoordinates('A1');
         $drawing->setOffsetX(70);
         $drawing->setOffsetY(5);

@@ -33,6 +33,13 @@ class JurnalController extends Controller
         } else {
             $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
         }
+        $minDate = Carbon::parse($this->year. '-01-01');
+        $maxDate = Carbon::parse($this->year. '-12-31');
+        if ($this->filterDate->gt($maxDate)) {
+            $this->filterDate = Carbon::parse($this->year. '-12-01');
+        } elseif ($this->filterDate->lt($minDate)) {
+            $this->filterDate = Carbon::parse($this->year. '-01-01');
+        }
         Cookie::queue(Cookie::forever('date_month', $this->filterDate->translatedFormat('F')));
         $dateAkhir = clone($this->filterDate);
         $dateAkhir = $dateAkhir->addMonth();
@@ -50,8 +57,9 @@ class JurnalController extends Controller
         $byrole=$this->ROLES_RANK;
         // $byrole=empty($byrole)?NULL:$byrole[0];
 
-        $akuns = \App\Akun::select('id','nama-akun')
+        $akuns = \App\Akun::select('id','nama-akun','no-akun')
             ->where('id', '<>', \App\Akun::SHU_BERJALAN_ID)
+            ->orderBy('no-akun', 'ASC')
             ->get();
         return view('jurnal', [
             'dateawal' => $this->filterDate->translatedFormat('F'),
@@ -76,6 +84,13 @@ class JurnalController extends Controller
         } else {
             $this->filterDate = Carbon::createFromLocaleIsoFormat('!M/Y', 'id', date('n') . "/" . $this->year);
         }
+        $minDate = Carbon::parse($this->year. '-01-01');
+        $maxDate = Carbon::parse($this->year. '-12-31');
+        if ($this->filterDate->gt($maxDate)) {
+            $this->filterDate = Carbon::parse($this->year. '-12-01');
+        } elseif ($this->filterDate->lt($minDate)) {
+            $this->filterDate = Carbon::parse($this->year. '-01-01');
+        }
 
         $limit = $request->input('length');
         $start = $request->input('start');
@@ -94,6 +109,9 @@ class JurnalController extends Controller
         $columns = ["id", "tanggal", "no-ref", "keterangan", "akun_debit", "debit", "akun_kredit", "kredit", "validasi"];
         if (isset($order)) {
             $order = $columns[$order];
+        }
+        if ($order == "id") {
+            $order = "tanggal";
         }
         $query = DB::query()->fromSub(function ($query) use ($tipe, $dateAwal, $dateAkhir) {
             $query->from('jurnal')->select(
@@ -326,6 +344,7 @@ class JurnalController extends Controller
             ->with('akunDebit')
             ->with('akunKredit')
             ->orderBy('tanggal','ASC')
+            ->orderBy('id','DESC')
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
             ->get();

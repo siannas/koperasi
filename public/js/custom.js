@@ -86,21 +86,32 @@ const my = {
           }
         });
 
-        $(".monthyearpicker").datetimepicker( {
-          viewMode: 'months',
-          format: "MM/YYYY",
-          icons: {
-            time: "fa fa-clock-o",
-            date: "fa fa-calendar",
-            up: "fa fa-chevron-up",
-            down: "fa fa-chevron-down",
-            previous: 'fa fa-chevron-left',
-            next: 'fa fa-chevron-right',
-            today: 'fa fa-screenshot',
-            clear: 'fa fa-trash',
-            close: 'fa fa-remove'
-    
+        $(".monthyearpicker").each(function(i, elem) {
+          defaultVal = year + '-01-01';
+          if (elem.value != "") {
+            val = moment(elem.value, "MM/YYYY")
+            defaultVal = val.format("YYYY-MM-DD")
           }
+          elem.value = "";
+          $(elem).datetimepicker( {
+            viewMode: 'months',
+            format: "MM/YYYY",
+            icons: {
+              time: "fa fa-clock-o",
+              date: "fa fa-calendar",
+              up: "fa fa-chevron-up",
+              down: "fa fa-chevron-down",
+              previous: 'fa fa-chevron-left',
+              next: 'fa fa-chevron-right',
+              today: 'fa fa-screenshot',
+              clear: 'fa fa-trash',
+              close: 'fa fa-remove',
+            },
+            useCurrent: false,
+            defaultDate: defaultVal,
+            minDate: new Date(year + "-01-01T00:00:00"),
+            maxDate: new Date(year + "-12-31T23:59:59"),
+          });
         });
 
         $(".yearpicker").datetimepicker( {
@@ -108,11 +119,21 @@ const my = {
           format: 'YYYY'
         });
 
-        $(".monthpicker").datetimepicker( {
-          viewMode: 'months',
-          format: 'MMMM',
-          minDate: new Date((year - 1) + "-12-31"),
-          maxDate: new Date((year + 1) + "-01-01"),
+        $(".monthpicker").each(function(i, elem) {
+          defaultVal = year + '-01-01';
+          if (elem.value != "") {
+            val = moment(elem.value + " " + year, "MMMM YYYY")
+            defaultVal = val.format("YYYY-MM-DD")
+          }
+          elem.value = "";
+          $(elem).datetimepicker( {
+            viewMode: 'months',
+            format: 'MMMM',
+            useCurrent: false,
+            defaultDate: defaultVal,
+            minDate: new Date(year + "-01-01T00:00:00"),
+            maxDate: new Date(year + "-12-31T23:59:59"),
+          });
         });
     },
 }

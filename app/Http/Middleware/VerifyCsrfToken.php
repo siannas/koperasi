@@ -21,4 +21,20 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         //
     ];
+
+    public function handle($request, \Closure $next)
+    {
+        try {
+            $res = parent::handle($request, $next);
+            return $res;
+        } catch (\Exception $th) {
+            $request->session()->flash('alert', [
+                'icon' => 'close',
+                'message' => 'Sesi habis, Coba lagi!',
+                'status' => '2',
+             ]);
+            return back();
+        }
+        throw new \Illuminate\Session\TokenMismatchException;
+    }
 }
