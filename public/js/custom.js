@@ -5,7 +5,7 @@ const my = {
     },
     "inputToRupiah": function (){    
       var curval= this.value.replace(/Rp|,/g, "");
-      if (/^[\d.]*$/.test(curval) && curval.trim()!=='') {   //is it valid float number?
+      if (/^\-?[\d.]*$/.test(curval) && curval.trim()!=='') {   //is it valid float number?
         this.oldSelectionStart = this.selectionStart;
         this.oldSelectionEnd = this.selectionEnd;
         this.value = this.oldValue=  'Rp'+parseFloat(curval)

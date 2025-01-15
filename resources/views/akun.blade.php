@@ -266,6 +266,7 @@ $(document).ready(function() {
         [10, 25, 50, -1],
         [10, 25, 50, "All"]
     ],
+    order: [[1, 'asc']],
     iDisplayLength: -1,
     responsive: true,
     language: {
