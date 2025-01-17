@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Jurnal;
 use App\Akun;
 use App\Saldo;
+use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -44,6 +45,7 @@ class BukuBesarController extends Controller
 
     public function filter(Request $request){
         $tipe=$request->get('tipe');
+        $tipeId = $tipe->id;
         $akun=Akun::where('id-tipe', $tipe->id)->get();
         
         $filter = Carbon::createFromFormat('m/Y', $request->bulan);
@@ -59,13 +61,28 @@ class BukuBesarController extends Controller
          * ambil akun dengan string nama yang sama
          * */ 
         $related=Akun::where('nama-akun','like',$tipePen->{'nama-akun'} )->select('id')->pluck('id')->toArray();
-        
-        $saldoAwal=Saldo::whereIn('id-akun', $related)
-            ->whereDate('tanggal','<',$filter->format('Y-m-d'))
-            ->pluck('saldo')->sum();
-        if(!$saldoAwal) $saldoAwal=0;
+
+        $saldoBerjalan = \App\Saldo::select('id-akun', DB::Raw('SUM(`saldo`) as saldo'))
+            ->where('tanggal', '<', $filter->format('Y-m-') . '01')
+            ->where('tanggal', '>=', $filter->format('Y-') . '01-01')
+            ->where('id-tipe', '<>', 0)
+            ->where('id-akun', '=', $request->akun)
+            ->when($tipe != null, function($q) use($tipeId) {
+                $q->where('id-tipe', '=', $tipeId);
+            })
+            ->groupBy('id-akun')
+            ->first();
+        $awal = \App\Saldo::select('id-akun', DB::Raw('SUM(`saldo_awal`) as saldo'))
+            ->where('tanggal', '=', $filter->format('Y-') . '01-01')
+            ->where('id-tipe', '=', 0)
+            ->where('id-akun', '=', $request->akun)
+            ->groupBy('id-akun')
+            ->first();
+        $sb = isset($saldoBerjalan) ? floatval($saldoBerjalan->saldo) : 0;
+        $saldoAwal = (isset($awal) ? floatval($awal->saldo) : 0) + $sb;
 
         $jurnal = Jurnal::where('validasi', 1)
+            ->where('id-tipe',$tipeId)
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
             ->where(function($q) use($request,$related){
@@ -88,6 +105,7 @@ class BukuBesarController extends Controller
     public function excel(Request $request){
 
         $tipe=$request->get('tipe');
+        $tipeId = $tipe->id;
         $akun=Akun::where('id-tipe', $tipe->id)->get();
         
         $filter = Carbon::createFromFormat('m/Y', $request->bulan);
@@ -104,12 +122,27 @@ class BukuBesarController extends Controller
          * */ 
         $related=Akun::where('nama-akun','like',$tipePen->{'nama-akun'} )->select('id')->pluck('id')->toArray();
         
-        $saldoAwal=Saldo::whereIn('id-akun', $related)
-            ->whereDate('tanggal','<',$filter->format('Y-m-d'))
-            ->pluck('saldo')->sum();
-        if(!$saldoAwal) $saldoAwal=0;
+        $saldoBerjalan = \App\Saldo::select('id-akun', DB::Raw('SUM(`saldo`) as saldo'))
+            ->where('tanggal', '<', $filter->format('Y-m-') . '01')
+            ->where('tanggal', '>=', $filter->format('Y-') . '01-01')
+            ->where('id-tipe', '<>', 0)
+            ->where('id-akun', '=', $request->akun)
+            ->when($tipe != null, function($q) use($tipeId) {
+                $q->where('id-tipe', '=', $tipeId);
+            })
+            ->groupBy('id-akun')
+            ->first();
+        $awal = \App\Saldo::select('id-akun', DB::Raw('SUM(`saldo_awal`) as saldo'))
+            ->where('tanggal', '=', $filter->format('Y-') . '01-01')
+            ->where('id-tipe', '=', 0)
+            ->where('id-akun', '=', $request->akun)
+            ->groupBy('id-akun')
+            ->first();
+        $sb = isset($saldoBerjalan) ? floatval($saldoBerjalan->saldo) : 0;
+        $saldoAwal = (isset($awal) ? floatval($awal->saldo) : 0) + $sb;
 
         $jurnal = Jurnal::where('validasi', 1)
+            ->where('id-tipe',$tipeId)
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
             ->where(function($q) use($request,$related){
