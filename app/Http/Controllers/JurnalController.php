@@ -136,9 +136,9 @@ class JurnalController extends Controller
             ->whereDate('tanggal','<=',$dateAkhir);
         }, 'a')
         ->when(isset($order), function($q) use ($order, $dir) {
-                $q->orderBy($order, $dir)->orderBy('id','DESC');
+                $q->orderBy($order, $dir)->orderBy('id','ASC')->orderBy('no-ref','ASC');
             }, function($q) {
-                $q->orderBy('tanggal','DESC')->orderBy('id','DESC');
+                $q->orderBy('tanggal','DESC')->orderBy('id','ASC')->orderBy('no-ref','ASC');
         })
         ->when(!empty($search), function($q) use ($search) {
             $q->where('tanggal_formatted', 'LIKE', "%{$search}%")
