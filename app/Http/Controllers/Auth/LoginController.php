@@ -61,6 +61,8 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
+        $metaController = new \App\Http\Controllers\MetaController();
+        $metaController->fetchEnvByYear($request->input('year'));
         Cookie::queue(Cookie::forever('tahun', $request->input('year')));
         Session::put('nama', $user->nama);
         Session::put('nip', $user->nip);
