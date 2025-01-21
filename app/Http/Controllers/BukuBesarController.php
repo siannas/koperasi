@@ -92,7 +92,7 @@ class BukuBesarController extends Controller
             ->orderBy('tanggal', 'ASC')
             ->orderBy('id','ASC')
             ->orderBy('no-ref','ASC')
-            ->get()->sortBy('tanggal');
+            ->get();
 
         return view('bukuBesar', ['currentTipe'=>$tipe, 
                                 'akun'=>$akun, 
@@ -153,7 +153,7 @@ class BukuBesarController extends Controller
             ->orderBy('tanggal', 'ASC')
             ->orderBy('id','ASC')
             ->orderBy('no-ref','ASC')
-            ->get()->sortBy('tanggal');
+            ->get();
         
         $ex = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $ex->getProperties()->setCreator("siannasGG");

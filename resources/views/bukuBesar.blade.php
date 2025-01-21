@@ -64,6 +64,7 @@ active
                 <tr>
                     <th data-priority="1" width="1" class="disabled-sorting"></th>
                     <th data-priority="1">Tanggal</th>
+                    <th data-priority="1">Ref</th>
                     <th data-priority="3">Uraian Transaksi</th>
                     <th data-priority="2" class="text-right">Debit</th>
                     <th data-priority="2" class="text-right">Kredit</th>
@@ -81,12 +82,14 @@ active
                     <th></th>
                     <th></th>
                     <th></th>
+                    <th></th>
                     <th class="text-right">Rp {{indo_num_format($saldoAwal,2)}} </th>
                 </tr>
                 @foreach($jurnal as $unit)
                 <tr>
                     <td></td>
                     <td>{{date_format(date_create($unit->tanggal), "d-m-Y")}}</td>
+                    <td>{{$unit->{'no-ref'} }}</td>
                     <td>{{$unit->keterangan}}</td>
                     <td class="text-right">
                         @if(in_array($unit->{'id-debit'},$related)) 
