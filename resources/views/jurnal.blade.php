@@ -449,10 +449,10 @@ $(document).ready(function() {
                 "orderable": false,
                 "searchable": false,
                 "render": function(data, type, row) {
-                    if (row['validasi'] == 1) {
+                    if (role.includes('Supervisor') && row['validasi'] == 1) {
+                        return '<a href="#" class="btn btn-link text-warning btn-just-icon unvalidasi" data-toggle="modal" data-id="' + data['id'] + '" onclick="unvalidasi(this)"><i class="material-icons">lock_open</i></a>'
+                    } else if (row['validasi'] == 1) {
                         return '<a href="#" class="btn btn-link text-dark btn-just-icon disabled"><i class="material-icons">lock</i></a>'
-                    } else if (role.includes('Supervisor') && row['validasi'] == 1) {
-                        return '<a href="#" class="btn btn-link text-warning btn-just-icon unvalidasi" data-toggle="modal" data-target="#modalValidasi" data-id="' + data['id'] + '"><i class="material-icons">lock_open</i></a>'
                     } else if (!role.includes('Supervisor') && row['validasi'] == 1) {
                         return '<a href="#" class="btn btn-link text-dark btn-just-icon disabled" data-toggle="modal" data-target="#modalValidasi"><i class="material-icons">lock</i></a>'
                     } else if (role.includes('Supervisor')) {
@@ -616,7 +616,6 @@ $(document).ready(function() {
 } );
 </script>
 <script type="text/javascript">
-        
     var allVals = [];
 
     $('.validasi').on('click', function(e) {
@@ -650,19 +649,19 @@ $(document).ready(function() {
         });
         $('#modalValidasi').modal('hide');
     });
-
-    $('.unvalidasi').on('click', function(e) {
+    function unvalidasi(e) {
+        console.log("Ingin Menghapus Status");
         allVals = [];
         //$(".unvalidasi").each(function() {
         //    allVals.push($(this).attr('data-id'));
         //});
-        allVals.push($(this).attr('data-id'));
+        allVals.push($(e).attr('data-id'));
         var mainContainer = document.getElementById("peringatanValidasi");
         var submit = document.getElementById("btnValidasi");
 
-        mainContainer.innerHTML = 'Ingin Menghapus Status <b>Validasi</b> Pada Jurnal Ini?';
+        mainContainer.innerHTML = 'Ingin Membatalkan Status <b>Validasi</b>?';
         submit.style.visibility = "visible";
-    });
-    
+        $('#modalValidasi').modal('show');
+    }
 </script>
 @endsection
