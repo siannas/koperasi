@@ -127,7 +127,7 @@ active
                 <tfoot>
                 <tr class="bg-dark text-white">
                     <th></th>
-                    <th colspan="4">Saldo Akhir</th>
+                    <th colspan="5">Saldo Akhir</th>
                     <th class="text-right">Rp {{indo_num_format($jumlah,2)}}</th>
                 </tr>
                 </tfoot>
