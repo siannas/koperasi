@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class AkunNeracaVisibility extends Model
 {
+    use \Staudenmeir\LaravelUpsert\Eloquent\HasUpsertQueries;
+        
+    public $timestamps = false;
+
     protected $table = 'akun_neraca_visibility';
 
     /**

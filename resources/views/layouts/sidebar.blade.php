@@ -56,6 +56,12 @@ $role = explode(', ', $role);
                 <p> Konfigurasi </p>
             </a>
         </li>
+        <li class="nav-item @yield('visibilitasAkunNeracaStatus')">
+            <a class="nav-link" href="{{url('/' . $year . '/visibilitas')}}">
+                <i class="material-icons">visibility</i>
+                <p> Visibilitas </p>
+            </a>
+        </li>
         @endif
         @if($role[0]!='Admin')
         @php

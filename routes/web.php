@@ -85,6 +85,8 @@ Route::middleware(['auth'])->prefix('{tahun}')->group(function () {
         ]);
         Route::get('/config_neraca', 'ConfigController@index');
         Route::post('/config_neraca', 'ConfigController@update')->name('configneraca.update');
+        Route::get('/visibilitas', 'AkunNeracaVisibilityController@index');
+        Route::post('/visibilitas', 'AkunNeracaVisibilityController@update');
     });
 
     /*
