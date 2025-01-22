@@ -30,8 +30,8 @@ class BukuBesarController extends Controller
             $this->filterDate = Carbon::parse($this->year. '-01-01');
         }
         $tipe=$request->get('tipe');
-        $akun=Akun::where('id-tipe', $tipe->id)
-            ->orderBy('no-akun', 'ASC')
+        // $akun=Akun::where('id-tipe', $tipe->id)
+        $akun=Akun::orderBy('no-akun', 'ASC')
             ->get();
         $jurnal=[];
         
@@ -107,7 +107,8 @@ class BukuBesarController extends Controller
 
         $tipe=$request->get('tipe');
         $tipeId = $tipe->id;
-        $akun=Akun::where('id-tipe', $tipe->id)->get();
+        // $akun=Akun::where('id-tipe', $tipe->id)->get();
+        $akun=Akun::orderBy('no-akun', 'ASC')->get();
         
         $filter = Carbon::createFromFormat('m/Y', $request->bulan);
         $month = $filter->month;
