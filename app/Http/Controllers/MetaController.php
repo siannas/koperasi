@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use App\Meta;
+use App\Tipe;
 
 class MetaController extends Controller
 {
@@ -55,5 +56,36 @@ class MetaController extends Controller
     private function recompileConfig()
     {
         Artisan::call('config:cache');
+    }
+
+    /**
+     * @return null|array(
+     *      "visible_categories" => array(1,2,3,4)
+     * )
+     */
+    public static function GetNeracaConfig($key)
+    {
+        if (is_numeric($key)) {
+            switch ($key) {
+                case 2:
+                    $key = Tipe::FC;
+                    break;
+                case 3:
+                    $key = Tipe::TK;
+                    break;
+                case 4:
+                    $key = Tipe::PU;
+                    break;
+                default:
+                    $key = Tipe::SP;
+                    break;
+            }
+        }
+        $config = Meta::where('key', 'LIKE', $key . '_neraca_config')->first();
+        if (is_null($config)) {
+            return null;
+        } else {
+            return json_decode($config->value, true);
+        }
     }
 }

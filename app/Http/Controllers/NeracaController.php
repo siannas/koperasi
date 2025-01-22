@@ -348,6 +348,16 @@ class NeracaController extends Controller
         $saldos = $saldos ? $saldos = array_combine(array_column($saldos->toArray(), 'id-akun'), $saldos->toArray()) : [];
         $saldosBerjalan = $saldosBerjalan ?
             $saldosBerjalan = array_combine(array_column($saldosBerjalan->toArray(), 'id-akun'), $saldosBerjalan->toArray()) : [];
+        
+        # get neraca config
+        $visibleCategories = null;
+        if($tipe){
+            $config = MetaController::GetNeracaConfig($tipe);
+            if ($config) {
+                $visibleCategories = $config['visible_categories'];
+            }
+        }
+
         # get shu formula
         $meta = [];
         $metaForeKey="shu_".strtolower($slug).'_';
@@ -385,6 +395,10 @@ class NeracaController extends Controller
         $saldoAwalAsetTotal = 0;
         $saldoAwalBebanTotal = 0;
         foreach ($categories as $category) {
+            # filter visible categories
+            if (!is_null($visibleCategories) && !in_array($category->id, $visibleCategories)) {
+                continue;
+            }
             $childs = [];
             $saldoAwal = 0;
             $fac = $category['tipe-pendapatan']  == 'kredit' ? -1 : 1;
