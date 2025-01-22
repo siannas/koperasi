@@ -351,11 +351,13 @@ class NeracaController extends Controller
         
         # get neraca config
         $visibleCategories = null;
+        $visibleAkuns = null;
         if($tipe){
             $config = MetaController::GetNeracaConfig($tipe);
             if ($config) {
                 $visibleCategories = $config['visible_categories'];
             }
+            $visibleAkuns = AkunNeracaVisibilityController::GetMap($this->year, $tipe);
         }
 
         # get shu formula
@@ -403,6 +405,13 @@ class NeracaController extends Controller
             $saldoAwal = 0;
             $fac = $category['tipe-pendapatan']  == 'kredit' ? -1 : 1;
             foreach ($category->getAkun as $akun) {
+                if (
+                    !is_null($visibleAkuns) &&
+                    array_key_exists($akun->{'id'}, $visibleAkuns) &&
+                    $visibleAkuns[$akun->{'id'}]['show'] != 1
+                ) {
+                    continue;
+                }
                 $sb = array_key_exists($akun->{'id'}, $saldosBerjalan) ? $fac * floatval($saldosBerjalan[$akun->{'id'}]['saldo']) : 0;
                 if ($akun->id == Akun::SHU_BERJALAN_ID) {
                     $childs[] = [
