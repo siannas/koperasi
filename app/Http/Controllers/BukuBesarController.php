@@ -46,7 +46,9 @@ class BukuBesarController extends Controller
     public function filter(Request $request){
         $tipe=$request->get('tipe');
         $tipeId = $tipe->id;
-        $akun=Akun::where('id-tipe', $tipe->id)->get();
+        // $akun=Akun::where('id-tipe', $tipe->id)->get();
+        $akun=Akun::orderBy('no-akun', 'ASC')
+            ->get();
         
         $filter = Carbon::createFromFormat('m/Y', $request->bulan);
         $month = $filter->month;
