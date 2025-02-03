@@ -46,7 +46,7 @@ active
                 <div class="row" style="margin-top: -8px;">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select id="selectdebit" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Akun Debit" name="id-debit" required>
+                            <select id="selectdebit" class="selectpicker" data-live-search="true" data-size="7" data-style="btn btn-primary btn-round" title="Akun Debit" name="id-debit" required>
                                 @foreach($akuns as $a)
                                 <option value="{{$a->id}}">{{$a->{'no-akun'} .  " - " .  $a->{'nama-akun'} }}</option>
                                 @endforeach
@@ -60,7 +60,7 @@ active
                     </div>
                     <div class="col-md-6">
                     <div class="form-group">
-                        <select id="selectdebit" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Akun Kredit" name="id-kredit" required>
+                        <select id="selectkredit" class="selectpicker" data-live-search="true" data-size="7" data-style="btn btn-primary btn-round" title="Akun Kredit" name="id-kredit" required>
                             @foreach($akuns as $a)
                             <option value="{{$a->id}}">{{$a->{'no-akun'} .  " - " .  $a->{'nama-akun'} }}</option>
                             @endforeach
@@ -113,7 +113,7 @@ active
             <div class="row" style="margin-top: -8px;">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <select id="selectdebit-edit" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Akun Debit" name="id-debit" required>
+                        <select id="selectdebit-edit" class="selectpicker" data-live-search="true" data-size="7" data-style="btn btn-primary btn-round" title="Akun Debit" name="id-debit" required>
                             @foreach($akuns as $a)
                             <option value="{{$a->id}}">{{$a->{'no-akun'} .  " - " .  $a->{'nama-akun'} }}</option>
                             @endforeach
@@ -127,7 +127,7 @@ active
                 </div>
                 <div class="col-md-6">
                 <div class="form-group">
-                        <select id="selectdebit-edit" class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Akun Kredit" name="id-kredit" required>
+                        <select id="selectkredit-edit" class="selectpicker" data-live-search="true" data-size="7" data-style="btn btn-primary btn-round" title="Akun Kredit" name="id-kredit" required>
                             @foreach($akuns as $a)
                             <option value="{{$a->id}}">{{$a->{'no-akun'} .  " - " .  $a->{'nama-akun'} }}</option>
                             @endforeach
