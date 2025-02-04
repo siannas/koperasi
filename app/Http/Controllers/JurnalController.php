@@ -344,7 +344,8 @@ class JurnalController extends Controller
             ->with('akunDebit')
             ->with('akunKredit')
             ->orderBy('tanggal','ASC')
-            ->orderBy('id','DESC')
+            ->orderBy('id','ASC')
+            ->orderBy('no-ref','ASC')
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
             ->get();
