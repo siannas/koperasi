@@ -92,8 +92,8 @@ class BukuBesarController extends Controller
                   ->orWhereIn('id-kredit', $related);
             })
             ->orderBy('tanggal', 'ASC')
-            ->orderBy('id','ASC')
             ->orderBy('no-ref','ASC')
+            ->orderBy('id','ASC')
             ->get();
 
         return view('bukuBesar', ['currentTipe'=>$tipe, 
@@ -154,8 +154,8 @@ class BukuBesarController extends Controller
                   ->orWhereIn('id-kredit', $related);
             })
             ->orderBy('tanggal', 'ASC')
-            ->orderBy('id','ASC')
             ->orderBy('no-ref','ASC')
+            ->orderBy('id','ASC')
             ->get();
         
         $ex = new \PhpOffice\PhpSpreadsheet\Spreadsheet();

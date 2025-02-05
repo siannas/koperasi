@@ -136,9 +136,9 @@ class JurnalController extends Controller
             ->whereDate('tanggal','<=',$dateAkhir);
         }, 'a')
         ->when(isset($order), function($q) use ($order, $dir) {
-                $q->orderBy($order, $dir)->orderBy('id','ASC')->orderBy('no-ref','ASC');
+                $q->orderBy($order, $dir)->orderBy('no-ref','ASC')->orderBy('id','ASC');
             }, function($q) {
-                $q->orderBy('tanggal','DESC')->orderBy('id','ASC')->orderBy('no-ref','ASC');
+                $q->orderBy('tanggal','DESC')->orderBy('no-ref','ASC')->orderBy('id','ASC');
         })
         ->when(!empty($search), function($q) use ($search) {
             $q->where('tanggal_formatted', 'LIKE', "%{$search}%")
@@ -344,8 +344,8 @@ class JurnalController extends Controller
             ->with('akunDebit')
             ->with('akunKredit')
             ->orderBy('tanggal','ASC')
-            ->orderBy('id','ASC')
             ->orderBy('no-ref','ASC')
+            ->orderBy('id','ASC')
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
             ->get();
